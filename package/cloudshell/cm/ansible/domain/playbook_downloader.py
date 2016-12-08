@@ -1,6 +1,15 @@
 import os
 from file_system_service import FileSystemService
+from requests.auth import HTTPBasicAuth
+import requests
+import rfc6266
+import urllib
 
+
+class HttpAuth(object):
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
 class PlaybookDownloader(object):
     def __init__(self, file_system):
@@ -16,10 +25,24 @@ class PlaybookDownloader(object):
         :param HttpAuth auth: Authentication to the http server (optional).
         :param str target_folder: The target folder to download the files to.
         """
-        pass
 
 
-class HttpAuth(object):
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+        req = requests.get(url,auth=(auth.username,auth.password) ,stream=True)
+        CHUNK_SIZE = 1024*1024;
+        # TODO: fallback in case no contect available and extract header
+        parse = rfc6266.parse_requests_response(req,relaxed=True)
+        filename = parse.filename_unsafe
+
+        if not fileName:
+            filename = urllib.unquote(req.url[req.url.rfind('/'):])
+
+        with open(target_folder+"/"+fileName,"wb") as file:
+             for chunk in req.iter_content(CHUNK_SIZE):
+                 if chunk:
+                     file.write(chunk)
+
+
+def test():
+    PlaybookDownloader('saas').get('http://localhost:8091/artifactory/ext-release-local/CloudShell Sandbox Template.zip',HttpAuth('admin','password'),"C:")
+test()
+
