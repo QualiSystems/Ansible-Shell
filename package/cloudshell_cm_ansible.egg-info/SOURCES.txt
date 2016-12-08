@@ -1,0 +1,15 @@
+MANIFEST.in
+requirements.txt
+setup.py
+test_requirements.txt
+version.txt
+cloudshell/__init__.py
+cloudshell/cm/__init__.py
+cloudshell/cm/ansible/__init__.py
+cloudshell/cm/ansible/ansible_shell.py
+cloudshell_cm_ansible.egg-info/PKG-INFO
+cloudshell_cm_ansible.egg-info/SOURCES.txt
+cloudshell_cm_ansible.egg-info/dependency_links.txt
+cloudshell_cm_ansible.egg-info/requires.txt
+cloudshell_cm_ansible.egg-info/top_level.txt
+tests/__init__.py

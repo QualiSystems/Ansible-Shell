@@ -1,0 +1,15 @@
+Metadata-Version: 1.1
+Name: cloudshell-cm-ansible
+Version: 1.0.0
+Summary: A repository for projects providing out of the box capabilities within CloudShell remotely configure vm's
+Home-page: UNKNOWN
+Author: Quali
+Author-email: support@qualisystems.com
+License: UNKNOWN
+Description: UNKNOWN
+Keywords: ansible cloudshell configuration configuration-manager
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Topic :: Software Development :: Libraries
+Classifier: License :: OSI Approved :: Apache Software License
+Requires: jsonpickle
