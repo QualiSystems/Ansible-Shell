@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="095e33f3-b7f3-4d5a-a3dd-54113cb5e481" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Ansible-Shell.iml" afterPath="$PROJECT_DIR$/.idea/Ansible-Shell.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package/cloudshell/cm/ansible/ansible_shell.py" afterPath="$PROJECT_DIR$/package/cloudshell/cm/ansible/ansible_shell.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/playbook_downloader.py" afterPath="$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/playbook_downloader.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package/requirements.txt" afterPath="$PROJECT_DIR$/package/requirements.txt" />
     </list>
     <ignored path="AWS-Shell.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -27,21 +25,33 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ansible_shell.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ansible_shell.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/ansible_shell.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+            <state relative-caret-position="357">
+              <caret line="21" column="60" selection-start-line="21" selection-start-column="60" selection-end-line="21" selection-end-column="60" />
+              <folding>
+                <element signature="e#0#79#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="driver.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Ansible-Shell/drivers/ansible_shell/src/driver.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="3" column="15" selection-start-line="3" selection-start-column="15" selection-end-line="3" selection-end-column="15" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="inventory_file_creator.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="inventory_file_creator.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/inventory_file_creator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="27" column="90" selection-start-line="27" selection-start-column="83" selection-end-line="27" selection-end-column="90" />
+            <state relative-caret-position="234">
+              <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -52,9 +62,11 @@
       <file leaf-file-name="playbook_downloader.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/playbook_downloader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="14" selection-start-line="4" selection-start-column="7" selection-end-line="4" selection-end-column="14" />
-              <folding />
+            <state relative-caret-position="302">
+              <caret line="25" column="15" selection-start-line="25" selection-start-column="15" selection-end-line="25" selection-end-column="15" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -110,15 +122,16 @@
         <option value="$PROJECT_DIR$/killall.bat" />
         <option value="$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/InventoryFileCreator.py" />
         <option value="$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/file_system_service.py" />
-        <option value="$PROJECT_DIR$/package/cloudshell/cm/ansible/ansible_shell.py" />
         <option value="$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/inventory_file_creator.py" />
-        <option value="$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/playbook_downloader.py" />
         <option value="$PROJECT_DIR$/package/requirements.txt" />
+        <option value="$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/playbook_downloader.py" />
+        <option value="$PROJECT_DIR$/package/cloudshell/cm/ansible/ansible_shell.py" />
+        <option value="$PROJECT_DIR$/Ansible-Shell/drivers/ansible_shell/src/driver.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1912" />
+    <option name="x" value="-8" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
     <option name="height" value="1056" />
@@ -148,7 +161,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -191,18 +204,100 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="cloudformation" />
+              <option name="myItemId" value="package" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloudshell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ansible-Shell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ansible-Shell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="package" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloudshell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cm" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ansible-Shell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ansible-Shell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="package" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloudshell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cm" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ansible" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ansible-Shell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ansible-Shell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="package" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloudshell" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cm" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ansible" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="domain" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="settings.github" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
   <component name="RecentsManager">
@@ -400,26 +495,26 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="false" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2484375" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32972974" sideWeight="0.49815693" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32972974" sideWeight="0.4918378" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32972974" sideWeight="0.49605057" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2527646" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23784356" sideWeight="0.49605057" order="7" side_tool="false" content_ui="tabs" x="569" y="465" width="1893" height="299" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23784356" sideWeight="0.49375" order="7" side_tool="false" content_ui="tabs" x="569" y="465" width="1893" height="299" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23784356" sideWeight="0.50625" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22044729" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23891892" sideWeight="0.50394946" order="3" side_tool="true" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -440,8 +535,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/drivers/aws_shell_specs/deploy_aws_ec2_ami_instance.ini" />
-    <entry file="file://$PROJECT_DIR$/drivers/deployment_drivers/aws_ec2_ami_instance/driver.py" />
     <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/common/deploy_data_holder.py" />
     <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -598,7 +691,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="34" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -626,7 +718,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="60" selection-start-line="3" selection-start-column="53" selection-end-line="3" selection-end-column="60" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -663,27 +754,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/ansible_shell.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/package/MANIFEST.in">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/playbook_downloader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="14" selection-start-line="4" selection-start-column="7" selection-end-line="4" selection-end-column="14" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -691,7 +765,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-2091">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -699,7 +772,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="565">
           <caret line="823" column="1" selection-start-line="823" selection-start-column="1" selection-end-line="823" selection-end-column="1" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -707,7 +779,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
           <caret line="16" column="10" selection-start-line="16" selection-start-column="10" selection-end-line="16" selection-end-column="10" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -719,12 +790,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/inventory_file_creator.py">
+    <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/playbook_downloader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="27" column="90" selection-start-line="27" selection-start-column="83" selection-end-line="27" selection-end-column="90" />
+        <state relative-caret-position="302">
+          <caret line="25" column="15" selection-start-line="25" selection-start-column="15" selection-end-line="25" selection-end-column="15" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/tfs/QualiSystems/Trunk/Drop/TestShell/ExecutionServer/python/2.7.10/Lib/site-packages/cloudshell/shell/core/session/logging_session.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-255">
+          <caret line="9" column="8" selection-start-line="9" selection-start-column="8" selection-end-line="9" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/domain/inventory_file_creator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Ansible-Shell/drivers/ansible_shell/src/driver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="15" selection-start-line="3" selection-start-column="15" selection-end-line="3" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package/cloudshell/cm/ansible/ansible_shell.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" column="60" selection-start-line="21" selection-start-column="60" selection-end-line="21" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#79#0" expanded="true" />
           </folding>
         </state>
       </provider>

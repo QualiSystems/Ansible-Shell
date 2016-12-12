@@ -35,5 +35,6 @@ class AnsibleShell(object):
             logger.info('Running the playbook')
 
 
+
             logger.info('Delete the temp folder')
             self.fileSystem.deleteTempFolder(root)

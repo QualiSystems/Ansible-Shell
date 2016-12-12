@@ -33,16 +33,10 @@ class PlaybookDownloader(object):
         parse = rfc6266.parse_requests_response(req,relaxed=True)
         filename = parse.filename_unsafe
 
-        if not fileName:
+        if not filename:
             filename = urllib.unquote(req.url[req.url.rfind('/'):])
 
-        with open(target_folder+"/"+fileName,"wb") as file:
+        with open(target_folder+"/"+filename,"wb") as file:
              for chunk in req.iter_content(CHUNK_SIZE):
                  if chunk:
                      file.write(chunk)
-
-
-def test():
-    PlaybookDownloader('saas').get('http://localhost:8091/artifactory/ext-release-local/CloudShell Sandbox Template.zip',HttpAuth('admin','password'),"C:")
-test()
-
