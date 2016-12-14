@@ -1,3 +1,4 @@
+import os
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceRemoteCommandContext
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
@@ -23,7 +24,7 @@ class AnsibleShell(object):
             root = self.fileSystem.createTempFolder()
 
             logger.info('Creating inventory file')
-            with InventoryFileCreator(self.fileSystem, root) as creator:
+            with InventoryFileCreator(self.fileSystem, os.path.join(root, 'hosts')) as creator:
                 creator.add_groups(['servers/web', 'windows/web'])
                 creator.add_host('192.168.23.45', 'web')
                 creator.add_vars('192.168.23.45', {'ram': '1GB', 'win': 'true', 'quick': 'true'})
