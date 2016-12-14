@@ -1,16 +1,15 @@
-import os
+from collections import OrderedDict
 from file_system_service import FileSystemService
 
 
 class InventoryFileCreator(object):
-    def __init__(self, file_system, root_folder):
+    def __init__(self, file_system, file_path):
         """
         :param FileSystemServicefile_system:
         :param str root_folder:
         """
         self.file_system = file_system
-        self.file_path = os.path.join(root_folder, 'hosts')
-        #self.file = file_system.createFile(file_path)
+        self.file_path = file_path#os.path.join(root_folder, 'hosts')
 
     def __enter__(self):
         """
@@ -20,17 +19,14 @@ class InventoryFileCreator(object):
         return self.inventory_file
 
     def __exit__(self, type, value, traceback):
-        file_stream = self.file_system.createFile(self.file_path)
+        self.file_system.create_file(self.file_path)
+        file_stream = self.file_system.open_file(self.file_path)
         self.inventory_file.write_to_file(file_stream)
         file_stream.flush()
         file_stream.close()
 
 
 class InventoryFile(object):
-    # def __str__(self):
-    #     return self.name + ' Groups:' + ','.join((g.name for g in self.groups), []) + ' Hosts:' + ','.join(
-    #         (h.name for h in self.hosts), [])
-
     def __init__(self):
         self.groups = []
         self.hosts = []
@@ -91,26 +87,27 @@ class InventoryFile(object):
         lines = []
         for group in self.groups:
             if len(group.groups) > 0:
-                lines.append('\n[%s:children]'%group.name)
+                lines.append('\n\n[%s:children]'%group.name)
                 for child in group.groups:
-                    lines.append(child.name)
+                    lines.append('\n' + child.name)
             if len(group.hosts) > 0:
-                lines.append('\n[%s]' % group.name)
+                lines.append('\n\n[%s]' % group.name)
                 for host in group.hosts:
-                    lines.append(host.name)
+                    lines.append('\n' + host.name)
         for host in self.hosts:
             if len(host.vars) > 0:
-                lines.append('\n[%s:vars]' % host.name)
+                lines.append('\n\n[%s:vars]' % host.name)
                 for key, value in host.vars.iteritems():
-                    lines.append(str(key) + '= ' + str(value))
-        lines = [line+'\n' for line in lines]
+                    lines.append('\n' + str(key) + '=' + str(value))
+        if len(lines) > 0:
+            lines[0] = lines[0].strip('\n')
         file.writelines(lines)
 
 
 class Host(object):
     def __init__(self, name):
         self.name = name
-        self.vars = {}
+        self.vars = OrderedDict()
 
 
 class Group(object):
@@ -118,11 +115,3 @@ class Group(object):
         self.name = name
         self.groups = []
         self.hosts = []
-
-
-# with InventoryFileCreator(FileSystemService(), "c:\\") as i:
-#     i.add_groups(["servers/web/windows", "servers/DB"])
-#     i.add_host("x.x.x.x", "servers/web")
-#     i.add_vars("x.x.x.x", {'a': 1, 'b': 2})
-#     i.add_vars("x.x.x.x", {'c': 11, 'd': 22})
-# print 'ds'
