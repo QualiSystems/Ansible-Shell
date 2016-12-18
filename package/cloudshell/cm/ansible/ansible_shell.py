@@ -6,35 +6,51 @@ from domain.file_system_service import FileSystemService
 from domain.inventory_file_creator import InventoryFileCreator
 from domain.playbook_downloader import PlaybookDownloader
 from domain.playbook_downloader import HttpAuth
+from domain.ansible_configutarion import AnsibleConfiguration
 
 
 class AnsibleShell(object):
     def __init__(self):
-        self.fileSystem = FileSystemService()
+        self.file_system = FileSystemService()
+        self.downloader = PlaybookDownloader(self.file_system)
 
-    def run_ansible_test(self, command_context):
+    def execute_playbook(self, command_context, ansi_conf):
         """
-        Will delete the reservation vpc and all related resources including all remaining instances
         :param ResourceCommandContext command_context:
-        :return: json string response
-        :rtype: str
+        :param AnsibleConfiguration ansi_conf:
         """
         with LoggingSessionContext(command_context) as logger:
             logger.info('Creating temp ansible root folder')
-            root = self.fileSystem.createTempFolder()
+            root = self.file_system.createTempFolder()
+            logger.info('Done.\n\t root=%s'%root)
 
             logger.info('Creating inventory file')
-            with InventoryFileCreator(self.fileSystem, os.path.join(root, 'hosts')) as creator:
-                creator.add_groups(['servers/web', 'windows/web'])
-                creator.add_host('192.168.23.45', 'web')
-                creator.add_vars('192.168.23.45', {'ram': '1GB', 'win': 'true', 'quick': 'true'})
+            with InventoryFileCreator(self.file_system, os.path.join(root, 'hosts')) as inventory:
+                for host_conf in ansi_conf.hosts_conf:
+                    inventory.add_host(host_conf.ip)
+                    inventory.set_host_groups(host_conf.ip, host_conf.groups)
+                    inventory.set_host_vars(host_conf.ip, host_conf.parameters)
+                    inventory.set_host_conn(host_conf.ip, host_conf.connection_method)
+                    if host_conf.access_key is not None:
+                        file_name = host_conf.ip + '_access_key.pem'
+                        with self.file_system.open_file(os.path.join(root, file_name)) as file_stream:
+                            file_stream.write(host_conf.access_key)
+                        inventory.set_host_conn_file(host_conf.ip, file_name)
+                    else:
+                        inventory.set_host_user(host_conf.ip, host_conf.username)
+                        inventory.set_host_pass(host_conf.ip, host_conf.password)
+                logger.info('Done.\n\t hosts=%s' % inventory.to_file_content())
 
             logger.info('Downloading playbook file')
-            downloader = PlaybookDownloader(self.fileSystem)
-            downloader.get('http:\\blabla.com\playbook123.zip', HttpAuth('admin', 'password1'), root)
+            auth = None
+            if ansi_conf.playbook_repo.username is not None:
+                auth = HttpAuth(ansi_conf.playbook_repo.username, ansi_conf.playbook_repo.password)
+            file_name,file_size = self.downloader.get(ansi_conf.playbook_repo.url, auth, root)
+            logger.info('Done.\n\t file=%s(%s bytes)'%(file_name, file_size))
 
             logger.info('Running the playbook')
+            pass
 
-
-            logger.info('Delete the temp folder')
-            self.fileSystem.deleteTempFolder(root)
+            logger.info('Deleting the temp folder')
+            self.file_system.deleteTempFolder(root)
+            logger.info('Done.')
