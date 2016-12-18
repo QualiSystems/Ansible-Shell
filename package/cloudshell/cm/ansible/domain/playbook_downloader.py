@@ -32,7 +32,6 @@ class PlaybookDownloader(object):
         """
         req = requests.get(url, auth=(auth.username, auth.password), stream=True)
 
-        # TODO: fallback in case no contect available and extract header
         parse = rfc6266.parse_requests_response(req, relaxed=True)
         file_name = parse.filename_unsafe
 
