@@ -9,6 +9,7 @@ from domain.playbook_downloader import HttpAuth
 from domain.ansible_configutarion import AnsibleConfiguration
 from domain.ansible_command_executor import AnsibleCommandExecutor
 from domain.output.ansibleResult import AnsiblePlaybookParser
+import zipfile
 
 
 
@@ -16,6 +17,33 @@ class AnsibleShell(object):
     def __init__(self):
         self.file_system = FileSystemService()
         self.downloader = PlaybookDownloader(self.file_system)
+
+    def _getPlaybooknameFromZip(self, zipFileName, extractDir, logger):
+        logger.info('Zip file was found, extracting file:%s' % (zipFileName))
+        zip = zipfile.ZipFile(zipFileName, 'r')
+        try:
+            zip.extractall(extractDir)
+        except Exception as e:
+            logger.info('Failed to extract zip\n\t %s' % (e.message))
+        finally:
+            zip.close()
+        yamlFiles = []
+        for yamlFile in os.listdir(extractDir):
+            if yamlFile.endswith(".yaml") or yamlFile.endswith(".yml"):
+                yamlFiles.append(yamlFile)
+                break;
+        if yamlFiles.count() > 1:
+            playbook_name = next((pName for pName in yamlFiles if pName == "site.yaml" or pName == "site.yml"), None)
+            for fileName in yamlFiles:
+                if fileName == "site.yaml" or fileName == "site.yaml":
+                    playbook_name = fileName;
+                    break;
+        else:
+            playbook_name = yamlFiles[0]
+        if not playbook_name:
+            raise Exception("playbook file name was not found in zip file")
+        logger.info('Found playbook: \'%s\' in zip file' % (playbook_name))
+        return playbook_name
 
     def execute_playbook(self, command_context, ansi_conf):
         """
@@ -50,13 +78,14 @@ class AnsibleShell(object):
             if ansi_conf.playbook_repo.username is not None:
                 auth = HttpAuth(ansi_conf.playbook_repo.username, ansi_conf.playbook_repo.password)
             playbook_name,playbook_size = self.downloader.get(ansi_conf.playbook_repo.url, auth, root)
-            #TODO: extract all files if zip, and verify only one yaml/yml file exist, if many yaml/yml take site.yaml/yml
-            logger.info('Done.\n\t file=%s(%s bytes)'%(playbook_name, playbook_size))
+            logger.info('Done.\n\t file=%s(%s bytes)' % (playbook_name, playbook_size))
+
+            if playbook_name.endswith(".zip"):
+                playbook_name = self._getPlaybooknameFromZip(playbook_name,root,logger)
 
             logger.info('Running the playbook')
             ansibleParser = AnsiblePlaybookParser()
             ansibleResult = AnsibleCommandExecutor(ansibleParser,playbook_name,inventoryFileName).executeCommand()
-
 
             logger.info('Deleting the temp folder')
             self.file_system.deleteTempFolder(root)

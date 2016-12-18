@@ -10,7 +10,17 @@ class AnsibleCommandExecutor(object):
 
     def executeCommand(self, args = None):
         shellCommand = self._createShellCommand(args)
-        output = subprocess.check_output(shellCommand)
+        process = subprocess.Popen(shellCommand, shell=True, stdout=subprocess.PIPE)
+        output=''
+        CUNK_TO_READ = 512
+
+        while True:
+            pOut = process.stdout.read(CUNK_TO_READ)
+            if not pOut and process.poll() != None:
+                break
+            output += pOut
+            #TODO: write to output window. via api command
+        # output = subprocess.check_output(shellCommand)
         return self.outputParser.parse(output)
 
     def _createShellCommand(self, args):
