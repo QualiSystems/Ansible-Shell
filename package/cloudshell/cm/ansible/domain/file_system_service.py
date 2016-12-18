@@ -25,12 +25,12 @@ class FileSystemService(object):
         Create (or override) a new file.
         :param str path: The path of the new file (example: 'c:\tmp\file.txt}
         """
-        open(path, 'w+').close()
+        open(path, 'wb')
 
-    def open_file(self, path):
-        """
-        Open file for write
-        :param str path: The path of the new file (example: 'c:\tmp\file.txt}
-        :return: The file.
-        """
-        return open(path, 'a')
+    # def open_file(self, path):
+    #     """
+    #     Open file for write
+    #     :param str path: The path of the new file (example: 'c:\tmp\file.txt}
+    #     :rtype: file
+    #     """
+    #     return open(path, 'a')

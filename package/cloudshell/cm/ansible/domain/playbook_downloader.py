@@ -11,10 +11,13 @@ class HttpAuth(object):
         self.username = username
         self.password = password
 
+
 class PlaybookDownloader(object):
+    CHUNK_SIZE = 1024 * 1024
+
     def __init__(self, file_system):
         """
-        :param FileSystemServicefile_system:
+        :param FileSystemService file_system:
         """
         self.file_system = file_system
 
@@ -24,25 +27,22 @@ class PlaybookDownloader(object):
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
         :param str target_folder: The target folder to download the files to.
+        :rtype [str,int]
+        :return The downloaded file name
         """
+        req = requests.get(url, auth=(auth.username, auth.password), stream=True)
 
-
-        req = requests.get(url,auth=(auth.username,auth.password) ,stream=True)
-        CHUNK_SIZE = 1024*1024;
         # TODO: fallback in case no contect available and extract header
-        parse = rfc6266.parse_requests_response(req,relaxed=True)
-        filename = parse.filename_unsafe
+        parse = rfc6266.parse_requests_response(req, relaxed=True)
+        file_name = parse.filename_unsafe
 
-        if not fileName:
-            filename = urllib.unquote(req.url[req.url.rfind('/'):])
+        if not file_name:
+            file_name = urllib.unquote(req.url[req.url.rfind('/'):])
 
-        with open(target_folder+"/"+fileName,"wb") as file:
-             for chunk in req.iter_content(CHUNK_SIZE):
-                 if chunk:
-                     file.write(chunk)
+        with self.file_system(os.path.join(target_folder, file_name)) as file:
+            for chunk in req.iter_content(PlaybookDownloader.CHUNK_SIZE):
+                if chunk:
+                    file.write(chunk)
+            file_size = file.tell()
 
-
-def test():
-    PlaybookDownloader('saas').get('http://localhost:8091/artifactory/ext-release-local/CloudShell Sandbox Template.zip',HttpAuth('admin','password'),"C:")
-test()
-
+        return file_name, file_size

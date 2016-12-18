@@ -9,7 +9,7 @@ class InventoryFileCreator(object):
         :param str root_folder:
         """
         self.file_system = file_system
-        self.file_path = file_path#os.path.join(root_folder, 'hosts')
+        self.file_path = file_path  # os.path.join(root_folder, 'hosts')
 
     def __enter__(self):
         """
@@ -19,14 +19,16 @@ class InventoryFileCreator(object):
         return self.inventory_file
 
     def __exit__(self, type, value, traceback):
-        self.file_system.create_file(self.file_path)
-        file_stream = self.file_system.open_file(self.file_path)
-        self.inventory_file.write_to_file(file_stream)
-        file_stream.flush()
-        file_stream.close()
+        with self.file_system.create_file(self.file_path) as file_stream:
+            file_stream.writelines(self.inventory_file.to_file_content())
 
 
 class InventoryFile(object):
+    ANSIBLE_USER = 'ansible_user'
+    ANSIBLE_PASSWORD = 'ansible_ssh_pass'
+    ANSIBLE_CONNECTION = 'ansible_connection'
+    ANSIBLE_CONNECTION_FILE = 'ansible_ssh_private_key_file'
+
     def __init__(self):
         self.groups = []
         self.hosts = []
@@ -50,44 +52,89 @@ class InventoryFile(object):
                         self.groups.append(child)
                 groups = child.groups
 
-    def add_host(self, host_name, group_path):
+    def add_host(self, host_name, set_default_group=False):
         """
         Add host to inventory.
-        :param str host: The host name/ip to add.
-        :param str group_path: The group of the host (optional).
+        :param str host_name: The host name/ip to add.
+        :param bool set_default_group: If set to True, this host will be added to group 'all'
         """
-        groups = self.groups
+        if len([h for h in self.hosts if h.name == host_name]) > 0:
+            raise ValueError('Failed to add host \'%s\'. Host with the same name already exists.' % host_name)
         host = Host(host_name)
-        if group_path is not None:
-            for part in group_path.split('/'):
-                group = next((g for g in groups if g.name == part), None)
-                if group is None:
-                    raise ValueError(
-                        'Failed to add host \'%s\' to group \'%s\' because is not found.' % (host, group_path))
-            group.hosts.append(host)
-        if next((h for h in self.hosts if h.name == host_name), None) is None:
-            self.hosts.append(host)
+        self.hosts.append(host)
+        if set_default_group:
+            self.get_or_add_group("all").hosts.append(host)
 
-    def add_vars(self, host_name, parameters):
+    def set_host_groups(self, host_name, group_paths):
+        """
+        Add host to inventory.
+        :param str host_name: The host name/ip to add.
+        :param list[str] group_paths: The groups of the host.
+        """
+        host = self.get_host(host_name)
+        for group_path in group_paths:
+            group = self.get_or_add_group(group_path)
+            group.hosts.append(host)
+
+    def set_host_vars(self, host_name, parameters):
         """
         Add host parameters to inventory.
         :param Dictionary paramters:
         """
+        host = self.get_host(host_name);
+        host.vars.update(parameters)
+
+    def set_host_conn(self, host_name, connection_type):
+        host = self.get_host(host_name)
+        host.vars[InventoryFile.ANSIBLE_CONNECTION] = connection_type
+
+    def set_host_conn_file(self, host_name, file_path):
+        host = self.get_host(host_name)
+        host.vars[InventoryFile.ANSIBLE_CONNECTION_FILE] = file_path
+
+    def set_host_user(self, host_name, username):
+        host = self.get_host(host_name)
+        host.vars[InventoryFile.ANSIBLE_USER] = username
+
+    def set_host_pass(self, host_name, password):
+        host = self.get_host(host_name)
+        host.vars[InventoryFile.ANSIBLE_PASSWORD] = password
+
+    def get_or_add_group(self, group_path):
+        """
+        :type group_path: str
+        :rtype: Group
+        """
+        groups = self.groups
+        for part in group_path.split('/'):
+            group = next((g for g in groups if g.name == part), None)
+            if group is None:
+                group = Group(part)
+                groups.append(group)
+                if groups != self.groups:
+                    self.groups.append(group)
+            groups = group.groups
+        return group
+
+    def get_host(self, host_name):
+        """
+        :type host_name: str
+        :rtype: Host
+        """
         host = next((h for h in self.hosts if h.name == host_name), None)
         if host is None:
             raise ValueError('Failed to add vars to host \'%s\' because is not found.' % (host_name))
-        host.vars.update(parameters)
 
-    def write_to_file(self, file):
+    def to_file_content(self, file):
         """
         Write inventory data to text file.
         :param file file: The target file.
-        :return:
+        :rtype: list[str]
         """
         lines = []
         for group in self.groups:
             if len(group.groups) > 0:
-                lines.append('\n\n[%s:children]'%group.name)
+                lines.append('\n\n[%s:children]' % group.name)
                 for child in group.groups:
                     lines.append('\n' + child.name)
             if len(group.hosts) > 0:
@@ -101,7 +148,7 @@ class InventoryFile(object):
                     lines.append('\n' + str(key) + '=' + str(value))
         if len(lines) > 0:
             lines[0] = lines[0].strip('\n')
-        file.writelines(lines)
+        return lines
 
 
 class Host(object):
