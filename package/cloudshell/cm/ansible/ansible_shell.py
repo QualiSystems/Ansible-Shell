@@ -1,6 +1,7 @@
 import os
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
+from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 from domain.file_system_service import FileSystemService
 from domain.inventory_file_creator import InventoryFileCreator
@@ -8,7 +9,7 @@ from domain.playbook_downloader import PlaybookDownloader
 from domain.playbook_downloader import HttpAuth
 from domain.ansible_configutarion import AnsibleConfiguration
 from domain.ansible_configutarion import HostConfiguration
-from domain.ansible_command_executor import AnsibleCommandExecutor
+from domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from domain.output.ansibleResult import AnsiblePlaybookParser
 from domain.TempFolderScope import TempFolderScope
 
@@ -17,7 +18,6 @@ class AnsibleShell(object):
     def __init__(self):
         self.file_system = FileSystemService()
         self.downloader = PlaybookDownloader(self.file_system)
-        self.executer = AnsibleCommandExecutor(AnsiblePlaybookParser())
 
     def execute_playbook(self, command_context, ansi_conf):
         """
@@ -33,6 +33,7 @@ class AnsibleShell(object):
                 with self.file_system.create_file('ansible.cfg') as file:
                     file.write('[defaults]'+os.linesep)
                     file.write('host_key_checking = False')
+                    file.write('force_color = 1')
 
                 with InventoryFileCreator(self.file_system, inventory_file_name) as inventory:
                     for host_conf in ansi_conf.hosts_conf:
@@ -72,9 +73,13 @@ class AnsibleShell(object):
                 playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger)
 
                 logger.info('Running the playbook')
-                ansible_result = self.executer.execute_playbook(playbook_name,inventory_file_name)
-                print ansible_result.Success
-                print ansible_result.Result
+                with CloudShellSessionContext(command_context) as session:
+                    output_parser = AnsiblePlaybookParser()
+                    output_writer = ReservationOutputWriter(session, command_context)
+                    executor = AnsibleCommandExecutor(output_parser, output_writer)
+                    ansible_result = executor.execute_playbook(playbook_name,inventory_file_name)
+                #print ansible_result.Success
+                #print ansible_result.Result
 
 
 
