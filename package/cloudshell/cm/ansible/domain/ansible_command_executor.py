@@ -1,5 +1,6 @@
 import subprocess
 from cloudshell.api.cloudshell_api import CloudShellAPISession
+from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
 from cloudshell.shell.core.context import ResourceCommandContext
 
 class AnsibleCommandExecutor(object):
@@ -18,22 +19,17 @@ class AnsibleCommandExecutor(object):
         :type args: list[str]
         :return:
         """
+        max_chunk_read = 512
         shellCommand = self._createShellCommand(playbook_file, inventory_file, args)
         process = subprocess.Popen(shellCommand, shell=True, stdout=subprocess.PIPE)
         output=''
-        CUNK_TO_READ = 512
-
         while True:
-            # line = process.stdout.readline()
-            # if not line:
-            #     break;
-            pOut = process.stdout.read(CUNK_TO_READ)
+            pOut = process.stdout.read(max_chunk_read)
             if process.poll() is not None:
                break
-            self.output_writer.write(pOut)
+            html_converted = UnixToHtmlColorConverter(pOut).convert()
+            self.output_writer.write(html_converted)
             output += pOut
-            #TODO: write to output window. via api command
-        # output = subprocess.check_output(shellCommand)
         return self.output_parser.parse(output)
 
     def _createShellCommand(self, playbook_file, inventory_file, args):
