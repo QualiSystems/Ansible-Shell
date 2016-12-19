@@ -4,15 +4,17 @@ from file_system_service import FileSystemService
 
 
 class InventoryFile(object):
-    def __init__(self, file_system, file_path):
+    def __init__(self, file_system, file_path, logger):
         """
-        :param FileSystemService file_system:
-        :param str file_path:
+        :type file_system: FileSystemService
+        :type file_path: str
+        :type logger: Logger
         """
-        self.groups = []
-        self.hosts = []
         self.file_system = file_system
         self.file_path = file_path
+        self.logger = logger
+        self.groups = []
+        self.hosts = []
 
     def __enter__(self):
         self.logger.info('Creating \'%s\' inventory file ...' % self.file_path)

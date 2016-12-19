@@ -31,17 +31,17 @@ class AnsibleShell(object):
 
                 inventory_file_name = 'hosts'
 
-                with AnsibleConfigFile(self.file_system) as file:
+                with AnsibleConfigFile(self.file_system, logger) as file:
                     file.ignore_ssh_key_checking()
                     file.force_color()
 
-                with InventoryFile(self.file_system, inventory_file_name) as inventory:
+                with InventoryFile(self.file_system, inventory_file_name, logger) as inventory:
                     for host_conf in ansi_conf.hosts_conf:
                         inventory.add_host(host_conf.ip)
                         inventory.set_host_groups(host_conf.ip, host_conf.groups)
 
                 for host_conf in ansi_conf.hosts_conf:
-                    with HostVarsFile(self.file_system, host_conf.ip) as file:
+                    with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
                         file.add_vars(host_conf.parameters)
                         if host_conf.access_key is not None:
                             file_name = host_conf.ip + '_access_key.pem'
@@ -61,7 +61,7 @@ class AnsibleShell(object):
                     output_parser = AnsiblePlaybookParser()
                     output_writer = ReservationOutputWriter(session, command_context)
                     executor = AnsibleCommandExecutor(output_parser, output_writer)
-                    ansible_result = executor.execute_playbook(playbook_name,inventory_file_name)
+                    ansible_result = executor.execute_playbook(playbook_name,inventory_file_name, logger)
                 #print ansible_result.Success
                 #print ansible_result.Result
 

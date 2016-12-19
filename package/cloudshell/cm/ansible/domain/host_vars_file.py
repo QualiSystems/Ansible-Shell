@@ -1,4 +1,5 @@
 import os
+from logging import Logger
 from file_system_service import FileSystemService
 
 
@@ -9,9 +10,11 @@ class HostVarsFile(object):
     ANSIBLE_CONNECTION = 'ansible_connection'
     ANSIBLE_CONNECTION_FILE = 'ansible_ssh_private_key_file'
 
-    def __init__(self, file_system, host_name):
+    def __init__(self, file_system, host_name, logger):
         """
-        :param FileSystemService file_system:
+        :type file_system: FileSystemService
+        :type host_name: str
+        :type logger: Logger
         """
         self.file_system = file_system
         self.file_path = os.path.join(HostVarsFile.FOLDER_NAME, self.host_name)
