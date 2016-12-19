@@ -84,21 +84,6 @@ class InventoryFile(object):
         host = self.get_host(host_name);
         host.vars.update(parameters)
 
-    def set_host_conn(self, host_name, connection_type):
-        host = self.get_host(host_name)
-        host.vars[InventoryFile.ANSIBLE_CONNECTION] = connection_type
-
-    def set_host_conn_file(self, host_name, file_path):
-        host = self.get_host(host_name)
-        host.vars[InventoryFile.ANSIBLE_CONNECTION_FILE] = file_path
-
-    def set_host_user(self, host_name, username):
-        host = self.get_host(host_name)
-        host.vars[InventoryFile.ANSIBLE_USER] = username
-
-    def set_host_pass(self, host_name, password):
-        host = self.get_host(host_name)
-        host.vars[InventoryFile.ANSIBLE_PASSWORD] = password
 
     def get_or_add_group(self, group_path):
         """
