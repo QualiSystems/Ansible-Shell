@@ -4,7 +4,7 @@ from cloudshell.shell.core.context import ResourceCommandContext, ResourceContex
 from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 from domain.file_system_service import FileSystemService
-from domain.inventory_file_creator import InventoryFileCreator
+from domain.inventory_file import InventoryFile
 from domain.playbook_downloader import PlaybookDownloader
 from domain.playbook_downloader import HttpAuth
 from domain.ansible_configutarion import AnsibleConfiguration
@@ -29,14 +29,13 @@ class AnsibleShell(object):
         with LoggingSessionContext(command_context) as logger:
             with TempFolderScope(self.file_system, logger) as root:
 
-                logger.info('Creating inventory file...')
                 inventory_file_name = 'hosts'
 
                 with AnsibleConfigFile(self.file_system) as file:
                     file.ignore_ssh_key_checking()
                     file.force_color()
 
-                with InventoryFileCreator(self.file_system, inventory_file_name) as inventory:
+                with InventoryFile(self.file_system, inventory_file_name) as inventory:
                     for host_conf in ansi_conf.hosts_conf:
                         inventory.add_host(host_conf.ip)
                         inventory.set_host_groups(host_conf.ip, host_conf.groups)
@@ -56,7 +55,6 @@ class AnsibleShell(object):
                 repo = ansi_conf.playbook_repo
                 auth = HttpAuth(repo.username, repo.password) if repo.username else None
                 playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger)
-
 
                 logger.info('Running the playbook')
                 with CloudShellSessionContext(command_context) as session:
