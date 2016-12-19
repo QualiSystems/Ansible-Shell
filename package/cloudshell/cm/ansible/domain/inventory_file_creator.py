@@ -5,7 +5,7 @@ from file_system_service import FileSystemService
 class InventoryFileCreator(object):
     def __init__(self, file_system, file_path):
         """
-        :param FileSystemServicefile_system:
+        :param FileSystemService file_system:
         :param str root_folder:
         """
         self.file_system = file_system
