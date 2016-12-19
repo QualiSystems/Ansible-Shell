@@ -31,7 +31,7 @@ class PlaybookDownloader(object):
         :rtype [str,int]
         :return The downloaded playbook file name
         """
-        file_name, file_size = self._download(url, auth)
+        file_name, file_size = self._download(url, auth, logger)
 
         if file_name.endswith(".zip"):
             file_name = self._unzip(file_name, logger)
@@ -47,14 +47,14 @@ class PlaybookDownloader(object):
         :return The downloaded file name
         """
         logger.info('Downloading file from \'%s\' ...'%url)
-        req = requests.get(url, auth=(auth.username, auth.password), stream=True)
+        req = requests.get(url, auth=(auth.username, auth.password) if auth else None, stream=True)
 
         parse = rfc6266.parse_requests_response(req, relaxed=True)
         file_name = parse.filename_unsafe
         if not file_name:
             file_name = urllib.unquote(req.url[req.url.rfind('/'):])
 
-        with self.file_system(file_name) as file:
+        with self.file_system.create_file(file_name) as file:
             for chunk in req.iter_content(PlaybookDownloader.CHUNK_SIZE):
                 if chunk:
                     file.write(chunk)
@@ -81,10 +81,10 @@ class PlaybookDownloader(object):
             if zip:
                 zip.close()
 
-        yaml_files = [file_name for file_name in os.listdir("\\") if file_name.endswith(".yaml") or file_name.endswith(".yml")]
-        if yaml_files.count() > 1:
+        yaml_files = [file_name for file_name in os.listdir(".") if file_name.endswith(".yaml") or file_name.endswith(".yml")]
+        if len(yaml_files) > 1:
             playbook_name = next((file_name for file_name in yaml_files if file_name == "site.yaml" or file_name == "site.yml"), None)
-        if yaml_files.count() == 1:
+        if len(yaml_files) == 1:
             playbook_name = yaml_files[0]
         if not playbook_name:
             raise Exception("Playbook file name was not found in zip file")

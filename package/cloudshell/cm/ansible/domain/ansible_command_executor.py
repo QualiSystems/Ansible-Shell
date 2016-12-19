@@ -2,7 +2,7 @@ import subprocess
 
 
 class AnsibleCommandExecutor(object):
-    def __init__(self, outputParser, inventory_file):
+    def __init__(self, outputParser):
         self.outputParser = outputParser
 
     def execute_playbook(self, playbook_file, inventory_file, args = None):
@@ -13,7 +13,7 @@ class AnsibleCommandExecutor(object):
 
         while True:
             pOut = process.stdout.read(CUNK_TO_READ)
-            if not pOut and process.poll() != None:
+            if process.poll() is not None:
                 break
             output += pOut
             #TODO: write to output window. via api command
@@ -23,9 +23,9 @@ class AnsibleCommandExecutor(object):
     def _createShellCommand(self, playbook_file, inventory_file, args):
         command = "ansible"
 
-        if self.playbookFile:
+        if playbook_file:
             command += "-playbook " + playbook_file
-        if self.inventoryFile:
+        if inventory_file:
             command += " -i " + inventory_file
         if args:
             command += " " + args

@@ -4,7 +4,7 @@ class AnsibleConfiguration(object):
         :type playbook_repo: PlaybookRepository
         :type hosts_conf: list[HostConfiguration]
         """
-        self.playbook_repo = playbook_repo or PlaybookRepository
+        self.playbook_repo = playbook_repo or PlaybookRepository()
         self.hosts_conf = hosts_conf or []
 
 
