@@ -124,11 +124,11 @@ class InventoryFile(object):
         host = next((h for h in self.hosts if h.name == host_name), None)
         if host is None:
             raise ValueError('Failed to add vars to host \'%s\' because is not found.' % (host_name))
+        return host
 
-    def to_file_content(self, file):
+    def to_file_content(self):
         """
         Write inventory data to text file.
-        :param file file: The target file.
         :rtype: list[str]
         """
         lines = []

@@ -13,6 +13,9 @@ class FileSystemService(object):
         """
         return tempfile.mkdtemp()
 
+    def create_folder(self, folder):
+        os.mkdir(folder)
+
     def delete_temp_folder(self, folder):
         """
         Delete a temporary folder from the os tmp folder.
@@ -25,7 +28,7 @@ class FileSystemService(object):
         Create (or override) a new file.
         :param str path: The path of the new file (example: 'c:\tmp\file.txt}
         """
-        open(path, 'wb')
+        return open(path, 'wb')
 
     # def open_file(self, path):
     #     """
