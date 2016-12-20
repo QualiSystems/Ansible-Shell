@@ -35,6 +35,7 @@ class AnsibleShellDriver(ResourceDriverInterface):
         json_obj = json.loads(json_str)
 
         ansi_conf = AnsibleConfiguration()
+        ansi_conf.additional_cmd_args = json_obj['additionalArgs']
         ansi_conf.playbook_repo.url = json_obj['repositoryDetails']['url']
         ansi_conf.playbook_repo.username = json_obj['repositoryDetails']['username']
         ansi_conf.playbook_repo.password = json_obj['repositoryDetails']['password']

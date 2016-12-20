@@ -61,7 +61,7 @@ class AnsibleShell(object):
                     output_parser = AnsiblePlaybookParser()
                     output_writer = ReservationOutputWriter(session, command_context)
                     executor = AnsibleCommandExecutor(output_parser, output_writer)
-                    ansible_result = executor.execute_playbook(playbook_name,inventory_file_name, logger)
+                    ansible_result = executor.execute_playbook(playbook_name,inventory_file_name, logger, ansi_conf.additional_cmd_args)
                 #print ansible_result.Success
                 #print ansible_result.Result
 
