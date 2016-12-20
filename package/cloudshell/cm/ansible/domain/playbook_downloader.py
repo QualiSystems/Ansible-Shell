@@ -6,6 +6,7 @@ from requests.auth import HTTPBasicAuth
 import requests
 import rfc6266
 import urllib
+from logging import Logger
 
 
 class HttpAuth(object):
@@ -28,6 +29,7 @@ class PlaybookDownloader(object):
         Download the file from the url (unzip if needed).
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
+        :param Logger logger:
         :rtype [str,int]
         :return The downloaded playbook file name
         """
@@ -43,6 +45,7 @@ class PlaybookDownloader(object):
         Download the file from the url.
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
+        :param Logger logger:
         :rtype [str,int]
         :return The downloaded file name
         """
@@ -65,8 +68,8 @@ class PlaybookDownloader(object):
 
     def _unzip(self, file_name, logger):
         """
-        :param str file_name:
-        :param logger:
+        :type file_name: str
+        :type logger: Logger
         :return: Playbook file name
         :rtype str
         """

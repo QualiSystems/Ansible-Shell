@@ -1,11 +1,12 @@
 import os
 from file_system_service import FileSystemService
-
+from logging import Logger
 
 class TempFolderScope(object):
     def __init__(self, file_system, logger):
         """
         :type file_system: FileSystemService
+        :type logger: Logger
         """
         self.file_system = file_system
         self.logger = logger
