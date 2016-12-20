@@ -3,6 +3,7 @@ import time
 import os
 from logging import Logger
 from cloudshell.api.cloudshell_api import CloudShellAPISession
+from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
 from cloudshell.shell.core.context import ResourceCommandContext
 
 
@@ -25,22 +26,20 @@ class AnsibleCommandExecutor(object):
         :type args: list[str]
         :return:
         """
+        max_chunk_read = 512
         shellCommand = self._createShellCommand(playbook_file, inventory_file, args)
 
         logger.info('Running cmd \'%s\' ...' % shellCommand)
         start_time = time.time()
         process = subprocess.Popen(shellCommand, shell=True, stdout=subprocess.PIPE)
         output = ''
-
         while True:
-            txt = process.stdout.read(AnsibleCommandExecutor.CHUNK_TO_READ)
+            pOut = process.stdout.read(max_chunk_read)
             if process.poll() is not None:
                 break
-            self.output_writer.write(txt)
-            output += txt
+            html_converted = UnixToHtmlColorConverter(pOut).convert()
+            self.output_writer.write(html_converted)
 
-        elapsed = time.time() - start_time
-        line_count = len(output.split(os.linesep))
         logger.info('Done (after \'%s\' sec, with %s lines of output).' % (elapsed, line_count))
         logger.debug(output)
 
