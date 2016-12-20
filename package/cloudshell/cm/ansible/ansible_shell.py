@@ -13,7 +13,7 @@ from domain.ansible_command_executor import AnsibleCommandExecutor, ReservationO
 from domain.ansible_conflig_file import AnsibleConfigFile
 from domain.host_vars_file import HostVarsFile
 from domain.output.ansibleResult import AnsiblePlaybookParser
-from domain.TempFolderScope import TempFolderScope
+from domain.temp_folder_scope import TempFolderScope
 
 
 class AnsibleShell(object):
