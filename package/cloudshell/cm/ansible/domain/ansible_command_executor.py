@@ -8,8 +8,6 @@ from cloudshell.shell.core.context import ResourceCommandContext
 
 
 class AnsibleCommandExecutor(object):
-    CHUNK_TO_READ = 512
-
     def __init__(self, output_parser, output_writer):
         """
         :type output_parser: AnsiblePlaybookParser
@@ -40,6 +38,8 @@ class AnsibleCommandExecutor(object):
             html_converted = UnixToHtmlColorConverter(pOut).convert()
             self.output_writer.write(html_converted)
 
+        elapsed = time.time() - start_time
+        line_count = len(output.split(os.linesep))
         logger.info('Done (after \'%s\' sec, with %s lines of output).' % (elapsed, line_count))
         logger.debug(output)
 
