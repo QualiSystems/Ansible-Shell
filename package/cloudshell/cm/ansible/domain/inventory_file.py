@@ -38,7 +38,7 @@ class InventoryFile(object):
                 del lines[0]
             file_stream.writelines(lines)
             self.logger.debug(os.linesep.join(lines))
-        self.logger.info('Done.')
+        self.logger.info('Done (%s groups, with %s hosts).'%(str(len(self.groups)), str(len(self.hosts))))
 
     def add_host(self, host_name, set_default_group=False):
         """
