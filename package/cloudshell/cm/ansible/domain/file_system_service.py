@@ -14,7 +14,19 @@ class FileSystemService(object):
         return tempfile.mkdtemp()
 
     def create_folder(self, folder):
+        """
+        Create a folder.
+        :param str folder: The path of the new folder.
+        """
         os.mkdir(folder)
+
+    def exists(self, path):
+        """
+        Check if the path exists.
+        :param str path: The path to examine
+        :rtype bool
+        """
+        return os.path.exists(path)
 
     def delete_temp_folder(self, folder):
         """
@@ -30,10 +42,16 @@ class FileSystemService(object):
         """
         return open(path, 'wb')
 
-    # def open_file(self, path):
-    #     """
-    #     Open file for write
-    #     :param str path: The path of the new file (example: 'c:\tmp\file.txt}
-    #     :rtype: file
-    #     """
-    #     return open(path, 'a')
+    def get_working_dir(self):
+        """
+        Get the current working directory.
+        :rtype: str
+        """
+        return os.getcwd()
+
+    def set_working_dir(self, path):
+        """
+        Set new working directory.
+        :type path: str
+        """
+        os.chdir(path)

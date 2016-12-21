@@ -25,15 +25,17 @@ class InventoryFile(object):
             lines = []
             for group in self.groups:
                 if len(group.groups) > 0:
-                    lines.append('\n\n[%s:children]' % group.name)
+                    lines.append('')
+                    lines.append('[%s:children]' % group.name)
                     for child in group.groups:
-                        lines.append('\n' + child.name)
+                        lines.append(child.name)
                 if len(group.hosts) > 0:
-                    lines.append('\n\n[%s]' % group.name)
+                    lines.append('')
+                    lines.append('[%s]' % group.name)
                     for host in group.hosts:
-                        lines.append('\n' + host.name)
-            if len(lines) > 0:
-                lines[0] = lines[0].strip('\n')
+                        lines.append(host.name)
+            if len(lines) > 0 and lines[0] == '':
+                del lines[0]
             file_stream.writelines(lines)
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done.')

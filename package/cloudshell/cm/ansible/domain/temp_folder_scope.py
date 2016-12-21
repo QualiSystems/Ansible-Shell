@@ -17,13 +17,13 @@ class TempFolderScope(object):
         """
         self.logger.info('Creating temp folder and making it the working dir...')
         self.folder = self.file_system.create_temp_folder()
-        self.prev_working_dir = os.getcwd()
-        os.chdir(self.folder)
+        self.prev_working_dir = self.file_system.get_working_dir()
+        self.file_system.set_working_dir(self.folder)
         self.logger.info('Done.\n\t folder=%s' % self.folder)
         return self.folder
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.logger.info('Deleting temp folder and restoring the previous working dir...')
-        os.chdir(self.prev_working_dir)
+        self.file_system.set_working_dir(self.prev_working_dir)
         self.file_system.delete_temp_folder(self.folder)
         self.logger.info('Done.\n\t folder=%s' % self.folder)
