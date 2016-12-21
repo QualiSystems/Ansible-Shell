@@ -17,19 +17,20 @@ class HostVarsFile(object):
         :type logger: Logger
         """
         self.file_system = file_system
-        self.file_path = os.path.join(HostVarsFile.FOLDER_NAME, self.host_name)
+        self.logger = logger
+        self.file_path = os.path.join(HostVarsFile.FOLDER_NAME, host_name)
         self.vars = {}
 
     def __enter__(self):
-        self.logger.info('Creating \'%s\' vars file ...' % self.host_name)
+        self.logger.info('Creating \'%s\' vars file ...' % self.file_path)
         return self
 
     def __exit__(self, type, value, traceback):
-        if not os.path.exists(HostVarsFile.FOLDER_NAME):
-            os.makedirs(HostVarsFile.FOLDER_NAME)
+        if not self.file_system.exists(HostVarsFile.FOLDER_NAME):
+            self.file_system.create_folder(HostVarsFile.FOLDER_NAME)
         with self.file_system.create_file(self.file_path) as file_stream:
             lines = ['---']
-            for key, value in self.vars:
+            for key, value in sorted(self.vars.iteritems()):
                 lines.append(str(key) + ': ' + str(value))
             file_stream.writelines(lines)
             self.logger.debug(os.linesep.join(lines))
