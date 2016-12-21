@@ -18,26 +18,30 @@ class TestHostVarsFile(TestCase):
     def test_can_add_connection_type(self):
         with HostVarsFile(self.file_system, 'host1', Mock()) as f:
             f.add_connection_type('winrm')
-        self.assertEquals(os.linesep.join(['---','ansible_connection: winrm']), self.file_system.read_all_lines('hosts_vars\\host1'))
+        self.assertEquals(os.linesep.join(['---', 'ansible_connection: winrm']),
+                          self.file_system.read_all_lines(os.path.join('hosts_vars', 'host1')))
 
     def test_can_add_connection_type(self):
         with HostVarsFile(self.file_system, 'host1', Mock()) as f:
             f.add_username('admin')
-        self.assertEquals(os.linesep.join(['---','ansible_user: admin']), self.file_system.read_all_lines('hosts_vars\\host1'))
+        self.assertEquals(os.linesep.join(['---', 'ansible_user: admin']),
+                          self.file_system.read_all_lines(os.path.join('hosts_vars', 'host1')))
 
     def test_can_add_connection_type(self):
         with HostVarsFile(self.file_system, 'host1', Mock()) as f:
             f.add_password('1234')
-        self.assertEquals(os.linesep.join(['---','ansible_ssh_pass: 1234']), self.file_system.read_all_lines('hosts_vars\\host1'))
+        self.assertEquals(os.linesep.join(['---', 'ansible_ssh_pass: 1234']),
+                          self.file_system.read_all_lines(os.path.join('hosts_vars', 'host1')))
 
     def test_can_add_connection_key_file(self):
         with HostVarsFile(self.file_system, 'host1', Mock()) as f:
             f.add_conn_file('mycert.pem')
-        self.assertEquals(os.linesep.join(['---','ansible_ssh_private_key_file: mycert.pem']), self.file_system.read_all_lines('hosts_vars\\host1'))
+        self.assertEquals(os.linesep.join(['---', 'ansible_ssh_private_key_file: mycert.pem']),
+                          self.file_system.read_all_lines(os.path.join('hosts_vars', 'host1')))
 
     def test_can_add_custom_vars(self):
         with HostVarsFile(self.file_system, 'host1', Mock()) as f:
             f.add_vars({'param1': 'abc', 'param2': '123'})
             f.add_vars({'param3': 'W'})
-        self.assertEquals(os.linesep.join(['---','param1: abc', 'param2: 123', 'param3: W']), self.file_system.read_all_lines('hosts_vars\\host1'))
-
+        self.assertEquals(os.linesep.join(['---', 'param1: abc', 'param2: 123', 'param3: W']),
+                          self.file_system.read_all_lines(os.path.join('hosts_vars', 'host1')))

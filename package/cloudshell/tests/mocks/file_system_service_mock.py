@@ -8,10 +8,10 @@ class FileSystemServiceMock(object):
     def __init__(self):
         self.folders = []
         self.files = []
-        self.working_dir = '\\'
+        self.working_dir = os.sep
 
     def create_temp_folder(self):
-        path = 'temp\\' + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        path = os.path.join('temp', ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6)))
         self.folders.append(path)
         return path
 
