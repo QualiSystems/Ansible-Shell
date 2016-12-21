@@ -17,9 +17,15 @@ from domain.temp_folder_scope import TempFolderScope
 
 
 class AnsibleShell(object):
-    def __init__(self):
-        self.file_system = FileSystemService()
-        self.downloader = PlaybookDownloader(self.file_system)
+    def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None):
+        """
+        :type file_system: FileSystemService
+        :type playbook_downloader: PlaybookDownloader
+        :type playbook_executor: AnsibleCommandExecutor
+        """
+        self.file_system = file_system or FileSystemService()
+        self.downloader = playbook_downloader or PlaybookDownloader(self.file_system)
+        self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser())
 
     def execute_playbook(self, command_context, ansi_conf):
         """
@@ -45,7 +51,7 @@ class AnsibleShell(object):
                         file.add_vars(host_conf.parameters)
                         if host_conf.access_key is not None:
                             file_name = host_conf.ip + '_access_key.pem'
-                            with self.file_system.create_file(os.path.join(root, file_name)) as file_stream:
+                            with self.file_system.create_file(root, file_name) as file_stream:
                                 file_stream.write(host_conf.access_key)
                             file.add_conn_file(file_name)
                         else:
@@ -58,12 +64,12 @@ class AnsibleShell(object):
 
                 logger.info('Running the playbook')
                 with CloudShellSessionContext(command_context) as session:
-                    output_parser = AnsiblePlaybookParser()
                     output_writer = ReservationOutputWriter(session, command_context)
-                    executor = AnsibleCommandExecutor(output_parser, output_writer)
-                    ansible_result = executor.execute_playbook(playbook_name,inventory_file_name, logger, ansi_conf.additional_cmd_args)
-                #print ansible_result.Success
-                #print ansible_result.Result
+                    ansible_result = self.executor.execute_playbook(
+                        playbook_name, inventory_file_name, ansi_conf.additional_cmd_args,
+                        output_writer, logger)
+                    # print ansible_result.Success
+                    # print ansible_result.Result
 
 
 

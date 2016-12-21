@@ -8,20 +8,19 @@ from cloudshell.shell.core.context import ResourceCommandContext
 
 
 class AnsibleCommandExecutor(object):
-    def __init__(self, output_parser, output_writer):
+    def __init__(self, output_parser):
         """
         :type output_parser: AnsiblePlaybookParser
-        :type output_writer: OutputWriter
         """
         self.output_parser = output_parser
-        self.output_writer = output_writer
 
-    def execute_playbook(self, playbook_file, inventory_file, logger, args=None):
+    def execute_playbook(self, playbook_file, inventory_file, args, output_writer, logger):
         """
         :type playbook_file: str
         :type inventory_file: str
-        :type logger: Logger
         :type args: list[str]
+        :type logger: Logger
+        :type output_writer: OutputWriter
         :return:
         """
         max_chunk_read = 512
@@ -36,7 +35,7 @@ class AnsibleCommandExecutor(object):
             if process.poll() is not None:
                 break
             html_converted = UnixToHtmlColorConverter(pOut).convert()
-            self.output_writer.write(html_converted)
+            output_writer.write(html_converted)
 
         elapsed = time.time() - start_time
         line_count = len(output.split(os.linesep))
