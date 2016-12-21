@@ -14,6 +14,7 @@ class TestTempFolderScope(TestCase):
         self.assertEquals([], self.file_system.folders)
 
     def test_set_and_restore_the_working_directory(self):
+        dir = self.file_system.get_working_dir()
         with TempFolderScope(self.file_system, Mock()) as f:
             self.assertEquals(f, self.file_system.get_working_dir())
-        self.assertEquals('\\', self.file_system.get_working_dir())
+        self.assertEquals(dir, self.file_system.get_working_dir())
