@@ -35,6 +35,7 @@ class AnsibleShell(object):
                 with AnsibleConfigFile(self.file_system, logger) as file:
                     file.ignore_ssh_key_checking()
                     file.force_color()
+                    file.set_retry_path("."+os.sep)
 
                 with InventoryFile(self.file_system, inventory_file_name, logger) as inventory:
                     for host_conf in ansi_conf.hosts_conf:
@@ -61,7 +62,7 @@ class AnsibleShell(object):
                 with CloudShellSessionContext(command_context) as session:
                     output_parser = AnsiblePlaybookParser()
                     output_writer = ReservationOutputWriter(session, command_context)
-                    executor = AnsibleCommandExecutor(output_parser, output_writer)
+                    executor = AnsibleCommandExecutor(output_parser, output_writer, self.file_system)
                     ansible_result = executor.execute_playbook(playbook_name,inventory_file_name, logger, ansi_conf.additional_cmd_args)
                     return ansible_result #TODO: parse to json
                 #print ansible_result.Success
