@@ -1,14 +1,10 @@
-import os
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
-from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 from domain.file_system_service import FileSystemService
 from domain.inventory_file import InventoryFile
-from domain.playbook_downloader import PlaybookDownloader
-from domain.playbook_downloader import HttpAuth
-from domain.ansible_configutarion import AnsibleConfiguration
-from domain.ansible_configutarion import HostConfiguration
+from domain.playbook_downloader import PlaybookDownloader, HttpAuth
+from domain.ansible_configutarion import AnsibleConfiguration, HostConfiguration
 from domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from domain.ansible_conflig_file import AnsibleConfigFile
 from domain.host_vars_file import HostVarsFile
@@ -17,15 +13,17 @@ from domain.temp_folder_scope import TempFolderScope
 
 
 class AnsibleShell(object):
-    def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None):
+    def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None, session_provider=None):
         """
         :type file_system: FileSystemService
         :type playbook_downloader: PlaybookDownloader
         :type playbook_executor: AnsibleCommandExecutor
+        :type session_provider: CloudShellSessionProvider
         """
         self.file_system = file_system or FileSystemService()
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system)
         self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser())
+        self.session_provider = session_provider or CloudShellSessionProvider()
 
     def execute_playbook(self, command_context, ansi_conf):
         """
@@ -64,10 +62,11 @@ class AnsibleShell(object):
                 playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger)
 
                 logger.info('Running the playbook')
-                with CloudShellSessionContext(command_context) as session:
+                with self.session_provider.get(command_context) as session:
                     output_writer = ReservationOutputWriter(session, command_context)
                     ansible_result = self.executor.execute_playbook(
                         playbook_name, inventory_file_name, ansi_conf.additional_cmd_args,
+                        output_writer, logger)
                     return ansible_result #TODO: parse to json
                     # print ansible_result.Success
                     # print ansible_result.Result
