@@ -1,7 +1,7 @@
 import re
 
 class UnixToHtmlColorConverter(object):
-    def __init__(self, text):
+    def __init__(self):
         self.unixToHtml = dict([
             (re.escape('\033[0;32m'), 'green'),
             (re.escape('\033[0;36m'), 'cyan'),
@@ -12,20 +12,14 @@ class UnixToHtmlColorConverter(object):
             (re.escape('\033[0m'), 'white')
         ])
         self.isFirstColor = True
-        self.text = text
+
 
     def _addFontTag(self,x):
-        result = ''
-        if not self.isFirstColor:
-            result = '</font><font color=' + self.unixToHtml[re.escape(x.group(0))] + '>'
-        else:
-            result = '<font color=' + self.unixToHtml[re.escape(x.group(0))] + '>'
-            self.isFirstColor = False
-        return result;
+        return '</font><font color=' + self.unixToHtml[re.escape(x.group(0))] + '>'
 
-    def convert(self):
+    def convert(self, text):
+        result = '<font color=white>'
         p_object = re.compile('|'.join(self.unixToHtml.keys()))
-        result = p_object.sub(lambda x: self._addFontTag(x), self.text)
-        if not self.isFirstColor:
-            result += '</font>'
+        result+= p_object.sub(lambda x: self._addFontTag(x), text)
+        result += '</font>'
         return result;

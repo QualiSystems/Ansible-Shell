@@ -38,7 +38,7 @@ class AnsibleCommandExecutor(object):
             pOut = process.stdout.read(max_chunk_read)
             if process.poll() is not None:
                 break
-            html_converted = UnixToHtmlColorConverter(pOut).convert()
+            html_converted = UnixToHtmlColorConverter().convert(pOut)
             self.output_writer.write(html_converted)
 
         elapsed = time.time() - start_time
