@@ -1,6 +1,7 @@
 [report]
 omit =
     package/setup.py,
+    */tests/*/__init__.py,
     */package/cloudshell/cm/ansible/domain/file_system_service.py,
     */package/cloudshell/cm/ansible/domain/ansible_configutarion.py,
     */package/cloudshell/tests/*.py
