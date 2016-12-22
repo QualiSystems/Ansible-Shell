@@ -22,10 +22,12 @@ class FileSystemServiceMock(object):
         return (path in self.folders) or len([f for f in self.files if f.path == path]) > 0
 
     def delete_temp_folder(self, folder):
+        for file in [f for f in self.files if f.path.startswith(folder)]:
+            self.files.remove(file)
         self.folders.remove(folder)
 
     def create_file(self, path):
-        f = FileMock(path)
+        f = FileMock(os.path.join(self.working_dir, path))
         self.files.append(f)
         return f
 
