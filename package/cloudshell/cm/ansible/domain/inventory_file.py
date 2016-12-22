@@ -40,26 +40,18 @@ class InventoryFile(object):
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done (%s groups, with %s hosts).'%(str(len(self.groups)), str(len(self.hosts))))
 
-    def add_host(self, host_name, set_default_group=False):
+    def add_host_and_groups(self, host_name, group_paths = None):
         """
         Add host to inventory.
         :param str host_name: The host name/ip to add.
-        :param bool set_default_group: If set to True, this host will be added to group 'all'
+        :param list[str] group_paths: The groups of the host (If empty, this host will be added to group 'all').
         """
         if len([h for h in self.hosts if h.name == host_name]) > 0:
             raise ValueError('Failed to add host \'%s\'. Host with the same name already exists.' % host_name)
+        if not group_paths or len(group_paths) == 0:
+            group_paths = ['all']
         host = Host(host_name)
         self.hosts.append(host)
-        if set_default_group:
-            self.get_or_add_group("all").hosts.append(host)
-
-    def set_host_groups(self, host_name, group_paths):
-        """
-        Add host to inventory.
-        :param str host_name: The host name/ip to add.
-        :param list[str] group_paths: The groups of the host.
-        """
-        host = self.get_host(host_name)
         for group_path in group_paths:
             group = self.get_or_add_group(group_path)
             group.hosts.append(host)
