@@ -9,13 +9,11 @@ from cloudshell.shell.core.context import ResourceCommandContext
 
 
 class AnsibleCommandExecutor(object):
-    def __init__(self, output_parser, filesystem_service):
+    def __init__(self, output_parser):
         """
         :type output_parser: AnsiblePlaybookParser
-        :type filesystem_service: FileSystemService
         """
         self.output_parser = output_parser
-        self.filesystem_service = filesystem_service
 
     def execute_playbook(self, playbook_file, inventory_file, args, output_writer, logger):
         """
@@ -45,7 +43,7 @@ class AnsibleCommandExecutor(object):
         logger.info('Done (after \'%s\' sec, with %s lines of output).' % (elapsed, line_count))
         logger.debug(output)
 
-        return self.output_parser.parse(output,playbook_file, self.filesystem_service)
+        return self.output_parser.parse(output, playbook_file)
 
     def _createShellCommand(self, playbook_file, inventory_file, args):
         command = "ansible"

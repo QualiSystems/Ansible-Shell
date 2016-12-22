@@ -72,16 +72,6 @@ class InventoryFile(object):
             groups = group.groups
         return group
 
-    def get_host(self, host_name):
-        """
-        :type host_name: str
-        :rtype: Host
-        """
-        host = next((h for h in self.hosts if h.name == host_name), None)
-        if host is None:
-            raise ValueError('Failed to add vars to host \'%s\' because is not found.' % (host_name))
-        return host
-
 
 class Host(object):
     def __init__(self, name):
