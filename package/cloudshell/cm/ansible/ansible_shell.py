@@ -1,3 +1,5 @@
+import os
+
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
@@ -40,7 +42,7 @@ class AnsibleShell(object):
                 with AnsibleConfigFile(self.file_system, logger) as file:
                     file.ignore_ssh_key_checking()
                     file.force_color()
-                    file.set_retry_path("."+os.sep)
+                    file.set_retry_path("."+os.pathsep)
 
                 with InventoryFile(self.file_system, inventory_file_name, logger) as inventory:
                     for host_conf in ansi_conf.hosts_conf:
