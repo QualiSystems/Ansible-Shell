@@ -1,5 +1,4 @@
 from unittest import TestCase
-import re
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
 
 class TestUnixToHtmlColorConverter(TestCase):
