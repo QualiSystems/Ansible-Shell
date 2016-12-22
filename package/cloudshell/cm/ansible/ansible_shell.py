@@ -25,7 +25,7 @@ class AnsibleShell(object):
         """
         self.file_system = file_system or FileSystemService()
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system)
-        self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser(self.file_system), self.file_system)
+        self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser(self.file_system))
         self.session_provider = session_provider or CloudShellSessionProvider()
 
     def execute_playbook(self, command_context, ansi_conf):
