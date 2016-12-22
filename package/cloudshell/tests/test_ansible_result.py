@@ -7,7 +7,7 @@ from cloudshell.tests.mocks.file_system_service_mock import FileSystemServiceMoc
 class TestUnixToHtmlColorConverter(TestCase):
     def setUp(self):
         self.file_system = FileSystemServiceMock()
-        self.parser = AnsiblePlaybookParser()
+        self.parser = AnsiblePlaybookParser(self.file_system)
         self.playbook_file_name = "myPlaybook.yaml"
     def test_result_should_fail_on_unreachable(self):
         resultTxt = """
@@ -25,7 +25,7 @@ class TestUnixToHtmlColorConverter(TestCase):
         PLAY RECAP *********************************************************************
         ^[[0;32m192.168.85.11^[[0m              : ^[[0;32mok=12  ^[[0m changed=0    unreachable=0    failed=2
         """
-        result = self.parser.parse(resultTxt,self.playbook_file_name,self.file_system)
+        result = self.parser.parse(resultTxt,self.playbook_file_name)
         self.assertFalse(result.Success)
 
     def test_result_should_fail_on_failed(self):
@@ -44,7 +44,7 @@ class TestUnixToHtmlColorConverter(TestCase):
            PLAY RECAP *********************************************************************
            ^[[0;32m192.168.85.11^[[0m              : ^[[0;32mok=12  ^[[0m changed=0    unreachable=1    failed=0
            """
-        result = self.parser.parse(resultTxt, self.playbook_file_name, self.file_system)
+        result = self.parser.parse(resultTxt, self.playbook_file_name)
         self.assertFalse(result.Success)
 
     def test_result_should_fail_on_retryFile(self):
@@ -65,7 +65,7 @@ class TestUnixToHtmlColorConverter(TestCase):
            ^[[0;32m192.168.85.11^[[0m              : ^[[0;32mok=12  ^[[0m changed=0    unreachable=0    failed=0
            """
         self.file_system.create_file(self.playbook_file_name + ".retry")
-        result = self.parser.parse(resultTxt, self.playbook_file_name, self.file_system)
+        result = self.parser.parse(resultTxt, self.playbook_file_name)
         self.assertFalse(result.Success)
 
     def test_result_should_be_true(self):
@@ -84,7 +84,7 @@ class TestUnixToHtmlColorConverter(TestCase):
            PLAY RECAP *********************************************************************
            ^[[0;32m192.168.85.11^[[0m              : ^[[0;32mok=12  ^[[0m changed=1    unreachable=0    failed=0
            """
-        result = self.parser.parse(resultTxt, self.playbook_file_name, self.file_system)
+        result = self.parser.parse(resultTxt, self.playbook_file_name)
         self.assertTrue(result.Success)
 
 
