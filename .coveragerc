@@ -3,4 +3,4 @@ omit =
     package/setup.py,
     */package/cloudshell/cm/ansible/domain/file_system_service.py,
     */package/cloudshell/cm/ansible/domain/ansible_configutarion.py,
-    */package/cloudshell/test/*
+    */package/cloudshell/test/*.py
