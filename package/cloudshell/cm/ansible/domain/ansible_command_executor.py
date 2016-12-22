@@ -69,7 +69,7 @@ class OutputWriter(object):
         raise NotImplementedError()
 
 
-class ReservationOutputWriter(object):
+class ReservationOutputWriter(OutputWriter):
     def __init__(self, session, command_context):
         """
         :type session: CloudShellAPISession

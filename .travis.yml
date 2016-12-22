@@ -18,6 +18,8 @@ script:
 
 after_success:
     - coveralls
-    
+
+notifications:
+    email: false
 #notifications:
 # webhools: https://qualisystems.getbadges.io/api/app/webhook/{will be added later}
