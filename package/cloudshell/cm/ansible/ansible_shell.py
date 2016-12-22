@@ -1,6 +1,7 @@
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
+from domain.cloudshell_session_provider import CloudShellSessionProvider
 from domain.file_system_service import FileSystemService
 from domain.inventory_file import InventoryFile
 from domain.playbook_downloader import PlaybookDownloader, HttpAuth
@@ -22,7 +23,7 @@ class AnsibleShell(object):
         """
         self.file_system = file_system or FileSystemService()
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system)
-        self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser(), self.file_system)
+        self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser(self.file_system), self.file_system)
         self.session_provider = session_provider or CloudShellSessionProvider()
 
     def execute_playbook(self, command_context, ansi_conf):

@@ -35,4 +35,4 @@ class AnsibleConfigFile(object):
         self.config_keys['force_color'] = '1'
 
     def set_retry_path(self, save_path):
-        self.config_keys['retry_files_save_path'] = save_path
+        self.config_keys['retry_files_save_path'] = str(save_path)
