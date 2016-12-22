@@ -23,8 +23,9 @@ class AnsibleShell(object):
 
     def execute_playbook(self, command_context, ansi_conf):
         """
-        :param ResourceCommandContext command_context:
-        :param AnsibleConfiguration ansi_conf:
+        :type command_context: ResourceCommandContext
+        :type ansi_conf: AnsibleConfiguration
+        :rtype str
         """
         with LoggingSessionContext(command_context) as logger:
             with TempFolderScope(self.file_system, logger) as root:
@@ -37,15 +38,15 @@ class AnsibleShell(object):
 
                 with InventoryFile(self.file_system, inventory_file_name, logger) as inventory:
                     for host_conf in ansi_conf.hosts_conf:
-                        inventory.add_host(host_conf.ip)
-                        inventory.set_host_groups(host_conf.ip, host_conf.groups)
+                        inventory.add_host_and_groups(host_conf.ip, host_conf.groups)
 
                 for host_conf in ansi_conf.hosts_conf:
                     with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
                         file.add_vars(host_conf.parameters)
+                        file.add_connection_type(host_conf.connection_method)
                         if host_conf.access_key is not None:
                             file_name = host_conf.ip + '_access_key.pem'
-                            with self.file_system.create_file(os.path.join(root, file_name)) as file_stream:
+                            with self.file_system.create_file(file_name) as file_stream:
                                 file_stream.write(host_conf.access_key)
                             file.add_conn_file(file_name)
                         else:
@@ -62,6 +63,7 @@ class AnsibleShell(object):
                     output_writer = ReservationOutputWriter(session, command_context)
                     executor = AnsibleCommandExecutor(output_parser, output_writer)
                     ansible_result = executor.execute_playbook(playbook_name,inventory_file_name, logger, ansi_conf.additional_cmd_args)
+                    return ansible_result #TODO: parse to json
                 #print ansible_result.Success
                 #print ansible_result.Result
 
