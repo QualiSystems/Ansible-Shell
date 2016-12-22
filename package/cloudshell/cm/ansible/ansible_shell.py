@@ -22,7 +22,7 @@ class AnsibleShell(object):
         """
         self.file_system = file_system or FileSystemService()
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system)
-        self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser())
+        self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser(), self.file_system)
         self.session_provider = session_provider or CloudShellSessionProvider()
 
     def execute_playbook(self, command_context, ansi_conf):
@@ -39,6 +39,7 @@ class AnsibleShell(object):
                 with AnsibleConfigFile(self.file_system, logger) as file:
                     file.ignore_ssh_key_checking()
                     file.force_color()
+                    file.set_retry_path("."+os.sep)
 
                 with InventoryFile(self.file_system, inventory_file_name, logger) as inventory:
                     for host_conf in ansi_conf.hosts_conf:
