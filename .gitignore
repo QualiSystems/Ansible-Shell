@@ -1,3 +1,6 @@
 .project
 .idea/
 *.orig
+*.pyc
+drivers/ansible_shell.zip
+drivers/ansible_shellPackage/Resource Drivers - Python/*.zip
