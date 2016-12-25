@@ -40,8 +40,8 @@ class FileSystemServiceMock(object):
     def set_working_dir(self, path):
         self.working_dir = path
 
-    def read_all_lines(self, path):
-        f = next((f for f in self.files if f.path == path), None)
+    def read_all_lines(self, *path):
+        f = next((f for f in self.files if f.path == os.path.join(*path) or f.full_path == os.path.join(*path)), None)
         if not f:
             raise ValueError("File '%s' could not be found."%path)
         return f.data
