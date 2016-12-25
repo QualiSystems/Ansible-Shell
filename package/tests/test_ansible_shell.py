@@ -29,15 +29,15 @@ class TestAnsibleShell(TestCase):
         self.shell = AnsibleShell(self.file_system, self.downloader, self.executor, self.session_provider)
 
     def execute_playbook(self):
-        return self.shell.execute_playbook(self.context, self.conf)
+        return self.shell._execute_playbook(self.context, self.conf, Mock())
 
     def test_configuration_file_is_created(self):
         self.execute_playbook()
-        self.assertIsNotNone(self.file_system.read_deleted_file('ansible.cfg'))
+        self.assertIsNotNone(self.file_system.read_all_lines('ansible.cfg'))
 
     def test_inventory_file_is_created(self):
         self.execute_playbook()
-        self.assertIsNotNone(self.file_system.read_deleted_file('hosts'))
+        self.assertIsNotNone(self.file_system.read_all_lines('hosts'))
         pass
 
     def test_host_with_access_key(self):
@@ -48,8 +48,8 @@ class TestAnsibleShell(TestCase):
 
         self.execute_playbook()
 
-        host1_var_file = self.file_system.read_deleted_file('hosts_vars', 'host1')
-        host1_pem_file = self.file_system.read_deleted_file('host1_access_key.pem')
+        host1_var_file = self.file_system.read_all_lines('hosts_vars', 'host1')
+        host1_pem_file = self.file_system.read_all_lines('host1_access_key.pem')
         self.assertTrue('ansible_ssh_private_key_file: host1_access_key.pem' in host1_var_file)
         self.assertEquals('data1234', host1_pem_file)
 
@@ -62,7 +62,7 @@ class TestAnsibleShell(TestCase):
 
         self.execute_playbook()
 
-        host1_var_file = self.file_system.read_deleted_file('hosts_vars', 'host1')
+        host1_var_file = self.file_system.read_all_lines('hosts_vars', 'host1')
         self.assertTrue('ansible_user: admin' in host1_var_file)
         self.assertTrue('ansible_ssh_pass: 1234' in host1_var_file)
 
@@ -74,7 +74,7 @@ class TestAnsibleShell(TestCase):
 
         self.execute_playbook()
 
-        host1_var_file = self.file_system.read_deleted_file('hosts_vars', 'host1')
+        host1_var_file = self.file_system.read_all_lines('hosts_vars', 'host1')
         self.assertTrue('ansible_connection: winrm' in host1_var_file)
 
     def test_download_playbook_without_auth(self):
