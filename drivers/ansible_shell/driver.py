@@ -22,10 +22,10 @@ class AnsibleShellDriver(ResourceDriverInterface):
         with LoggingSessionContext(command_context) as logger:
             logger.debug('\'execute_playbook\' is called with the configuration json: \n'+ansible_configuration_json)
 
-        ansible_configuration_object = self.decode(ansible_configuration_json)
+        ansible_configuration_object = self._decode(ansible_configuration_json)
         return self.ansible_shell.execute_playbook(command_context, ansible_configuration_object)
 
-    def decode(self, json_str):
+    def _decode(self, json_str):
         """
         Decodes a json string to an AnsibleConfiguration instance.
         :param str json_str: The json to decode.
