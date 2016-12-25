@@ -38,11 +38,9 @@ class AnsibleShell(object):
         :rtype str
         """
         with LoggingSessionContext(command_context) as logger:
-            logger.debug('\'execute_playbook\' is called with the configuration json: \n'+ansi_conf_json)
-
-        ansi_conf = self._json_to_object(ansi_conf_json)
-        with LoggingSessionContext(command_context) as logger:
             with ErrorHandlingContext(logger):
+                logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
+                ansi_conf = self._json_to_object(ansi_conf_json)
                 with TempFolderScope(self.file_system, logger) as root:
                     result = self._execute_playbook(command_context, ansi_conf, logger)
                     return result
