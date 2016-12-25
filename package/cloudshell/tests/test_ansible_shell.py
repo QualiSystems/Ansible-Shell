@@ -38,6 +38,7 @@ class TestAnsibleShell(TestCase):
     def test_inventory_file_is_created(self):
         self.execute_playbook()
         self.assertIsNotNone(self.file_system.read_deleted_file('hosts'))
+        pass
 
     def test_host_with_access_key(self):
         host1 = HostConfiguration()
