@@ -33,7 +33,7 @@ class FileSystemService(object):
         Delete a temporary folder from the os tmp folder.
         :param str folder: Folder path.
         """
-        shutil.rmtree(folder)
+        shutil.rmtree(folder, ignore_errors=True)
 
     def create_file(self, path):
         """

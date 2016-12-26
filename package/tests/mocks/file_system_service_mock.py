@@ -65,7 +65,7 @@ class FileMock(object):
         pass
 
     def writelines(self, lines):
-        self.data += os.linesep.join(lines)
+        self.data += ''.join(lines)
 
     def write(self, line):
         self.data = line
