@@ -8,7 +8,7 @@ from domain.cloudshell_session_provider import CloudShellSessionProvider
 from domain.file_system_service import FileSystemService
 from domain.inventory_file import InventoryFile
 from domain.playbook_downloader import PlaybookDownloader, HttpAuth
-from domain.ansible_configutarion import AnsibleConfiguration, HostConfiguration, PlaybookRepository
+from domain.ansible_configutarion import AnsibleConfiguration, HostConfiguration, PlaybookRepository, AnsibleConfigurationParser
 from domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from domain.ansible_conflig_file import AnsibleConfigFile
 from domain.host_vars_file import HostVarsFile
@@ -40,7 +40,7 @@ class AnsibleShell(object):
         with LoggingSessionContext(command_context) as logger:
             with ErrorHandlingContext(logger):
                 logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
-                ansi_conf = self._json_to_object(ansi_conf_json)
+                ansi_conf = AnsibleConfigurationParser.json_to_object(ansi_conf_json)
                 with TempFolderScope(self.file_system, logger) as root:
                     result = self._execute_playbook(command_context, ansi_conf, logger)
                     return result
@@ -95,39 +95,49 @@ class AnsibleShell(object):
         json_obj = json.loads(json_str)
 
         ansi_conf = AnsibleConfiguration()
-        ansi_conf.additional_cmd_args = json_obj['additionalArgs']
-        ansi_conf.playbook_repo.url = json_obj['repositoryDetails']['url']
-        ansi_conf.playbook_repo.username = json_obj['repositoryDetails']['username']
-        ansi_conf.playbook_repo.password = json_obj['repositoryDetails']['password']
+        ansi_conf.additional_cmd_args = json_obj.get('additionalArgs')
 
-        for json_host in json_obj['hostsDetails']:
+        if json_obj.get('repositoryDetails'):
+            ansi_conf.playbook_repo.url = json_obj['repositoryDetails'].get('url')
+            ansi_conf.playbook_repo.username = json_obj['repositoryDetails'].get('username')
+            ansi_conf.playbook_repo.password = json_obj['repositoryDetails'].get('password')
+
+        for json_host in json_obj.get('hostsDetails') or []:
             host_conf = HostConfiguration()
-            host_conf.ip = json_host['address']
-            host_conf.connection_method = json_host['connectionMethod']
-            host_conf.username = json_host['userName']
-            host_conf.password = json_host['password']
-            host_conf.access_key = json_host['accessKey']
-            host_conf.groups = json_host['groups']
-            if json_host['parameters'] is not None:
+            host_conf.ip = json_host.get('address')
+            host_conf.connection_method = json_host.get('connectionMethod')
+            host_conf.username = json_host.get('userName')
+            host_conf.password = json_host.get('password')
+            host_conf.access_key = json_host.get('accessKey')
+            host_conf.groups = json_host.get('groups')
+            if json_host.get('parameters'):
                 host_conf.parameters = dict(
                     (i['name'], i['value']) for i in json_host['parameters'])
             ansi_conf.hosts_conf.append(host_conf)
 
         return ansi_conf
 
-# conf = AnsibleConfiguration()
-# conf.playbook_repo.url = 'http://192.168.30.108:8081/artifactory/ZipedPlaybooks/ApacheForLinux.zip'
-# host = HostConfiguration()
-# host.ip = '192.168.85.11'
-# host.groups = ['linux_servers']
-# host.username = 'root'
-# host.password = 'qs1234'
-# host.connection_method = 'ssh'
-# host.parameters['params'] = '1234'
-# conf.hosts_conf.append(host)
+# j = """
+# {
+#     "additionalArgs": "-vv",
+#     "repositoryDetails" : {
+#         "url": "http://192.168.30.108:8081/artifactory/ZipedPlaybooks/ApacheForLinux.zip"
+#     },
+#     "hostsDetails": [
+#     {
+#         "address": "192.186.85.11",
+#         "username": "root",
+#         "password": "qs1234",
+#         "connectionMethod": "ssh",
+#         "groups": [
+#             "linux_servers"
+#         ]
+#     }]
+# }
+# """
 # context = ResourceCommandContext()
 # context.resource = ResourceContextDetails()
 # context.resource.name = 'TEST Resource'
 # shell = AnsibleShell()
-# shell.execute_playbook(context, conf)
+# shell.execute_playbook(context, j)
 # pass
