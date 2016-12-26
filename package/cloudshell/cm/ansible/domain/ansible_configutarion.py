@@ -93,4 +93,4 @@ class AnsibleConfigurationParser(object):
 
         hosts_without_conn = [h for h in json_obj['hostsDetails'] if not h.get('connectionMethod')]
         if hosts_without_conn:
-            raise SyntaxError(basic_msg + 'Missing "connectionMethod" node in ' + str(len(hosts_without_ip)) + ' hosts.')
+            raise SyntaxError(basic_msg + 'Missing "connectionMethod" node in ' + str(len(hosts_without_conn)) + ' hosts.')
