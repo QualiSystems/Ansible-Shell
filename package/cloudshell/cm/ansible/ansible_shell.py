@@ -86,36 +86,6 @@ class AnsibleShell(object):
                 output_writer, logger)
             return ansible_result #TODO: parse to json
 
-    def _json_to_object(self, json_str):
-        """
-        Decodes a json string to an AnsibleConfiguration instance.
-        :type json_str: str
-        :rtype AnsibleConfiguration
-        """
-        json_obj = json.loads(json_str)
-
-        ansi_conf = AnsibleConfiguration()
-        ansi_conf.additional_cmd_args = json_obj.get('additionalArgs')
-
-        if json_obj.get('repositoryDetails'):
-            ansi_conf.playbook_repo.url = json_obj['repositoryDetails'].get('url')
-            ansi_conf.playbook_repo.username = json_obj['repositoryDetails'].get('username')
-            ansi_conf.playbook_repo.password = json_obj['repositoryDetails'].get('password')
-
-        for json_host in json_obj.get('hostsDetails') or []:
-            host_conf = HostConfiguration()
-            host_conf.ip = json_host.get('address')
-            host_conf.connection_method = json_host.get('connectionMethod')
-            host_conf.username = json_host.get('userName')
-            host_conf.password = json_host.get('password')
-            host_conf.access_key = json_host.get('accessKey')
-            host_conf.groups = json_host.get('groups')
-            if json_host.get('parameters'):
-                host_conf.parameters = dict(
-                    (i['name'], i['value']) for i in json_host['parameters'])
-            ansi_conf.hosts_conf.append(host_conf)
-
-        return ansi_conf
 
 # j = """
 # {
