@@ -14,12 +14,12 @@ class UnixToHtmlColorConverter(object):
         self.isFirstColor = True
 
 
-    def _addFontTag(self,x):
+    def _add_font_tag(self, x):
         return '</font><font color=' + self.unixToHtml[re.escape(x.group(0))] + '>'
 
     def convert(self, text):
         result = '<font color=white>'
         p_object = re.compile('|'.join(self.unixToHtml.keys()))
-        result+= p_object.sub(lambda x: self._addFontTag(x), text)
+        result+= p_object.sub(lambda x: self._add_font_tag(x), text)
         result += '</font>'
         return result;

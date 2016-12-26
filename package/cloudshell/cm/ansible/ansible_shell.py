@@ -86,7 +86,6 @@ class AnsibleShell(object):
                 output_writer, logger)
             return ansible_result #TODO: parse to json
 
-
 # j = """
 # {
 #     "additionalArgs": "-vv",

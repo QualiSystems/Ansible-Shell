@@ -1,7 +1,10 @@
 import subprocess
 import time
 import os
+from Queue import Queue, Empty
 from logging import Logger
+from threading import Thread, RLock
+
 from cloudshell.api.cloudshell_api import CloudShellAPISession
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
@@ -24,19 +27,27 @@ class AnsibleCommandExecutor(object):
         :type output_writer: OutputWriter
         :return:
         """
-        max_chunk_read = 512
-        shellCommand = self._createShellCommand(playbook_file, inventory_file, args)
+        shell_command = self._createShellCommand(playbook_file, inventory_file, args)
 
-        logger.info('Running cmd \'%s\' ...' % shellCommand)
+        logger.info('Running cmd \'%s\' ...' % shell_command)
         start_time = time.time()
-        process = subprocess.Popen(shellCommand, shell=True, stdout=subprocess.PIPE)
+        process = subprocess.Popen(shell_command, shell=True, stdout=subprocess.PIPE)
         output = ''
-        while True:
-            pOut = process.stdout.read(max_chunk_read)
-            if process.poll() is not None:
-                break
-            html_converted = UnixToHtmlColorConverter().convert(pOut)
-            output_writer.write(html_converted)
+
+        with StdoutAccumulator(process.stdout) as ac:
+            while True:
+                txt = ac.read_all_txt()
+                if txt:
+                    output += txt
+                    html_converted = UnixToHtmlColorConverter().convert(txt)
+                    #output_writer.write(html_converted)
+                    try:
+                        output_writer.write(txt)
+                    except:
+                        logger.debug("failed to write:" + txt)
+                if process.poll() is not None:
+                    break
+                time.sleep(2)
 
         elapsed = time.time() - start_time
         line_count = len(output.split(os.linesep))
@@ -56,6 +67,44 @@ class AnsibleCommandExecutor(object):
             command += " " + args
         command += " -v"
         return command
+
+
+class StdoutAccumulator(object):
+    def __init__(self, stdout):
+        self.queue = Queue()
+        self.stdout = stdout
+        self.thread = Thread(target=self._push_to_queue)
+        self.thread.daemon = True
+        self.lock = RLock()
+
+    def __enter__(self):
+        self.thread.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        with self.lock:
+            self.stdout.close()
+        self.thread.join()
+
+    def _push_to_queue(self):
+        is_closed = False
+        while not is_closed:
+            with self.lock:
+                is_closed = self.stdout.closed
+                if not is_closed:
+                    line = self.stdout.readline()
+                    if line:
+                        self.queue.put(line)
+
+    def read_all_txt(self):
+        try:
+            lines = []
+            while True:
+                lines.append(self.queue.get_nowait())
+        except Empty:
+            pass
+        finally:
+            return os.linesep.join(lines)
 
 
 class OutputWriter(object):
