@@ -13,20 +13,9 @@ class HttpAuth(object):
         self.username = username
         self.password = password
 
-class ZipService(object):
 
-    def extract_all(self, zip_file_name, path=None):
-        try:
-            zip = zipfile.ZipFile(zip_file_name, 'r')
-            zip.extractall(path=path)
-            return zip.infolist()
-        finally:
-            if zip:
-                zip.close()
 
-class HttpRequestService(object):
-    def get_request(self, url, auth):
-        return requests.get(url, auth=(auth.username, auth.password) if auth else None, stream=True)
+
 
 class PlaybookDownloader(object):
     CHUNK_SIZE = 1024 * 1024
