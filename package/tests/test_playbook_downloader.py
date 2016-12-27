@@ -22,7 +22,7 @@ class TestPlaybookDownloader(TestCase):
             self.file_system.create_file(file_to_create)
         return files_to_create
 
-    def _test_playbook_downloader_zip_file_one_yaml(self):
+    def test_playbook_downloader_zip_file_one_yaml(self):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml"])
         auth = HttpAuth("user", "pass")
         self.reqeust.url = "blabla/lie.zip"
@@ -33,7 +33,7 @@ class TestPlaybookDownloader(TestCase):
         file_name = self.playbook_downloader.get("", auth, self.logger)
         self.assertEquals(file_name, "lie.yaml")
 
-    def _test_playbook_downloader_zip_file_two_yaml_correct(self):
+    def test_playbook_downloader_zip_file_two_yaml_correct(self):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml", "site.yaml"])
         auth = HttpAuth("user", "pass")
         self.reqeust.url = "blabla/lie.zip"
@@ -44,7 +44,7 @@ class TestPlaybookDownloader(TestCase):
         file_name = self.playbook_downloader.get("", auth, self.logger)
         self.assertEquals(file_name, "site.yaml")
 
-    def _test_playbook_downloader_zip_file_two_yaml_incorrect(self):
+    def test_playbook_downloader_zip_file_two_yaml_incorrect(self):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml", "lie2.yaml"])
         auth = HttpAuth("user", "pass")
         self.reqeust.url = "blabla/lie.zip"
@@ -56,7 +56,7 @@ class TestPlaybookDownloader(TestCase):
             self.playbook_downloader.get("", auth, self.logger)
         self.assertEqual(e.exception.message,"Playbook file name was not found in zip file")
 
-    def _test_playbook_downloader_with_one_yaml(self):
+    def test_playbook_downloader_with_one_yaml(self):
         auth = HttpAuth("user", "pass")
         self.reqeust.url = "blabla/lie.yaml"
         dic = dict([('content-disposition', 'lie.yaml')])
