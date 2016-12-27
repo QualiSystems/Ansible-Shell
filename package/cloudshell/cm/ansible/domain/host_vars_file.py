@@ -4,7 +4,7 @@ from file_system_service import FileSystemService
 
 
 class HostVarsFile(object):
-    FOLDER_NAME = 'hosts_vars'
+    FOLDER_NAME = 'host_vars'
     ANSIBLE_USER = 'ansible_user'
     ANSIBLE_PASSWORD = 'ansible_ssh_pass'
     ANSIBLE_CONNECTION = 'ansible_connection'
@@ -32,7 +32,7 @@ class HostVarsFile(object):
             lines = ['---']
             for key, value in sorted(self.vars.iteritems()):
                 lines.append(str(key) + ': ' + str(value))
-            file_stream.writelines(lines)
+            file_stream.write(os.linesep.join(lines))
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done.')
 
