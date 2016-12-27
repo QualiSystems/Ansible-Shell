@@ -2,7 +2,6 @@ import os
 import zipfile
 
 from file_system_service import FileSystemService
-from requests.auth import HTTPBasicAuth
 import requests
 import rfc6266
 import urllib
@@ -15,14 +14,19 @@ class HttpAuth(object):
         self.password = password
 
 
+
+
+
 class PlaybookDownloader(object):
     CHUNK_SIZE = 1024 * 1024
 
-    def __init__(self, file_system):
+    def __init__(self, file_system, zip_service, http_request_service):
         """
         :param FileSystemService file_system:
         """
         self.file_system = file_system
+        self.zip_service = zip_service
+        self.http_request_service = http_request_service
 
     def get(self, url, auth, logger):
         """
@@ -50,7 +54,7 @@ class PlaybookDownloader(object):
         :return The downloaded file name
         """
         logger.info('Downloading file from \'%s\' ...'%url)
-        req = requests.get(url, auth=(auth.username, auth.password) if auth else None, stream=True)
+        req = self.http_request_service.get_request(url,auth)
 
         parse = rfc6266.parse_requests_response(req, relaxed=True)
         file_name = parse.filename_unsafe
@@ -73,18 +77,10 @@ class PlaybookDownloader(object):
         :return: Playbook file name
         :rtype str
         """
-        try:
-            logger.info('Zip file was found, extracting file: %s ...' % (file_name))
-            zip = zipfile.ZipFile(file_name, 'r')
-            zip.extractall("")
-            logger.info('Done (extracted %s files).'%len(zip.infolist()))
-        # except Exception as e:
-        #     logger.info('Failed to extract zip\n\t %s.' % (e.message))  <= we want the driver to stop when zip file failes to be extracted
-        finally:
-            if zip:
-                zip.close()
-
-        yaml_files = [file_name for file_name in os.listdir(".") if file_name.endswith(".yaml") or file_name.endswith(".yml")]
+        logger.info('Zip file was found, extracting file: %s ...' % (file_name))
+        zip_length = self.zip_service.extract_all(file_name)
+        logger.info('Done (extracted %s files).'%len(zip_length))
+        yaml_files = [file_name for file_name in self.file_system.get_entries(self.file_system.get_working_dir()) if file_name.endswith(".yaml") or file_name.endswith(".yml")]
         if len(yaml_files) > 1:
             playbook_name = next((file_name for file_name in yaml_files if file_name == "site.yaml" or file_name == "site.yml"), None)
         if len(yaml_files) == 1:

@@ -52,11 +52,18 @@ class FileSystemServiceMock(object):
             raise ValueError("Deleted file '%s' could not be found." % path)
         return f.data
 
+    def get_entries(self, path):
+        file_entries = []
+        for file in self.files:
+            file_entries.append(file.path)
+        return self.folders + file_entries
+
 class FileMock(object):
     def __init__(self, path, full_path):
         self.path = path
         self.data = ''
         self.full_path = full_path
+
 
     def __enter__(self):
         return self
@@ -69,3 +76,6 @@ class FileMock(object):
 
     def write(self, line):
         self.data = line
+
+    def tell(self):
+        return len(self.data)
