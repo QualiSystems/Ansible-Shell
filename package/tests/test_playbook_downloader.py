@@ -55,7 +55,7 @@ class TestPlaybookDownloader(TestCase):
             self.playbook_downloader.get("", auth, self.logger)
         self.assertEqual(e.exception.message,"Playbook file name was not found in zip file")
 
-    def test_playbook_downloader_with_one_yaml(self):
+    def _test_playbook_downloader_with_one_yaml(self):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml", "site.yaml"])
         auth = HttpAuth("user", "pass")
         self.reqeust.url = "blabla/lie.zip"
