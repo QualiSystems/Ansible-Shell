@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DataModelInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.qualisystems.com/ResourceManagement/DataModelSchema.xsd">
   <Attributes>
-    <AttributeInfo Name="Ansible Additional Arguments" Type="String" DefaultValue="" IsReadOnly="false">
+    <AttributeInfo Name="Ansible Additional Arguments" Description="Additional arguments that can be applied on the Ansible playbook execution" Type="String" DefaultValue="" IsReadOnly="false">
       <Rules />
     </AttributeInfo>
-    <AttributeInfo Name="Support Ansible" Type="Boolean" DefaultValue="True" IsReadOnly="true">
+    <AttributeInfo Name="Support Ansible" Type="Boolean" Description="Indicates that an Execution Server has Ansible installed and can run the Ansible driver" DefaultValue="True" IsReadOnly="true">
       <Rules>
         <Rule Name="Execution Server Selector" />
       </Rules>
@@ -21,7 +21,7 @@
         <AttributeValue Name="Execution Server Selector" Value="" />
       </AttributeValues>
       <Models>
-        <ResourceModel Name="Ansible Configuration" ImagePath="AnsibleIcon.png" Description="" SupportsConcurrentCommands="true">
+        <ResourceModel Name="Ansible Configuration" Description="" SupportsConcurrentCommands="true">
           <AttachedAttributes>
             <AttachedAttribute Name="Ansible Additional Arguments" IsOverridable="true" IsLocal="true">
               <AllowedValues />
