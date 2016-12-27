@@ -19,6 +19,7 @@ class ZipService(object):
         try:
             zip = zipfile.ZipFile(zip_file_name, 'r')
             zip.extractall(path=path)
+            return zip.infolist()
         finally:
             if zip:
                 zip.close()
@@ -88,9 +89,9 @@ class PlaybookDownloader(object):
         :rtype str
         """
         logger.info('Zip file was found, extracting file: %s ...' % (file_name))
-        self.zip_service.extract_all(file_name)
-        logger.info('Done (extracted %s files).'%len(zip.infolist()))
-        yaml_files = [file_name for file_name in os.listdir(".") if file_name.endswith(".yaml") or file_name.endswith(".yml")]
+        zip_length = self.zip_service.extract_all(file_name)
+        logger.info('Done (extracted %s files).'%len(zip_length))
+        yaml_files = [file_name for file_name in self.file_system.get_entries(self.file_system.get_working_dir()) if file_name.endswith(".yaml") or file_name.endswith(".yml")]
         if len(yaml_files) > 1:
             playbook_name = next((file_name for file_name in yaml_files if file_name == "site.yaml" or file_name == "site.yml"), None)
         if len(yaml_files) == 1:
