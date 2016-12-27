@@ -49,6 +49,16 @@ class FileSystemService(object):
         """
         return os.getcwd()
 
+    def get_entries(self, dir):
+        """
+           Return a list containing the names of the entries in the directory.
+           :param str path: The path of of directory to list
+
+           The list is in arbitrary order.  It does not include the special
+           entries '.' and '..' even if they are present in the directory.
+           """
+        os.listdir(dir)
+
     def set_working_dir(self, path):
         """
         Set new working directory.
