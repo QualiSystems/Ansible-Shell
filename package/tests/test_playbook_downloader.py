@@ -71,7 +71,7 @@ class TestPlaybookDownloader(TestCase):
         self.reqeust.url = "blabla/lie.yaml"
         dic = dict([('content-disposition', 'lie.yaml')])
         self.reqeust.headers = dic
-        self.reqeust.iter_content.return_value = ''
+        self.reqeust.iter_content.return_value = 'hello'
         self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
 
         file_name = self.playbook_downloader.get("", auth, self.logger)
