@@ -48,7 +48,7 @@ class TestAnsibleShell(TestCase):
 
         self.execute_playbook()
 
-        host1_var_file = self.file_system.read_all_lines('hosts_vars', 'host1')
+        host1_var_file = self.file_system.read_all_lines('host_vars', 'host1')
         host1_pem_file = self.file_system.read_all_lines('host1_access_key.pem')
         self.assertTrue('ansible_ssh_private_key_file: host1_access_key.pem' in host1_var_file)
         self.assertEquals('data1234', host1_pem_file)
@@ -62,7 +62,7 @@ class TestAnsibleShell(TestCase):
 
         self.execute_playbook()
 
-        host1_var_file = self.file_system.read_all_lines('hosts_vars', 'host1')
+        host1_var_file = self.file_system.read_all_lines('host_vars', 'host1')
         self.assertTrue('ansible_user: admin' in host1_var_file)
         self.assertTrue('ansible_ssh_pass: 1234' in host1_var_file)
 
@@ -74,7 +74,7 @@ class TestAnsibleShell(TestCase):
 
         self.execute_playbook()
 
-        host1_var_file = self.file_system.read_all_lines('hosts_vars', 'host1')
+        host1_var_file = self.file_system.read_all_lines('host_vars', 'host1')
         self.assertTrue('ansible_connection: winrm' in host1_var_file)
 
     def test_download_playbook_without_auth(self):

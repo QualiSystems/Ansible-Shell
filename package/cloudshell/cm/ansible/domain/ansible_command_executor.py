@@ -4,7 +4,7 @@ import os
 from Queue import Queue, Empty
 from logging import Logger
 from threading import Thread, RLock
-
+from xml.sax.saxutils import escape
 from cloudshell.api.cloudshell_api import CloudShellAPISession
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
@@ -39,12 +39,13 @@ class AnsibleCommandExecutor(object):
                 txt = ac.read_all_txt()
                 if txt:
                     output += txt
-                    html_converted = UnixToHtmlColorConverter().convert(txt)
-                    #output_writer.write(html_converted)
+                    txt = UnixToHtmlColorConverter().convert(txt)
                     try:
                         output_writer.write(txt)
-                    except:
+                    except Exception as e:
+                        output_writer.write('failed to write text of %s characters (%s)'%(len(txt),e))
                         logger.debug("failed to write:" + txt)
+                        logger.debug("failed to write.")
                 if process.poll() is not None:
                     break
                 time.sleep(2)
