@@ -1,6 +1,7 @@
 from unittest import TestCase
 from mock import Mock
 
+from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
 from cloudshell.cm.ansible.domain.playbook_downloader import PlaybookDownloader, HttpAuth
 from tests.mocks.file_system_service_mock import FileSystemServiceMock
 
@@ -9,7 +10,7 @@ class TestPlaybookDownloader(TestCase):
 
     def setUp(self):
         self.zip_service = Mock()
-        self.http_request_serivce = Mock()
+        self.http_request_serivce = HttpRequestService()
         self.file_system = FileSystemServiceMock()
         self.playbook_downloader = PlaybookDownloader(self.file_system, self.zip_service, self.http_request_serivce)
         self.logger = Mock()
@@ -28,7 +29,7 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
-        self.http_request_serivce.get_request.return_value = self.reqeust
+        self.http_request_serivce.get_request=Mock(return_value=self.reqeust)
         file_name = self.playbook_downloader.get("", auth, self.logger)
         self.assertEquals(file_name, "lie.yaml")
 
@@ -39,7 +40,7 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
-        self.http_request_serivce.get_request.return_value = self.reqeust
+        self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
         file_name = self.playbook_downloader.get("", auth, self.logger)
         self.assertEquals(file_name, "site.yaml")
 
@@ -50,7 +51,7 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
-        self.http_request_serivce.get_request.return_value = self.reqeust
+        self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
         with self.assertRaises(Exception) as e:
             self.playbook_downloader.get("", auth, self.logger)
         self.assertEqual(e.exception.message,"Playbook file name was not found in zip file")
@@ -61,6 +62,6 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.yaml')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
-        self.http_request_serivce.get_request.return_value = self.reqeust
+        self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
         file_name = self.playbook_downloader.get("", auth, self.logger)
         self.assertEquals(file_name, "lie.yaml")
