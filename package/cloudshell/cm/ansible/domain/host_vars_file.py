@@ -32,7 +32,7 @@ class HostVarsFile(object):
             lines = ['---']
             for key, value in sorted(self.vars.iteritems()):
                 lines.append(str(key) + ': ' + str(value))
-            file_stream.writelines(lines)
+            file_stream.write(os.linesep.join(lines))
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done.')
 

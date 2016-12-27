@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from cloudshell.cm.ansible.domain.output.ansibleResult import AnsiblePlaybookParser
-from cloudshell.tests.mocks.file_system_service_mock import FileSystemServiceMock
+from tests.mocks.file_system_service_mock import FileSystemServiceMock
 
 
 class TestUnixToHtmlColorConverter(TestCase):

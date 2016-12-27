@@ -77,7 +77,7 @@ class PlaybookDownloader(object):
                     file.write(chunk)
             file_size = file.tell()
 
-        logger.info('Done (%s(%s bytes)).' % (file_name, file_size))
+        logger.info('Done (file: %s, size: %s bytes)).' % (file_name, file_size))
         return file_name, file_size
 
     def _unzip(self, file_name, logger):

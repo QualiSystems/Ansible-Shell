@@ -19,11 +19,11 @@ class TempFolderScope(object):
         self.folder = self.file_system.create_temp_folder()
         self.prev_working_dir = self.file_system.get_working_dir()
         self.file_system.set_working_dir(self.folder)
-        self.logger.info('Done.\n\t folder=%s' % self.folder)
+        self.logger.info('Done (folder: %s)' % self.folder)
         return self.folder
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.logger.info('Deleting temp folder and restoring the previous working dir...')
         self.file_system.set_working_dir(self.prev_working_dir)
         self.file_system.delete_temp_folder(self.folder)
-        self.logger.info('Done.\n\t folder=%s' % self.folder)
+        self.logger.info('Done (folder: %s)' % self.folder)

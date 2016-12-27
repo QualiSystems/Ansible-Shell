@@ -24,7 +24,7 @@ class AnsibleConfigFile(object):
             lines = ['[defaults]']
             for key, value in self.config_keys.iteritems():
                 lines.append(key + ' = ' + value)
-            file_stream.writelines(lines)
+            file_stream.write(os.linesep.join(lines))
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done.')
 
