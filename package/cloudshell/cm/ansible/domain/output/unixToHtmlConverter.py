@@ -35,5 +35,6 @@ class UnixToHtmlColorConverter(object):
         p_object = re.compile('|'.join(self.unixToHtml.keys()))
         result += p_object.sub(lambda x: self._add_font_tag(x), text)
         result += '</font></body></html>'
-        result = '<br />'.join([line for line in result.split(os.linesep) if line])
+        #result = '<br />'.join([line for line in result.split(os.linesep) if line])
+        result = '<br />'.join(result.replace(os.linesep+os.linesep,os.linesep).split(os.linesep))
         return result;
