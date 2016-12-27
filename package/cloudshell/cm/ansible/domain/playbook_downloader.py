@@ -59,7 +59,7 @@ class PlaybookDownloader(object):
         parse = rfc6266.parse_requests_response(req, relaxed=True)
         file_name = parse.filename_unsafe
         if not file_name:
-            file_name = urllib.unquote(req.url[req.url.rfind('/'):])
+            file_name = urllib.unquote(req.url[req.url.rfind('/')+1:])
 
         with self.file_system.create_file(file_name) as file:
             for chunk in req.iter_content(PlaybookDownloader.CHUNK_SIZE):

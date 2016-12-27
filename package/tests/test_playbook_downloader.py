@@ -28,7 +28,7 @@ class TestPlaybookDownloader(TestCase):
         obj.filename_unsafe = fname
         return obj
 
-    @patch('rfc6266.parse_requests_response', return_value=rfc_mock_return_object("lie.yaml"))
+    @patch('rfc6266.parse_requests_response', return_value=rfc_mock_return_object("lie.zip"))
     def test_playbook_downloader_zip_file_one_yaml(self, rfc_mock):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml"])
         auth = HttpAuth("user", "pass")
@@ -67,6 +67,19 @@ class TestPlaybookDownloader(TestCase):
 
     @patch('rfc6266.parse_requests_response', return_value=rfc_mock_return_object("lie.yaml"))
     def test_playbook_downloader_with_one_yaml(self, rfc_mock):
+        auth = HttpAuth("user", "pass")
+        self.reqeust.url = "blabla/lie.yaml"
+        dic = dict([('content-disposition', 'lie.yaml')])
+        self.reqeust.headers = dic
+        self.reqeust.iter_content.return_value = ''
+        self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
+
+        file_name = self.playbook_downloader.get("", auth, self.logger)
+
+        self.assertEquals(file_name, "lie.yaml")
+
+    @patch('rfc6266.parse_requests_response', return_value=rfc_mock_return_object(""))
+    def test_playbook_downloader_no_parsing_from_rfc(self, rfc_mock):
         auth = HttpAuth("user", "pass")
         self.reqeust.url = "blabla/lie.yaml"
         dic = dict([('content-disposition', 'lie.yaml')])
