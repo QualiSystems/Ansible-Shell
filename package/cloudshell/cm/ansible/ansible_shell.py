@@ -3,6 +3,7 @@ import os
 
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
+from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 
 from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
@@ -86,7 +87,7 @@ class AnsibleShell(object):
         playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger)
 
         logger.info('Running the playbook')
-        with self.session_provider.get(command_context) as session:
+        with CloudShellSessionContext(command_context) as session:
             output_writer = ReservationOutputWriter(session, command_context)
             ansible_result = self.executor.execute_playbook(
                 playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args,

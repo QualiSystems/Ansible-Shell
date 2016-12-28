@@ -6,11 +6,25 @@ from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurat
 from mock import Mock, patch
 
 
-def _create_file_mock():
+def _mock_enter_exit_self():
     f = Mock()
-    f.__enter__ = Mock(return_value=Mock())
+    f.__enter__ = Mock(return_value=f)
     f.__exit__ = Mock()
     return f
+
+
+def _mock_enter_exit(returned_value):
+    f = Mock()
+    f.__enter__ = Mock(return_value=returned_value)
+    f.__exit__ = Mock()
+    return f
+
+
+class Any(object):
+    def __init__(self, predicate=None):
+        self.predicate = predicate
+    def __eq__(self, other):
+        return not self.predicate or self.predicate(other)
 
 
 class TestAnsibleShell(TestCase):
@@ -22,10 +36,10 @@ class TestAnsibleShell(TestCase):
         self.context.reservation.reservation_id = 'e34aa58a-468e-49a1-8a1d-0da1d2cc5b41'
 
         self.file_system = Mock()
-        self.file_system.create_file = Mock(return_value=_create_file_mock())
+        self.file_system.create_file = Mock(return_value=_mock_enter_exit(Mock()))
         self.downloader = Mock()
         self.executor = Mock()
-        self.logger = Mock()
+        self.logger = _mock_enter_exit(Mock())
         session = Mock()
         session_context = Mock()
         session_context.__enter__ = Mock(return_value=session)
@@ -34,89 +48,104 @@ class TestAnsibleShell(TestCase):
         self.session_provider.get = Mock(return_value=session_context)
 
         self.conf = AnsibleConfiguration()
-        self.shell = AnsibleShell(self.file_system, self.downloader, self.executor, self.session_provider)
+        self.shell = AnsibleShell(self.file_system, self.downloader, self.executor)
 
     # Helper
 
-    @patch('cloudshell.cm.ansible.domain.ansible_configuration.AnsibleConfigurationParser.json_to_object')
-    @patch('cloudshell.shell.core.session.logging_session.LoggingSessionContext.get_logger_for_context')
-    def _execute_playbook(self, get_logger_for_context, json_to_object):
-        json_to_object.return_value = self.conf
-        get_logger_for_context.return_value = self.logger
-        return self.shell.execute_playbook(self.context, '')
+    def _execute_playbook(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.LoggingSessionContext'):
+            with patch('cloudshell.cm.ansible.ansible_shell.ErrorHandlingContext'):
+                with patch('cloudshell.cm.ansible.ansible_shell.AnsibleConfigurationParser') as parser:
+                    parser.json_to_object = Mock(return_value=self.conf)
+                    with patch('cloudshell.cm.ansible.ansible_shell.CloudShellSessionContext'):
+                        return self.shell.execute_playbook(self.context, '')
+
+    # General
+
+    def test_temp_folder_is_created(self):
+        self._execute_playbook()
+
+        self.file_system.create_temp_folder.assert_called_once()
+        self.file_system.delete_temp_folder.assert_called_once()
 
     # Ansible Configuration
 
-    @patch('cloudshell.cm.ansible.domain.ansible_config_file.AnsibleConfigFile.ignore_ssh_key_checking')
-    def test_config_ssh_key_checking(self, ignore_ssh_key_checking):
-        self._execute_playbook()
+    def test_ansible_config_file(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.AnsibleConfigFile') as file:
+            m = _mock_enter_exit_self()
+            file.return_value = m
 
-        ignore_ssh_key_checking.assert_called_once()
+            self._execute_playbook()
 
-    @patch('cloudshell.cm.ansible.domain.ansible_config_file.AnsibleConfigFile.force_color')
-    def test_config_force_color(self, force_color):
-        self._execute_playbook()
-
-        force_color.assert_called_once()
-
-    @patch('cloudshell.cm.ansible.domain.ansible_config_file.AnsibleConfigFile.set_retry_path')
-    def test_config_retry_path(self, set_retry_path):
-        self._execute_playbook()
-
-        set_retry_path.assert_called_once_with("."+os.pathsep)
+            m.ignore_ssh_key_checking.assert_called_once()
+            m.force_color.assert_called_once()
+            m.set_retry_path.assert_called_once_with("." + os.pathsep)
 
     # Inventory File
 
-    @patch('cloudshell.cm.ansible.domain.inventory_file.InventoryFile.add_host_and_groups')
-    def test_inventory_add_host_and_groups(self, add_host_and_groups):
-        host1 = HostConfiguration()
-        host1.ip = 'host1'
-        host1.groups = ['group1']
-        self.conf.hosts_conf.append(host1)
+    def test_inventory_file(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.InventoryFile') as file:
+            m = _mock_enter_exit_self()
+            file.return_value = m
+            host1 = HostConfiguration()
+            host1.ip = 'host1'
+            host1.groups = ['group1']
+            host2 = HostConfiguration()
+            host2.ip = 'host2'
+            host2.groups = ['group2']
+            self.conf.hosts_conf.append(host1)
+            self.conf.hosts_conf.append(host2)
 
-        self._execute_playbook()
+            self._execute_playbook()
 
-        add_host_and_groups.assert_called_once_with('host1', ['group1'])
+            m.add_host_and_groups.assert_any_call('host1', ['group1'])
+            m.add_host_and_groups.assert_any_call('host2', ['group2'])
 
     # Host Vars File
 
-    @patch('cloudshell.cm.ansible.domain.host_vars_file.HostVarsFile.add_conn_file')
-    def test_host_with_access_key(self, add_conn_file):
-        host1 = HostConfiguration()
-        host1.ip = 'host1'
-        host1.access_key = 'data1234'
-        self.conf.hosts_conf.append(host1)
+    def test_host_vars_file_with_access_key(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
+            m = _mock_enter_exit_self()
+            file.return_value = m
+            host1 = HostConfiguration()
+            host1.ip = 'host1'
+            host1.access_key = 'data1234'
+            self.conf.hosts_conf.append(host1)
 
-        self._execute_playbook()
+            self._execute_playbook()
 
-        add_conn_file.assert_called_once_with('host1_access_key.pem')
-        self.file_system.create_file.assert_any_call(os.path.join('host_vars','host1'))
-        self.file_system.create_file.assert_any_call('host1_access_key.pem')
+            self.file_system.create_file.assert_any_call('host1_access_key.pem')
+            m.add_conn_file.assert_called_once_with('host1_access_key.pem')
+            m.add_username.assert_not_called()
+            m.add_password.assert_not_called()
 
-    @patch('cloudshell.cm.ansible.domain.host_vars_file.HostVarsFile.add_username')
-    @patch('cloudshell.cm.ansible.domain.host_vars_file.HostVarsFile.add_password')
-    def test_host_with_username_and_password(self, add_password, add_username):
-        host1 = HostConfiguration()
-        host1.ip = 'host1'
-        host1.username = 'admin'
-        host1.password = '1234'
-        self.conf.hosts_conf.append(host1)
+    def test_host_with_username_and_password(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
+            m = _mock_enter_exit_self()
+            file.return_value = m
+            host1 = HostConfiguration()
+            host1.ip = 'host1'
+            host1.username = 'admin'
+            host1.password = '1234'
+            self.conf.hosts_conf.append(host1)
 
-        self._execute_playbook()
+            self._execute_playbook()
 
-        self.file_system.create_file.assert_any_call(os.path.join('host_vars','host1'))
-        add_username.assert_called_once_with('admin')
-        add_password.assert_called_once_with('1234')
+            m.add_conn_file.assert_not_called()
+            m.add_username.assert_called_once_with('admin')
+            m.add_password.assert_called_once_with('1234')
 
-    @patch('cloudshell.cm.ansible.domain.host_vars_file.HostVarsFile.add_vars')
-    def test_host_with_custom_vars(self, add_vars):
-        host1 = HostConfiguration()
-        host1.ip = 'host1'
-        self.conf.hosts_conf.append(host1)
+    def test_host_with_custom_vars(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
+            m = _mock_enter_exit_self()
+            file.return_value = m
+            host1 = HostConfiguration()
+            host1.ip = 'host1'
+            self.conf.hosts_conf.append(host1)
 
-        self._execute_playbook()
+            self._execute_playbook()
 
-        add_vars.assert_called_once()
+            m.add_vars.assert_called_once()
 
     # Playbook Downloader
 
@@ -125,7 +154,7 @@ class TestAnsibleShell(TestCase):
 
         self._execute_playbook()
 
-        self.downloader.get.assert_called_once_with('someurl', None, self.logger)
+        self.downloader.get.assert_called_once_with('someurl', Any(), Any())
 
     def test_download_playbook_with_auth(self):
         self.conf.playbook_repo.url = 'someurl'
@@ -134,9 +163,9 @@ class TestAnsibleShell(TestCase):
 
         self._execute_playbook()
 
-        self.assertEquals('someurl', self.downloader.get.call_args[0][0])
-        self.assertEquals('user', self.downloader.get.call_args[0][1].username)
-        self.assertEquals('pass', self.downloader.get.call_args[0][1].password)
+        self.downloader.get.assert_called_once_with('someurl', Any(lambda x: x.username == 'user' and x.password == 'pass'), Any())
+
+    # Playbook Executor
 
     def test_execute_playbook_returns_executor_value(self):
         return_obj = Mock()
