@@ -90,7 +90,7 @@ class TestAnsibleShell(TestCase):
         self._execute_playbook()
 
         add_conn_file.assert_called_once_with('host1_access_key.pem')
-        self.file_system.create_file.assert_any_call('host_vars\\host1')
+        self.file_system.create_file.assert_any_call('host_vars%shost1'%os.pathsep)
         self.file_system.create_file.assert_any_call('host1_access_key.pem')
 
     @patch('cloudshell.cm.ansible.domain.host_vars_file.HostVarsFile.add_username')
@@ -104,7 +104,7 @@ class TestAnsibleShell(TestCase):
 
         self._execute_playbook()
 
-        self.file_system.create_file.assert_any_call('host_vars\\host1')
+        self.file_system.create_file.assert_any_call('host_vars%shost1'%os.pathsep)
         add_username.assert_called_once_with('admin')
         add_password.assert_called_once_with('1234')
 
