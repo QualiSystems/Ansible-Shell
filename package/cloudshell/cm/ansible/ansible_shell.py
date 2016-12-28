@@ -7,16 +7,17 @@ from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 
 from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
 from cloudshell.cm.ansible.domain.zip_service import ZipService
-from domain.cloudshell_session_provider import CloudShellSessionProvider
-from domain.file_system_service import FileSystemService
-from domain.inventory_file import InventoryFile
-from domain.playbook_downloader import PlaybookDownloader, HttpAuth
-from domain.ansible_configutarion import AnsibleConfiguration, HostConfiguration, PlaybookRepository, AnsibleConfigurationParser
-from domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
-from domain.ansible_conflig_file import AnsibleConfigFile
-from domain.host_vars_file import HostVarsFile
-from domain.output.ansibleResult import AnsiblePlaybookParser
-from domain.temp_folder_scope import TempFolderScope
+from cloudshell.cm.ansible.domain.cloudshell_session_provider import CloudShellSessionProvider
+from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
+from cloudshell.cm.ansible.domain.inventory_file import InventoryFile
+from cloudshell.cm.ansible.domain.playbook_downloader import PlaybookDownloader, HttpAuth
+from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration, PlaybookRepository
+from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
+from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
+from cloudshell.cm.ansible.domain.output.ansibleResult import AnsiblePlaybookParser
+from cloudshell.cm.ansible.domain.temp_folder_scope import TempFolderScope
+from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser
+from cloudshell.cm.ansible.domain.host_vars_file import HostVarsFile
 
 
 class AnsibleShell(object):
@@ -34,7 +35,6 @@ class AnsibleShell(object):
         zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service)
-
         self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser(self.file_system))
         self.session_provider = session_provider or CloudShellSessionProvider()
 

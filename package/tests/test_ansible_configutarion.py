@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from cloudshell.cm.ansible.domain.ansible_configutarion import AnsibleConfigurationParser
+from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser
 
 
 class TestAnsibleConfigurationParser(TestCase):

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from cloudshell.cm.ansible.domain.ansible_conflig_file import AnsibleConfigFile
+from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
 from mocks.file_system_service_mock import FileSystemServiceMock
 from mock import Mock
 import os
