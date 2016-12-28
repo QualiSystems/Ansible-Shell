@@ -4,7 +4,7 @@ from cloudshell.shell.core.context import ResourceCommandContext, ResourceContex
 from cloudshell.cm.ansible.ansible_shell import AnsibleShell
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration
 from mock import Mock, patch
-from helpers import mock_enter_exit, mock_enter_exit_self
+from helpers import mock_enter_exit, mock_enter_exit_self, Any
 
 
 class TestAnsibleShell(TestCase):
