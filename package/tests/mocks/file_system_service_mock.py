@@ -3,8 +3,10 @@ import string
 import os
 import tempfile
 
+from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
 
-class FileSystemServiceMock(object):
+
+class FileSystemServiceMock(FileSystemService):
 
     def __init__(self):
         self.folders = []
