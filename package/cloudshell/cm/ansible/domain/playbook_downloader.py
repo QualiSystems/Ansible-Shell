@@ -1,9 +1,4 @@
-import os
-import zipfile
-
 from file_system_service import FileSystemService
-import requests
-import rfc6266
 import urllib
 from logging import Logger
 
@@ -12,9 +7,6 @@ class HttpAuth(object):
     def __init__(self, username, password):
         self.username = username
         self.password = password
-
-
-
 
 
 class PlaybookDownloader(object):

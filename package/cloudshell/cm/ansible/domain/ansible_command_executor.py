@@ -1,4 +1,4 @@
-import subprocess
+from subprocess import Popen, PIPE
 import time
 import os
 from Queue import Queue, Empty
@@ -27,11 +27,11 @@ class AnsibleCommandExecutor(object):
         :type output_writer: OutputWriter
         :return:
         """
-        shell_command = self._createShellCommand(playbook_file, inventory_file, args)
+        shell_command = self._create_shell_command(playbook_file, inventory_file, args)
 
         logger.info('Running cmd \'%s\' ...' % shell_command)
         start_time = time.time()
-        process = subprocess.Popen(shell_command, shell=True, stdout=subprocess.PIPE)
+        process = Popen(shell_command, shell=True, stdout=PIPE)
         output = ''
 
         with StdoutAccumulator(process.stdout) as ac:
@@ -57,7 +57,7 @@ class AnsibleCommandExecutor(object):
 
         return self.output_parser.parse(output, playbook_file)
 
-    def _createShellCommand(self, playbook_file, inventory_file, args):
+    def _create_shell_command(self, playbook_file, inventory_file, args):
         command = "ansible"
 
         if playbook_file:
@@ -66,7 +66,6 @@ class AnsibleCommandExecutor(object):
             command += " -i " + inventory_file
         if args:
             command += " " + args
-        command += " -v"
         return command
 
 
