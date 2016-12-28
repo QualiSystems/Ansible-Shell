@@ -4,6 +4,9 @@ import os
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
+
+from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
+from cloudshell.cm.ansible.domain.zip_service import ZipService
 from domain.cloudshell_session_provider import CloudShellSessionProvider
 from domain.file_system_service import FileSystemService
 from domain.inventory_file import InventoryFile
@@ -19,15 +22,19 @@ from domain.temp_folder_scope import TempFolderScope
 class AnsibleShell(object):
     INVENTORY_FILE_NAME = 'hosts'
 
-    def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None, session_provider=None):
+    def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None, session_provider=None, http_request_service = None, zip_service = None):
         """
         :type file_system: FileSystemService
         :type playbook_downloader: PlaybookDownloader
         :type playbook_executor: AnsibleCommandExecutor
         :type session_provider: CloudShellSessionProvider
         """
+
+        http_request_service = http_request_service or HttpRequestService()
+        zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
-        self.downloader = playbook_downloader or PlaybookDownloader(self.file_system)
+        self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service)
+
         self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser(self.file_system))
         self.session_provider = session_provider or CloudShellSessionProvider()
 
