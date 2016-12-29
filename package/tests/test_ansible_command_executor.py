@@ -32,9 +32,9 @@ class TestAnsibleCommandExecutor(TestCase):
 
     def tearDown(self):
         self.popen_patcher.stop()
-        self.stdout_mock.stop()
-        self.convert_mock.stop()
-        self.sleep_mock.stop()
+        self.stdout_patcher.stop()
+        self.convert_patcher.stop()
+        self.sleep_patcher.stop()
 
     def test_run_prcess_with_corrent_command_line(self):
         with patch('cloudshell.cm.ansible.domain.ansible_command_executor.Popen') as popen:
