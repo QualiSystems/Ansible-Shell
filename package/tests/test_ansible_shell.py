@@ -4,27 +4,7 @@ from cloudshell.shell.core.context import ResourceCommandContext, ResourceContex
 from cloudshell.cm.ansible.ansible_shell import AnsibleShell
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration
 from mock import Mock, patch
-
-
-def _mock_enter_exit_self():
-    f = Mock()
-    f.__enter__ = Mock(return_value=f)
-    f.__exit__ = Mock()
-    return f
-
-
-def _mock_enter_exit(returned_value):
-    f = Mock()
-    f.__enter__ = Mock(return_value=returned_value)
-    f.__exit__ = Mock()
-    return f
-
-
-class Any(object):
-    def __init__(self, predicate=None):
-        self.predicate = predicate
-    def __eq__(self, other):
-        return not self.predicate or self.predicate(other)
+from helpers import mock_enter_exit, mock_enter_exit_self, Any
 
 
 class TestAnsibleShell(TestCase):
@@ -36,10 +16,10 @@ class TestAnsibleShell(TestCase):
         self.context.reservation.reservation_id = 'e34aa58a-468e-49a1-8a1d-0da1d2cc5b41'
 
         self.file_system = Mock()
-        self.file_system.create_file = Mock(return_value=_mock_enter_exit(Mock()))
+        self.file_system.create_file = Mock(return_value=mock_enter_exit(Mock()))
         self.downloader = Mock()
         self.executor = Mock()
-        self.logger = _mock_enter_exit(Mock())
+        self.logger = mock_enter_exit(Mock())
         session = Mock()
         session_context = Mock()
         session_context.__enter__ = Mock(return_value=session)
@@ -72,7 +52,7 @@ class TestAnsibleShell(TestCase):
 
     def test_ansible_config_file(self):
         with patch('cloudshell.cm.ansible.ansible_shell.AnsibleConfigFile') as file:
-            m = _mock_enter_exit_self()
+            m = mock_enter_exit_self()
             file.return_value = m
 
             self._execute_playbook()
@@ -85,7 +65,7 @@ class TestAnsibleShell(TestCase):
 
     def test_inventory_file(self):
         with patch('cloudshell.cm.ansible.ansible_shell.InventoryFile') as file:
-            m = _mock_enter_exit_self()
+            m = mock_enter_exit_self()
             file.return_value = m
             host1 = HostConfiguration()
             host1.ip = 'host1'
@@ -105,7 +85,7 @@ class TestAnsibleShell(TestCase):
 
     def test_host_vars_file_with_access_key(self):
         with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
-            m = _mock_enter_exit_self()
+            m = mock_enter_exit_self()
             file.return_value = m
             host1 = HostConfiguration()
             host1.ip = 'host1'
@@ -121,7 +101,7 @@ class TestAnsibleShell(TestCase):
 
     def test_host_with_username_and_password(self):
         with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
-            m = _mock_enter_exit_self()
+            m = mock_enter_exit_self()
             file.return_value = m
             host1 = HostConfiguration()
             host1.ip = 'host1'
@@ -137,7 +117,7 @@ class TestAnsibleShell(TestCase):
 
     def test_host_with_custom_vars(self):
         with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
-            m = _mock_enter_exit_self()
+            m = mock_enter_exit_self()
             file.return_value = m
             host1 = HostConfiguration()
             host1.ip = 'host1'

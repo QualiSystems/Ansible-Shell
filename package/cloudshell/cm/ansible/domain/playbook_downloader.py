@@ -14,9 +14,6 @@ class HttpAuth(object):
         self.password = password
 
 
-
-
-
 class PlaybookDownloader(object):
     CHUNK_SIZE = 1024 * 1024
 
