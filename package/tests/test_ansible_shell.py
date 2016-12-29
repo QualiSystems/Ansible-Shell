@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
-from cloudshell.cm.ansible.ansible_shell import AnsibleShell
+from cloudshell.cm.ansible.ansible_shell import AnsibleShell, AnsibleException
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration
 from mock import Mock, patch
 from helpers import mock_enter_exit, mock_enter_exit_self, Any
@@ -38,7 +38,7 @@ class TestAnsibleShell(TestCase):
                 with patch('cloudshell.cm.ansible.ansible_shell.AnsibleConfigurationParser') as parser:
                     parser.json_to_object = Mock(return_value=self.conf)
                     with patch('cloudshell.cm.ansible.ansible_shell.CloudShellSessionContext'):
-                        return self.shell.execute_playbook(self.context, '')
+                        self.shell.execute_playbook(self.context, '')
 
     # General
 
@@ -147,10 +147,20 @@ class TestAnsibleShell(TestCase):
 
     # Playbook Executor
 
-    def test_execute_playbook_returns_executor_value(self):
+    def test_execute_playbook_end_when_no_errors(self):
         return_obj = Mock()
         self.executor.execute_playbook = Mock(return_value=return_obj)
 
-        returned_value = self._execute_playbook()
+        self._execute_playbook()
 
-        self.assertEqual(return_obj, returned_value)
+    def test_execute_playbook_throws_exception_on_any_error(self):
+        json = Mock()
+        return_obj = Mock()
+        return_obj.success = False
+        return_obj.failure_to_json = Mock(return_value=json)
+        self.executor.execute_playbook = Mock(return_value=return_obj)
+
+        with self.assertRaises(AnsibleException) as e:
+            self._execute_playbook()
+        self.assertEqual(json, e.exception.message)
+        return_obj.failure_to_json.assert_called_once()

@@ -56,14 +56,14 @@ class TestAnsibleCommandExecutor(TestCase):
 
         self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
 
-        self.output_parser_mock.parse.assert_called_once_with('12', 'p')
+        self.output_parser_mock.parse.assert_called_once_with('12')
 
     def test_parsed_results_are_returned(self):
-        self.output_parser_mock.parse = Mock(return_value='parsedresults')
+        self.output_parser_mock.parse = Mock(return_value='1234')
 
         results = self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
 
-        self.assertEqual('parsedresults', results)
+        self.assertEqual('1234', results)
 
     def test_every_output_bulk_is_written_to_outputwriter(self):
         self.stdout_mock.read_all_txt.side_effect = ['123', '456', '789']

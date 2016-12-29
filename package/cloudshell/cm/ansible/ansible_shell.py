@@ -48,8 +48,7 @@ class AnsibleShell(object):
                 logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
                 ansi_conf = AnsibleConfigurationParser.json_to_object(ansi_conf_json)
                 with TempFolderScope(self.file_system, logger) as root:
-                    result = self._execute_playbook(command_context, ansi_conf, logger)
-                    return result
+                    self._execute_playbook(command_context, ansi_conf, logger)
 
     def _execute_playbook(self,command_context, ansi_conf, logger):
         """
@@ -88,9 +87,13 @@ class AnsibleShell(object):
         with CloudShellSessionContext(command_context) as session:
             output_writer = ReservationOutputWriter(session, command_context)
             ansible_result = self.executor.execute_playbook(
-                playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args,
-                output_writer, logger)
-            return ansible_result #TODO: parse to json
+                playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args,output_writer, logger)
+            if not ansible_result.success:
+                raise AnsibleException(ansible_result.failure_to_json())
+
+
+class AnsibleException(Exception):
+    pass
 
 # j = """
 # {
