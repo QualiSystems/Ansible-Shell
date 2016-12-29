@@ -7,9 +7,9 @@ from threading import Thread, RLock
 from xml.sax.saxutils import escape
 from cloudshell.api.cloudshell_api import CloudShellAPISession
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
+from cloudshell.cm.ansible.domain.output.ansibleResult import AnsibleResult
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
 from cloudshell.shell.core.context import ResourceCommandContext
-
 from cloudshell.cm.ansible.domain.stdout_accumulator import StdoutAccumulator
 
 
@@ -27,7 +27,7 @@ class AnsibleCommandExecutor(object):
         :type args: list[str]
         :type logger: Logger
         :type output_writer: OutputWriter
-        :return:
+        :rtype: AnsibleResult
         """
         shell_command = self._create_shell_command(playbook_file, inventory_file, args)
 
@@ -57,7 +57,7 @@ class AnsibleCommandExecutor(object):
         logger.info('Done (after \'%s\' sec, with %s lines of output).' % (elapsed, line_count))
         logger.debug(output)
 
-        return self.output_parser.parse(output, playbook_file)
+        return self.output_parser.parse(output)
 
     def _create_shell_command(self, playbook_file, inventory_file, args):
         command = "ansible"

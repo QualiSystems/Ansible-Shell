@@ -57,7 +57,7 @@ class FileSystemService(object):
            The list is in arbitrary order.  It does not include the special
            entries '.' and '..' even if they are present in the directory.
            """
-        os.listdir(dir)
+        return os.listdir(dir)
 
     def set_working_dir(self, path):
         """
