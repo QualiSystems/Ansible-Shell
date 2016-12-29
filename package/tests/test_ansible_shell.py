@@ -99,7 +99,7 @@ class TestAnsibleShell(TestCase):
             m.add_username.assert_not_called()
             m.add_password.assert_not_called()
 
-    def test_host_with_username_and_password(self):
+    def test_host_vars_file_with_username_and_password(self):
         with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
             m = mock_enter_exit_self()
             file.return_value = m
@@ -115,7 +115,50 @@ class TestAnsibleShell(TestCase):
             m.add_username.assert_called_once_with('admin')
             m.add_password.assert_called_once_with('1234')
 
-    def test_host_with_custom_vars(self):
+    def test_host_vars_file_with_ssh(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
+            m = mock_enter_exit_self()
+            file.return_value = m
+            host1 = HostConfiguration()
+            host1.ip = 'host1'
+            host1.connection_method = 'ssh'
+            self.conf.hosts_conf.append(host1)
+
+            self._execute_playbook()
+
+            m.add_connection_type.assert_called_once_with('ssh')
+
+    def test_host_vars_file_with_winrm_http(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
+            m = mock_enter_exit_self()
+            file.return_value = m
+            host1 = HostConfiguration()
+            host1.ip = 'host1'
+            host1.connection_method = 'winrm'
+            host1.connection_secured = False
+            self.conf.hosts_conf.append(host1)
+
+            self._execute_playbook()
+
+            m.add_connection_type.assert_called_once_with('winrm')
+            m.add_port.assert_called_once_with('5985')
+
+    def test_host_vars_file_with_winrm_http(self):
+        with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
+            m = mock_enter_exit_self()
+            file.return_value = m
+            host1 = HostConfiguration()
+            host1.ip = 'host1'
+            host1.connection_method = 'winrm'
+            host1.connection_secured = True
+            self.conf.hosts_conf.append(host1)
+
+            self._execute_playbook()
+
+            m.add_connection_type.assert_called_once_with('winrm')
+            m.add_port.assert_called_once_with('5986')
+
+    def test_host_vars_file_with_custom_vars(self):
         with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
             m = mock_enter_exit_self()
             file.return_value = m

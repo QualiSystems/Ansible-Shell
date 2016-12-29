@@ -11,7 +11,8 @@ from cloudshell.cm.ansible.domain.zip_service import ZipService
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
 from cloudshell.cm.ansible.domain.inventory_file import InventoryFile
 from cloudshell.cm.ansible.domain.playbook_downloader import PlaybookDownloader, HttpAuth
-from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration, PlaybookRepository
+from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration, \
+    PlaybookRepository
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
 from cloudshell.cm.ansible.domain.output.ansibleResult import AnsiblePlaybookParser
@@ -23,7 +24,8 @@ from cloudshell.cm.ansible.domain.host_vars_file import HostVarsFile
 class AnsibleShell(object):
     INVENTORY_FILE_NAME = 'hosts'
 
-    def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None, session_provider=None, http_request_service = None, zip_service = None):
+    def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None, session_provider=None,
+                 http_request_service=None, zip_service=None):
         """
         :type file_system: FileSystemService
         :type playbook_downloader: PlaybookDownloader
@@ -50,7 +52,7 @@ class AnsibleShell(object):
                 with TempFolderScope(self.file_system, logger) as root:
                     self._execute_playbook(command_context, ansi_conf, logger)
 
-    def _execute_playbook(self,command_context, ansi_conf, logger):
+    def _execute_playbook(self, command_context, ansi_conf, logger):
         """
         :type command_context: ResourceCommandContext
         :type ansi_conf: AnsibleConfiguration
@@ -60,7 +62,7 @@ class AnsibleShell(object):
         with AnsibleConfigFile(self.file_system, logger) as file:
             file.ignore_ssh_key_checking()
             file.force_color()
-            file.set_retry_path("."+os.pathsep)
+            file.set_retry_path("." + os.pathsep)
 
         with InventoryFile(self.file_system, self.INVENTORY_FILE_NAME, logger) as inventory:
             for host_conf in ansi_conf.hosts_conf:
@@ -70,6 +72,11 @@ class AnsibleShell(object):
             with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
                 file.add_vars(host_conf.parameters)
                 file.add_connection_type(host_conf.connection_method)
+                if host_conf.connection_method == 'winrm':
+                    if host_conf.connection_secured == True:
+                        file.add_port('5986')
+                    if host_conf.connection_secured == False:
+                        file.add_port('5985')
                 if host_conf.access_key is not None:
                     file_name = host_conf.ip + '_access_key.pem'
                     with self.file_system.create_file(file_name) as file_stream:
@@ -87,7 +94,7 @@ class AnsibleShell(object):
         with CloudShellSessionContext(command_context) as session:
             output_writer = ReservationOutputWriter(session, command_context)
             ansible_result = self.executor.execute_playbook(
-                playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args,output_writer, logger)
+                playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger)
             if not ansible_result.success:
                 raise AnsibleException(ansible_result.failure_to_json())
 
