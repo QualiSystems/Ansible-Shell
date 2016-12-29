@@ -1,4 +1,4 @@
-import subprocess
+from subprocess import Popen, PIPE
 import time
 import os
 from Queue import Queue, Empty
@@ -9,6 +9,8 @@ from cloudshell.api.cloudshell_api import CloudShellAPISession
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
 from cloudshell.shell.core.context import ResourceCommandContext
+
+from cloudshell.cm.ansible.domain.stdout_accumulator import StdoutAccumulator
 
 
 class AnsibleCommandExecutor(object):
@@ -27,11 +29,11 @@ class AnsibleCommandExecutor(object):
         :type output_writer: OutputWriter
         :return:
         """
-        shell_command = self._createShellCommand(playbook_file, inventory_file, args)
+        shell_command = self._create_shell_command(playbook_file, inventory_file, args)
 
         logger.info('Running cmd \'%s\' ...' % shell_command)
         start_time = time.time()
-        process = subprocess.Popen(shell_command, shell=True, stdout=subprocess.PIPE)
+        process = Popen(shell_command, shell=True, stdout=PIPE)
         output = ''
 
         with StdoutAccumulator(process.stdout) as ac:
@@ -57,7 +59,7 @@ class AnsibleCommandExecutor(object):
 
         return self.output_parser.parse(output, playbook_file)
 
-    def _createShellCommand(self, playbook_file, inventory_file, args):
+    def _create_shell_command(self, playbook_file, inventory_file, args):
         command = "ansible"
 
         if playbook_file:
@@ -66,46 +68,7 @@ class AnsibleCommandExecutor(object):
             command += " -i " + inventory_file
         if args:
             command += " " + args
-        command += " -v"
         return command
-
-
-class StdoutAccumulator(object):
-    def __init__(self, stdout):
-        self.queue = Queue()
-        self.stdout = stdout
-        self.thread = Thread(target=self._push_to_queue)
-        self.thread.daemon = True
-        self.lock = RLock()
-
-    def __enter__(self):
-        self.thread.start()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        with self.lock:
-            self.stdout.close()
-        self.thread.join()
-
-    def _push_to_queue(self):
-        is_closed = False
-        while not is_closed:
-            with self.lock:
-                is_closed = self.stdout.closed
-                if not is_closed:
-                    line = self.stdout.readline()
-                    if line:
-                        self.queue.put(line)
-
-    def read_all_txt(self):
-        try:
-            lines = []
-            while True:
-                lines.append(self.queue.get_nowait())
-        except Empty:
-            pass
-        finally:
-            return os.linesep.join(lines)
 
 
 class OutputWriter(object):
