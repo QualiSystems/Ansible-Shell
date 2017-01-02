@@ -2,8 +2,7 @@ import os
 from Queue import Queue, Empty
 from threading import Thread, RLock
 
-
-class StdoutAccumulator(object):
+class StreamAccumulator(object):
     def __init__(self, stdout):
         self.queue = Queue()
         self.stdout = stdout
@@ -39,3 +38,13 @@ class StdoutAccumulator(object):
             pass
         finally:
             return os.linesep.join(lines)
+
+
+class StdoutAccumulator(StreamAccumulator):
+    def __init__(self, stdout):
+        super(StdoutAccumulator, self).__init__(stdout)
+
+
+class StderrAccumulator(StreamAccumulator):
+    def __init__(self, stdout):
+        super(StderrAccumulator, self).__init__(stdout)

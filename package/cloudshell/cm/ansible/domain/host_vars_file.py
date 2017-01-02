@@ -8,7 +8,9 @@ class HostVarsFile(object):
     ANSIBLE_USER = 'ansible_user'
     ANSIBLE_PASSWORD = 'ansible_ssh_pass'
     ANSIBLE_CONNECTION = 'ansible_connection'
+    ANSIBLE_PORT = 'ansible_port'
     ANSIBLE_CONNECTION_FILE = 'ansible_ssh_private_key_file'
+    ANSIBLE_WINRM_CERT_VALIDATION = 'ansible_winrm_server_cert_validation'
 
     def __init__(self, file_system, host_name, logger):
         """
@@ -50,3 +52,9 @@ class HostVarsFile(object):
 
     def add_password(self, password):
         self.vars[HostVarsFile.ANSIBLE_PASSWORD] = password
+
+    def add_port(self, port):
+        self.vars[HostVarsFile.ANSIBLE_PORT] = port
+
+    def add_ignore_winrm_cert_validation(self):
+        self.vars[HostVarsFile.ANSIBLE_WINRM_CERT_VALIDATION] = 'ignore'
