@@ -1,10 +1,4 @@
-import os
-import zipfile
-
 from file_system_service import FileSystemService
-import requests
-import rfc6266
-import urllib
 from logging import Logger
 
 
@@ -17,13 +11,14 @@ class HttpAuth(object):
 class PlaybookDownloader(object):
     CHUNK_SIZE = 1024 * 1024
 
-    def __init__(self, file_system, zip_service, http_request_service):
+    def __init__(self, file_system, zip_service, http_request_service, filename_extractor):
         """
         :param FileSystemService file_system:
         """
         self.file_system = file_system
         self.zip_service = zip_service
         self.http_request_service = http_request_service
+        self.filename_extractor = filename_extractor
 
     def get(self, url, auth, logger):
         """
@@ -51,15 +46,11 @@ class PlaybookDownloader(object):
         :return The downloaded file name
         """
         logger.info('Downloading file from \'%s\' ...'%url)
-        req = self.http_request_service.get_request(url,auth)
-
-        parse = rfc6266.parse_requests_response(req, relaxed=True)
-        file_name = parse.filename_unsafe
-        if not file_name:
-            file_name = urllib.unquote(req.url[req.url.rfind('/')+1:])
+        response = self.http_request_service.get_response(url, auth)
+        file_name = self.filename_extractor.get_filename(response)
 
         with self.file_system.create_file(file_name) as file:
-            for chunk in req.iter_content(PlaybookDownloader.CHUNK_SIZE):
+            for chunk in response.iter_content(PlaybookDownloader.CHUNK_SIZE):
                 if chunk:
                     file.write(chunk)
             file_size = file.tell()

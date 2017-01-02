@@ -36,7 +36,7 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
-        self.http_request_serivce.get_request=Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response=Mock(return_value=self.reqeust)
         file_name = self.playbook_downloader.get("", auth, self.logger)
         self.assertEquals(file_name, "lie.yaml")
 
@@ -48,7 +48,7 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
-        self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
         file_name = self.playbook_downloader.get("", auth, self.logger)
         self.assertEquals(file_name, "site.yaml")
 
@@ -60,7 +60,7 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
-        self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
         with self.assertRaises(Exception) as e:
             self.playbook_downloader.get("", auth, self.logger)
         self.assertEqual(e.exception.message,"Playbook file name was not found in zip file")
@@ -72,7 +72,7 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.yaml')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = 'hello'
-        self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
 
         file_name = self.playbook_downloader.get("", auth, self.logger)
 
@@ -85,7 +85,7 @@ class TestPlaybookDownloader(TestCase):
         dic = dict([('content-disposition', 'lie.yaml')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
-        self.http_request_serivce.get_request = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
 
         file_name = self.playbook_downloader.get("", auth, self.logger)
 
