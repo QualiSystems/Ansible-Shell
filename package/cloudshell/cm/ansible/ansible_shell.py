@@ -75,6 +75,7 @@ class AnsibleShell(object):
                 if host_conf.connection_method == 'winrm':
                     if host_conf.connection_secured == True:
                         file.add_port('5986')
+                        file.add_ignore_winrm_cert_validation()
                     if host_conf.connection_secured == False:
                         file.add_port('5985')
                 if host_conf.access_key is not None:
@@ -96,7 +97,7 @@ class AnsibleShell(object):
             ansible_result = self.executor.execute_playbook(
                 playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger)
             if not ansible_result.success:
-                raise AnsibleException(ansible_result.failure_to_json())
+                raise AnsibleException(ansible_result.to_json())
 
 
 class AnsibleException(Exception):

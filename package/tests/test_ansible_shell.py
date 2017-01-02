@@ -157,6 +157,7 @@ class TestAnsibleShell(TestCase):
 
             m.add_connection_type.assert_called_once_with('winrm')
             m.add_port.assert_called_once_with('5986')
+            m.add_ignore_winrm_cert_validation.assert_called_once()
 
     def test_host_vars_file_with_custom_vars(self):
         with patch('cloudshell.cm.ansible.ansible_shell.HostVarsFile') as file:
@@ -200,10 +201,10 @@ class TestAnsibleShell(TestCase):
         json = Mock()
         return_obj = Mock()
         return_obj.success = False
-        return_obj.failure_to_json = Mock(return_value=json)
+        return_obj.to_json = Mock(return_value=json)
         self.executor.execute_playbook = Mock(return_value=return_obj)
 
         with self.assertRaises(AnsibleException) as e:
             self._execute_playbook()
         self.assertEqual(json, e.exception.message)
-        return_obj.failure_to_json.assert_called_once()
+        return_obj.to_json.assert_called_once()

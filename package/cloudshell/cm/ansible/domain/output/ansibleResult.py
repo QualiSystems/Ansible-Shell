@@ -9,12 +9,12 @@ class AnsiblePlaybookParser(object):
     def __init__(self, file_system):
         self.file_system = file_system
 
-    def parse(self, output):
+    def parse(self, output, error):
         details_by_ip = self._get_failures_details_by_ips(output)
-        if not details_by_ip:
-            return AnsibleResult.ok()
+        if not details_by_ip and not error:
+            return AnsibleResult(success=True)
         else:
-            return AnsibleResult.error(details_by_ip)
+            return AnsibleResult(success=False, failed_hosts=details_by_ip, general_error=error)
 
     def _get_failures_details_by_ips(self, output):
         pattern = '^('+self.START+')?fatal: \[(?P<ip>\d+\.\d+\.\d+\.\d+)\]\:.*=>\s*(?P<details>\{.*\})\s*('+self.END+')?$'
@@ -41,22 +41,20 @@ class AnsiblePlaybookParser(object):
     #         ips.append(m['ip'])
     #     return ips
 
+
 class AnsibleResult(object):
-    def __init__(self, success, failed_hosts=None):
+    def __init__(self, success, failed_hosts=None, general_error=None):
         """
         :type result: boolean
         :type success: dict
         """
+        self.general_error = general_error
         self.success = success
         self.failed_hosts = failed_hosts
 
-    @staticmethod
-    def ok():
-        return AnsibleResult(True)
-
-    @staticmethod
-    def error(data):
-        return AnsibleResult(False, data)
-
-    def failure_to_json(self):
-        return json.dumps(self.failed_hosts)
+    def to_json(self):
+        data = {
+            'error': self.general_error,
+            'hosts': self.failed_hosts
+        }
+        return json.dumps(data)
