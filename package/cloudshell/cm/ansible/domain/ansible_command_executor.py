@@ -66,7 +66,7 @@ class AnsibleCommandExecutor(object):
         logger.debug('Out: '+all_txt_out)
         logger.debug('Code: '+str(process.returncode))
 
-        if process.returncode != 0:
+        if process.returncode == 0:
             all_txt_err = ''
 
         return self.output_parser.parse(all_txt_out, all_txt_err)
