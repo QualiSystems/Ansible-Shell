@@ -66,10 +66,11 @@ class AnsibleCommandExecutor(object):
         logger.debug('Out: '+all_txt_out)
         logger.debug('Code: '+str(process.returncode))
 
-        if process.returncode == 0:
-            all_txt_err = ''
+        if process.returncode != 0:
+            return AnsibleResult(False, all_txt_out, all_txt_err)
 
-        return self.output_parser.parse(all_txt_out, all_txt_err)
+        return AnsibleResult(True)
+
 
     def _create_shell_command(self, playbook_file, inventory_file, args):
         command = "ansible"

@@ -15,7 +15,6 @@ from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurat
     PlaybookRepository
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
-from cloudshell.cm.ansible.domain.output.ansibleResult import AnsiblePlaybookParser
 from cloudshell.cm.ansible.domain.temp_folder_scope import TempFolderScope
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser
 from cloudshell.cm.ansible.domain.host_vars_file import HostVarsFile

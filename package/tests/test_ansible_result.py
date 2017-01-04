@@ -1,14 +1,12 @@
 from unittest import TestCase
 
-from cloudshell.cm.ansible.domain.output.ansibleResult import AnsiblePlaybookParser
+from cloudshell.cm.ansible.domain.output.ansibleResult import AnsibleResult
 from tests.mocks.file_system_service_mock import FileSystemServiceMock
 
 
-class TestUnixToHtmlColorConverter(TestCase):
+class TestAnsibleResult(TestCase):
     def setUp(self):
         self.file_system = FileSystemServiceMock()
-        self.parser = AnsiblePlaybookParser(self.file_system)
-        self.playbook_file_name = "myPlaybook.yaml"
 
     def test_result_should_fail_on_unreachable(self):
         resultTxt = """
@@ -20,7 +18,7 @@ TASK [setup] *******************************************************************
 
 PLAY RECAP *********************************************************************
 \033[0;31m192.168.85.11\033[0m              : ok=0    changed=0    \033[1;31munreachable=1   \033[0m failed=0"""
-        result = self.parser.parse(resultTxt, '')
+        result = AnsibleResult(False, resultTxt, '')
         self.assertFalse(result.success)
         self.assertEquals('{"changed": false, "msg": "Authentication failure.", "unreachable": true}',result.failed_hosts['192.168.85.11'])
 
@@ -37,7 +35,7 @@ TASK [Do something stupid] *****************************************************
 
 PLAY RECAP *********************************************************************
 \033[0;31m192.168.85.11\033[0m              : \033[0;32mok=1   \033[0m changed=0    unreachable=0    \033[0;31mfailed=1   \033[0m"""
-        result = self.parser.parse(resultTxt, '')
+        result = AnsibleResult(False, resultTxt, '')
         self.assertFalse(result.success)
         self.assertEquals('{"changed": false, "cmd": "tauch /tmp/f", "failed": true, "msg": "[Errno 2] No such file or directory", "rc": 2}',result.failed_hosts['192.168.85.11'])
 
@@ -57,10 +55,12 @@ TASK [geerlingguy.apache : Define apache_packages.] ****************************
 PLAY RECAP *********************************************************************
 \033[0;32m192.168.85.11\033[0m              : \033[0;32mok=12  \033[0m changed=1    unreachable=0    failed=0
            """
-        result = self.parser.parse(resultTxt, '')
-        self.assertTrue(result.success)
+        result = AnsibleResult(True, resultTxt, '')
+        self.assertTrue(not result.failed_hosts)
 
-
+    def test_result_contains_the_error(self):
+        result = AnsibleResult(True, 'some output', 'some error')
+        self.assertEqual('some error', result.error)
 
         # testing = """Using /tmp/tmpuPFhNB/ansible.cfg as config file
         #

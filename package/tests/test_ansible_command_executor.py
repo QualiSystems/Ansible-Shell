@@ -2,6 +2,7 @@ from unittest import TestCase
 from mock import Mock, MagicMock, patch
 from subprocess import PIPE
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor
+from cloudshell.cm.ansible.domain.output.ansibleResult import AnsibleResult
 from helpers import mock_enter_exit_self
 
 
@@ -55,21 +56,33 @@ class TestAnsibleCommandExecutor(TestCase):
 
         self.sleep_mock.assert_any_call(2)
 
-    def test_all_results_are_parsed(self):
+    def test_success_result_is_returned_if_exitcode_is_zero(self):
         self.stdout_mock.read_all_txt.side_effect = ['1', '2']
         self.stderr_mock.read_all_txt.return_value = ''
         self.process_mock.poll = MagicMock(side_effect=[None, '0'])
+        self.process_mock.returncode = 0
 
-        self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
+        result = self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
 
-        self.output_parser_mock.parse.assert_called_once_with('12','')
+        self.assertTrue(result.success)
+
+    def test_failed_result_is_returned_if_exitcode_is_NOT_zero(self):
+        self.stdout_mock.read_all_txt.side_effect = ['1', '2']
+        self.stderr_mock.read_all_txt.return_value = ''
+        self.process_mock.poll = MagicMock(side_effect=[None, '0'])
+        self.process_mock.returncode = 1
+
+        result = self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.success)
 
     def test_parsed_results_are_returned(self):
         self.output_parser_mock.parse = Mock(return_value='1234')
 
         results = self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
 
-        self.assertEqual('1234', results)
+        self.assertIsInstance(results, AnsibleResult)
 
     def test_every_output_bulk_is_written_to_outputwriter(self):
         self.stdout_mock.read_all_txt.side_effect = ['123', '456', '789']
