@@ -11,13 +11,13 @@ from cloudshell.cm.ansible.domain.zip_service import ZipService
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
 from cloudshell.cm.ansible.domain.inventory_file import InventoryFile
 from cloudshell.cm.ansible.domain.playbook_downloader import PlaybookDownloader, HttpAuth
-from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration, \
-    PlaybookRepository
+from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
 from cloudshell.cm.ansible.domain.temp_folder_scope import TempFolderScope
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser
 from cloudshell.cm.ansible.domain.host_vars_file import HostVarsFile
+from cloudshell.cm.ansible.domain.output.ansible_result import AnsibleResult
 
 
 class AnsibleShell(object):
@@ -36,7 +36,7 @@ class AnsibleShell(object):
         zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service)
-        self.executor = playbook_executor or AnsibleCommandExecutor(AnsiblePlaybookParser(self.file_system))
+        self.executor = playbook_executor or AnsibleCommandExecutor()
 
     def execute_playbook(self, command_context, ansi_conf_json):
         """
@@ -93,8 +93,9 @@ class AnsibleShell(object):
         logger.info('Running the playbook')
         with CloudShellSessionContext(command_context) as session:
             output_writer = ReservationOutputWriter(session, command_context)
-            ansible_result = self.executor.execute_playbook(
+            output, error = self.executor.execute_playbook(
                 playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger)
+            ansible_result = AnsibleResult(output, error, [h.ip for h in ansi_conf.hosts_conf])
             if not ansible_result.success:
                 raise AnsibleException(ansible_result.to_json())
 

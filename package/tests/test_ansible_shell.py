@@ -19,6 +19,7 @@ class TestAnsibleShell(TestCase):
         self.file_system.create_file = Mock(return_value=mock_enter_exit(Mock()))
         self.downloader = Mock()
         self.executor = Mock()
+        self.executor.execute_playbook = Mock(return_value=['',''])
         self.logger = mock_enter_exit(Mock())
         session = Mock()
         session_context = Mock()
@@ -29,6 +30,15 @@ class TestAnsibleShell(TestCase):
 
         self.conf = AnsibleConfiguration()
         self.shell = AnsibleShell(self.file_system, self.downloader, self.executor)
+
+        self.ansible_result_patcher = patch('cloudshell.cm.ansible.ansible_shell.AnsibleResult')
+        self.ansible_result = Mock()
+        self.ansible_result.success = True
+        self.ansible_result.ctor = self.ansible_result_patcher.start()
+        self.ansible_result.ctor.return_value = self.ansible_result
+
+    def tearDown(self):
+        self.ansible_result_patcher.stop()
 
     # Helper
 
@@ -192,19 +202,23 @@ class TestAnsibleShell(TestCase):
     # Playbook Executor
 
     def test_execute_playbook_end_when_no_errors(self):
-        return_obj = Mock()
-        self.executor.execute_playbook = Mock(return_value=return_obj)
-
         self._execute_playbook()
 
-    def test_execute_playbook_throws_exception_on_any_error(self):
+    def test_execute_playbook_throws_exception_on_error(self):
         json = Mock()
-        return_obj = Mock()
-        return_obj.success = False
-        return_obj.to_json = Mock(return_value=json)
-        self.executor.execute_playbook = Mock(return_value=return_obj)
+        self.ansible_result.success = False
+        self.ansible_result.to_json = Mock(return_value=json)
 
         with self.assertRaises(AnsibleException) as e:
             self._execute_playbook()
         self.assertEqual(json, e.exception.message)
-        return_obj.to_json.assert_called_once()
+
+    def test_ansible_result_is_created_with_output_and_error_and_ips(self):
+        host1 = HostConfiguration()
+        host1.ip = 'some ip'
+        self.conf.hosts_conf.append(host1)
+        self.executor.execute_playbook = Mock(return_value=['some output', 'some error'])
+
+        self._execute_playbook()
+
+        self.ansible_result.ctor.assert_called_once_with('some output','some error',['some ip'])
