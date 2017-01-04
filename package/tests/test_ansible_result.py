@@ -1,3 +1,5 @@
+import json
+import os
 from unittest import TestCase
 
 from cloudshell.cm.ansible.domain.output.ansible_result import AnsibleResult
@@ -95,9 +97,10 @@ PLAY RECAP *********************************************************************
 
     def test_result_to_json(self):
         result = AnsibleResult('', 'error', ['192.168.85.11','192.168.85.12'])
-        json = result.to_json()
-        self.assertEqual('[{"host": "192.168.85.11", "success": false, "error": "Did not run / no information for this host.\\r\\nerror"}, \
-{"host": "192.168.85.12", "success": false, "error": "Did not run / no information for this host.\\r\\nerror"}]', json)
+        json_str = result.to_json()
+        escapted_linesep = json.dumps(os.linesep).strip('"')
+        self.assertEqual('[{"host": "192.168.85.11", "success": false, "error": "'+AnsibleResult.DID_NOT_RUN_ERROR+escapted_linesep+'error"}, \
+{"host": "192.168.85.12", "success": false, "error": "'+AnsibleResult.DID_NOT_RUN_ERROR+escapted_linesep+'error"}]', json_str)
 
         # testing = """Using /tmp/tmpuPFhNB/ansible.cfg as config file
         #
