@@ -4,18 +4,14 @@ import os
 from logging import Logger
 from cloudshell.api.cloudshell_api import CloudShellAPISession
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
-from cloudshell.cm.ansible.domain.output.ansibleResult import AnsibleResult
-from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
+from cloudshell.cm.ansible.domain.output.ansible_result import AnsibleResult
 from cloudshell.shell.core.context import ResourceCommandContext
 from cloudshell.cm.ansible.domain.stdout_accumulator import StdoutAccumulator, StderrAccumulator
 
 
 class AnsibleCommandExecutor(object):
-    def __init__(self, output_parser):
-        """
-        :type output_parser: AnsiblePlaybookParser
-        """
-        self.output_parser = output_parser
+    def __init__(self):
+        pass
 
     def execute_playbook(self, playbook_file, inventory_file, args, output_writer, logger):
         """
@@ -66,10 +62,8 @@ class AnsibleCommandExecutor(object):
         logger.debug('Out: '+all_txt_out)
         logger.debug('Code: '+str(process.returncode))
 
-        if process.returncode != 0:
-            all_txt_err = ''
+        return all_txt_out, all_txt_err
 
-        return self.output_parser.parse(all_txt_out, all_txt_err)
 
     def _create_shell_command(self, playbook_file, inventory_file, args):
         command = "ansible"

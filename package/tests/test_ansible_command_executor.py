@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase
 from mock import Mock, MagicMock, patch
 from subprocess import PIPE
@@ -13,7 +14,6 @@ class TestAnsibleCommandExecutor(TestCase):
         self.stderr_mock = mock_enter_exit_self()
         self.convert_mock = Mock()
         self.sleep_mock = Mock()
-        self.output_parser_mock = Mock()
         self.output_writer_mock = Mock()
 
         self.popen_patcher = patch('cloudshell.cm.ansible.domain.ansible_command_executor.Popen')
@@ -31,7 +31,7 @@ class TestAnsibleCommandExecutor(TestCase):
         self.convert_mock.side_effect = (lambda x: x)
         self.sleep_mock.side_effect = (lambda x: 0)
 
-        self.executor = AnsibleCommandExecutor(self.output_parser_mock)
+        self.executor = AnsibleCommandExecutor()
 
     def tearDown(self):
         self.popen_patcher.stop()
@@ -55,31 +55,26 @@ class TestAnsibleCommandExecutor(TestCase):
 
         self.sleep_mock.assert_any_call(2)
 
-    def test_all_results_are_parsed(self):
+    def test_result_contains_output_and_error_texts(self):
         self.stdout_mock.read_all_txt.side_effect = ['1', '2']
-        self.stderr_mock.read_all_txt.return_value = ''
+        self.stderr_mock.read_all_txt.side_effect = ['3', '4']
         self.process_mock.poll = MagicMock(side_effect=[None, '0'])
 
-        self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
+        output,error = self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
 
-        self.output_parser_mock.parse.assert_called_once_with('12','')
-
-    def test_parsed_results_are_returned(self):
-        self.output_parser_mock.parse = Mock(return_value='1234')
-
-        results = self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
-
-        self.assertEqual('1234', results)
+        self.assertEqual('12', output)
+        self.assertEqual('34', error)
 
     def test_every_output_bulk_is_written_to_outputwriter(self):
         self.stdout_mock.read_all_txt.side_effect = ['123', '456', '789']
+        self.stderr_mock.read_all_txt.side_effect = ['a', 'b', '']
         self.stderr_mock.read_all_txt.return_value = ''
         self.process_mock.poll = MagicMock(side_effect=[None, None, '0'])
 
         self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
 
-        self.output_writer_mock.write.assert_any_call('123')
-        self.output_writer_mock.write.assert_any_call('456')
+        self.output_writer_mock.write.assert_any_call('a'+os.linesep+'123')
+        self.output_writer_mock.write.assert_any_call('b'+os.linesep+'456')
         self.output_writer_mock.write.assert_any_call('789')
 
     # def test_reads_all_output(self):
