@@ -69,6 +69,7 @@ class PlaybookDownloader(object):
         zip_length = self.zip_service.extract_all(file_name)
         logger.info('Done (extracted %s files).'%len(zip_length))
         yaml_files = [file_name for file_name in self.file_system.get_entries(self.file_system.get_working_dir()) if file_name.endswith(".yaml") or file_name.endswith(".yml")]
+        playbook_name = None
         if len(yaml_files) > 1:
             playbook_name = next((file_name for file_name in yaml_files if file_name == "site.yaml" or file_name == "site.yml"), None)
         if len(yaml_files) == 1:

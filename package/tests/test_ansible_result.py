@@ -1,14 +1,16 @@
+import json
+import os
 from unittest import TestCase
 
-from cloudshell.cm.ansible.domain.output.ansibleResult import AnsiblePlaybookParser
+from cloudshell.cm.ansible.domain.output.ansible_result import AnsibleResult
 from tests.mocks.file_system_service_mock import FileSystemServiceMock
 
+def get_error_for(result, ip):
+    return next((h.error for h in result.host_results if h.ip == ip))
 
-class TestUnixToHtmlColorConverter(TestCase):
+class TestAnsibleResult(TestCase):
     def setUp(self):
         self.file_system = FileSystemServiceMock()
-        self.parser = AnsiblePlaybookParser(self.file_system)
-        self.playbook_file_name = "myPlaybook.yaml"
 
     def test_result_should_fail_on_unreachable(self):
         resultTxt = """
@@ -20,9 +22,10 @@ TASK [setup] *******************************************************************
 
 PLAY RECAP *********************************************************************
 \033[0;31m192.168.85.11\033[0m              : ok=0    changed=0    \033[1;31munreachable=1   \033[0m failed=0"""
-        result = self.parser.parse(resultTxt)
+        result = AnsibleResult(resultTxt, '', ['192.168.85.11'])
         self.assertFalse(result.success)
-        self.assertEquals('{"changed": false, "msg": "Authentication failure.", "unreachable": true}',result.failed_hosts['192.168.85.11'])
+        self.assertEquals('{"changed": false, "msg": "Authentication failure.", "unreachable": true}',
+                          get_error_for(result, '192.168.85.11'))
 
     def test_result_should_fail_on_failed(self):
         resultTxt = """
@@ -37,9 +40,10 @@ TASK [Do something stupid] *****************************************************
 
 PLAY RECAP *********************************************************************
 \033[0;31m192.168.85.11\033[0m              : \033[0;32mok=1   \033[0m changed=0    unreachable=0    \033[0;31mfailed=1   \033[0m"""
-        result = self.parser.parse(resultTxt)
+        result = AnsibleResult(resultTxt, '', ['192.168.85.11'])
         self.assertFalse(result.success)
-        self.assertEquals('{"changed": false, "cmd": "tauch /tmp/f", "failed": true, "msg": "[Errno 2] No such file or directory", "rc": 2}',result.failed_hosts['192.168.85.11'])
+        self.assertEquals('{"changed": false, "cmd": "tauch /tmp/f", "failed": true, "msg": "[Errno 2] No such file or directory", "rc": 2}',
+                          get_error_for(result, '192.168.85.11'))
 
     def test_result_should_be_true(self):
         resultTxt = """
@@ -57,10 +61,46 @@ TASK [geerlingguy.apache : Define apache_packages.] ****************************
 PLAY RECAP *********************************************************************
 \033[0;32m192.168.85.11\033[0m              : \033[0;32mok=12  \033[0m changed=1    unreachable=0    failed=0
            """
-        result = self.parser.parse(resultTxt)
+        result = AnsibleResult(resultTxt, '', ['192.168.85.11'])
         self.assertTrue(result.success)
 
+        def test_result_should_contain_stderr_in_no_error_msg_found(self):
+            resultTxt = """
+PLAY [linux_servers] ***********************************************************
 
+TASK [setup] *******************************************************************
+\033[0;32mok: [192.168.85.11]\033[0m
+
+TASK [Do something stupid] *****************************************************
+
+PLAY RECAP *********************************************************************
+\033[0;31m192.168.85.11\033[0m              : \033[0;32mok=1   \033[0m changed=0    unreachable=0    \033[0;31mfailed=1   \033[0m"""
+            result = AnsibleResult(resultTxt, 'general error', ['192.168.85.11'])
+            self.assertFalse(result.success)
+            self.assertEquals('general error',
+                              get_error_for(result, '192.168.85.11'))
+
+        def test_result_should_contain_error_for_unrun_hosts(self):
+            resultTxt = """
+PLAY [linux_servers] ***********************************************************
+
+TASK [setup] *******************************************************************
+
+TASK [Do something stupid] *****************************************************
+
+PLAY RECAP *********************************************************************"""
+            result = AnsibleResult(resultTxt, 'general error', ['192.168.85.11'])
+            self.assertFalse(result.success)
+            self.assertIn(AnsibleResult.DID_NOT_RUN_ERROR,
+                          get_error_for(result, '192.168.85.11'))
+
+
+    def test_result_to_json(self):
+        result = AnsibleResult('', 'error', ['192.168.85.11','192.168.85.12'])
+        json_str = result.to_json()
+        escapted_linesep = json.dumps(os.linesep).strip('"')
+        self.assertEqual('[{"host": "192.168.85.11", "success": false, "error": "'+AnsibleResult.DID_NOT_RUN_ERROR+escapted_linesep+'error"}, \
+{"host": "192.168.85.12", "success": false, "error": "'+AnsibleResult.DID_NOT_RUN_ERROR+escapted_linesep+'error"}]', json_str)
 
         # testing = """Using /tmp/tmpuPFhNB/ansible.cfg as config file
         #

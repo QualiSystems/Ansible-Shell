@@ -23,7 +23,8 @@ class PlaybookRepository(object):
 class HostConfiguration(object):
     def __init__(self):
         self.ip = None
-        self.connection_method = 'ssh'
+        self.connection_method = None
+        self.connection_secured = None
         self.username = None
         self.password = None
         self.access_key = None
@@ -54,6 +55,7 @@ class AnsibleConfigurationParser(object):
             host_conf = HostConfiguration()
             host_conf.ip = json_host.get('address')
             host_conf.connection_method = json_host.get('connectionMethod')
+            host_conf.connection_secured = bool_parse(json_host.get('connectionSecured'))
             host_conf.username = json_host.get('username')
             host_conf.password = json_host.get('password')
             host_conf.access_key = json_host.get('accessKey')
@@ -94,3 +96,10 @@ class AnsibleConfigurationParser(object):
         hosts_without_conn = [h for h in json_obj['hostsDetails'] if not h.get('connectionMethod')]
         if hosts_without_conn:
             raise SyntaxError(basic_msg + 'Missing "connectionMethod" node in ' + str(len(hosts_without_conn)) + ' hosts.')
+
+
+def bool_parse(b):
+    if b is None:
+        return None
+    else:
+        return str(b).lower() == 'true'
