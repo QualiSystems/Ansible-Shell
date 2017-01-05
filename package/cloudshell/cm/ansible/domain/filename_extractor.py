@@ -1,6 +1,9 @@
 import urllib
 import re
 
+from cloudshell.cm.ansible.domain.AnsibleException import AnsibleException
+
+
 class FilenameExtractor(object):
     def __init__(self):
         self._filename_pattern = "(?P<filename>\s*[\w,\s-]+\.(yaml|yml|zip)\s*)"
@@ -23,6 +26,6 @@ class FilenameExtractor(object):
             if matching:
                 file_name = matching.group('filename')
         if not file_name:
-            raise Exception("playbook file of supported types: '.yml', '.yaml', '.zip' was not found")
+            raise AnsibleException("playbook file of supported types: '.yml', '.yaml', '.zip' was not found")
         return file_name.strip()
 
