@@ -1,9 +1,5 @@
-import rfc6266
 import urllib
 import re
-
-# from cloudshell.cm.ansible.ansible_shell import AnsibleException
-
 
 class FilenameExtractor(object):
     def __init__(self):
