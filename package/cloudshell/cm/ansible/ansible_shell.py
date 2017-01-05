@@ -7,6 +7,7 @@ from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionCo
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 from mock import Mock
 
+from cloudshell.cm.ansible.domain.AnsibleException import AnsibleException
 from cloudshell.cm.ansible.domain.filename_extractor import FilenameExtractor
 from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
 from cloudshell.cm.ansible.domain.zip_service import ZipService
@@ -101,11 +102,6 @@ class AnsibleShell(object):
             ansible_result = AnsibleResult(output, error, [h.ip for h in ansi_conf.hosts_conf])
             if not ansible_result.success:
                 raise AnsibleException(ansible_result.to_json())
-
-
-class AnsibleException(Exception):
-    pass
-
 
     # ansShell = AnsibleShell()
     # logger = Mock()

@@ -1,0 +1,2 @@
+class AnsibleException(Exception):
+    pass
