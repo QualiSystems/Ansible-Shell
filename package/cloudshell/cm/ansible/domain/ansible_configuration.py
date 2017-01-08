@@ -54,7 +54,8 @@ class AnsibleConfigurationParser(object):
         for json_host in json_obj.get('hostsDetails',[]):
             host_conf = HostConfiguration()
             host_conf.ip = json_host.get('ip')
-            host_conf.connection_method = json_host.get('connectionMethod')
+            if json_host.get('connectionMethod'):
+                host_conf.connection_method = json_host.get('connectionMethod').lower()
             host_conf.connection_secured = bool_parse(json_host.get('connectionSecured'))
             host_conf.username = json_host.get('username')
             host_conf.password = json_host.get('password')

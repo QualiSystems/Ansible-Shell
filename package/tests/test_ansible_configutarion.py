@@ -62,7 +62,7 @@ class TestAnsibleConfigurationParser(TestCase):
         "username": "F",
         "password": "G",
         "accessKey": "H",
-        "connectionMethod": "I",
+        "connectionMethod": "IiIiI",
         "groups": ["J1","J2"],
         "parameters": [{"name":"K11","value":"K12"}, {"name":"K21","value":"K22"}]
     },
@@ -80,7 +80,7 @@ class TestAnsibleConfigurationParser(TestCase):
         self.assertEquals("F", host1.username)
         self.assertEquals("G", host1.password)
         self.assertEquals("H", host1.access_key)
-        self.assertEquals("I", host1.connection_method)
+        self.assertEquals("iiiii", host1.connection_method)
         self.assertItemsEqual(['J1','J2'], host1.groups)
         self.assertItemsEqual('K12', host1.parameters['K11'])
         self.assertItemsEqual('K22', host1.parameters['K21'])

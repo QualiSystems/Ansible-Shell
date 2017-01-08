@@ -87,7 +87,7 @@ class AnsibleShell(object):
                         file.add_ignore_winrm_cert_validation()
                     if host_conf.connection_secured == False:
                         file.add_port('5985')
-                if host_conf.access_key is not None:
+                if host_conf.access_key:
                     file_name = host_conf.ip + '_access_key.pem'
                     with self.file_system.create_file(file_name) as file_stream:
                         file_stream.write(host_conf.access_key)
