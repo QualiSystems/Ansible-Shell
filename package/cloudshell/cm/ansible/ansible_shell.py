@@ -5,7 +5,10 @@ from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.context import ResourceCommandContext
 from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
+from mock import Mock
 
+from cloudshell.cm.ansible.domain.AnsibleException import AnsibleException
+from cloudshell.cm.ansible.domain.filename_extractor import FilenameExtractor
 from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
 from cloudshell.cm.ansible.domain.zip_service import ZipService
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
@@ -35,7 +38,8 @@ class AnsibleShell(object):
         http_request_service = http_request_service or HttpRequestService()
         zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
-        self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service)
+        filename_extractor = FilenameExtractor();
+        self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service, filename_extractor)
         self.executor = playbook_executor or AnsibleCommandExecutor()
 
     def execute_playbook(self, command_context, ansi_conf_json):
@@ -104,10 +108,10 @@ class AnsibleShell(object):
             ansible_result = AnsibleResult(output, error, [h.ip for h in ansi_conf.hosts_conf])
             return ansible_result
 
-
-class AnsibleException(Exception):
-    pass
-
+    # ansShell = AnsibleShell()
+    # logger = Mock()
+    #
+    # ansShell.downloader._download('https://github.com/QualiSystems/Ansible-Shell/archive/develop.zip',None,logger)
 # j = """
 # {
 #     "additionalArgs": "-vv",
