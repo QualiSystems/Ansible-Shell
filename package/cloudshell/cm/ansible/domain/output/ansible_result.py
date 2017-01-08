@@ -2,7 +2,6 @@ import json
 import os
 import re
 
-
 class AnsibleResult(object):
     START = '\033\[\d+\;\d+m'
     END = '\033\[0m'
