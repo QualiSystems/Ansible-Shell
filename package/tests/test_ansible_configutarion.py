@@ -39,10 +39,10 @@ class TestAnsibleConfigurationParser(TestCase):
         json = '{"repositoryDetails":{"url":"someurl"},"hostsDetails":[{}]}'
         with self.assertRaises(SyntaxError) as context:
             AnsibleConfigurationParser.json_to_object(json)
-        self.assertIn('Missing "address" node in 1 hosts', context.exception.message)
+        self.assertIn('Missing "ip" node in 1 hosts', context.exception.message)
 
     def test_cannot_parse_json_with_host_with_an_empty_connection_method(self):
-        json = '{"repositoryDetails":{"url":"someurl"},"hostsDetails":[{"address":"x.x.x.x"}]}'
+        json = '{"repositoryDetails":{"url":"someurl"},"hostsDetails":[{"ip":"x.x.x.x"}]}'
         with self.assertRaises(SyntaxError) as context:
             AnsibleConfigurationParser.json_to_object(json)
         self.assertIn('Missing "connectionMethod" node in 1 hosts', context.exception.message)
@@ -58,7 +58,7 @@ class TestAnsibleConfigurationParser(TestCase):
     },
     "hostsDetails": [
     {
-        "address": "E",
+        "ip": "E",
         "username": "F",
         "password": "G",
         "accessKey": "H",
@@ -67,7 +67,7 @@ class TestAnsibleConfigurationParser(TestCase):
         "parameters": [{"name":"K11","value":"K12"}, {"name":"K21","value":"K22"}]
     },
     {
-        "address": "E2",
+        "ip": "E2",
         "connectionMethod": "I2"
     }]
 }"""

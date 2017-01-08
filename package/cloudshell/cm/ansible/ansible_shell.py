@@ -44,12 +44,18 @@ class AnsibleShell(object):
         :type ansi_conf_json: str
         :rtype str
         """
-        with LoggingSessionContext(command_context) as logger:
-            with ErrorHandlingContext(logger):
-                logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
-                ansi_conf = AnsibleConfigurationParser.json_to_object(ansi_conf_json)
-                with TempFolderScope(self.file_system, logger) as root:
-                    self._execute_playbook(command_context, ansi_conf, logger)
+        try:
+            with LoggingSessionContext(command_context) as logger:
+                with ErrorHandlingContext(logger):
+                    logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
+                    ansi_conf = AnsibleConfigurationParser.json_to_object(ansi_conf_json)
+                    with TempFolderScope(self.file_system, logger) as root:
+                        result = self._execute_playbook(command_context, ansi_conf, logger)
+        except Exception as e:
+            result = AnsibleResult('', e.message, [h.ip for h in ansi_conf.hosts_conf])
+
+        if not result.success:
+            raise AnsibleException(result.to_json())
 
     def _execute_playbook(self, command_context, ansi_conf, logger):
         """
@@ -96,8 +102,7 @@ class AnsibleShell(object):
             output, error = self.executor.execute_playbook(
                 playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger)
             ansible_result = AnsibleResult(output, error, [h.ip for h in ansi_conf.hosts_conf])
-            if not ansible_result.success:
-                raise AnsibleException(ansible_result.to_json())
+            return ansible_result
 
 
 class AnsibleException(Exception):

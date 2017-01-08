@@ -53,7 +53,7 @@ class AnsibleConfigurationParser(object):
 
         for json_host in json_obj.get('hostsDetails',[]):
             host_conf = HostConfiguration()
-            host_conf.ip = json_host.get('address')
+            host_conf.ip = json_host.get('ip')
             host_conf.connection_method = json_host.get('connectionMethod')
             host_conf.connection_secured = bool_parse(json_host.get('connectionSecured'))
             host_conf.username = json_host.get('username')
@@ -89,9 +89,9 @@ class AnsibleConfigurationParser(object):
         if len(json_obj['hostsDetails']) == 0:
             raise SyntaxError(basic_msg + '"hostsDetails" node cannot be empty.')
 
-        hosts_without_ip = [h for h in json_obj['hostsDetails'] if not h.get('address')]
+        hosts_without_ip = [h for h in json_obj['hostsDetails'] if not h.get('ip')]
         if hosts_without_ip:
-            raise SyntaxError(basic_msg + 'Missing "address" node in ' + str(len(hosts_without_ip)) + ' hosts.')
+            raise SyntaxError(basic_msg + 'Missing "ip" node in ' + str(len(hosts_without_ip)) + ' hosts.')
 
         hosts_without_conn = [h for h in json_obj['hostsDetails'] if not h.get('connectionMethod')]
         if hosts_without_conn:
