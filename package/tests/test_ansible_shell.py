@@ -69,7 +69,6 @@ class TestAnsibleShell(TestCase):
 
             self._execute_playbook()
 
-            m.ignore_ssh_key_checking.assert_called_once()
             m.force_color.assert_called_once()
             m.set_retry_path.assert_called_once_with("." + os.pathsep)
 
