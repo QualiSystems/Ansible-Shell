@@ -48,18 +48,14 @@ class AnsibleShell(object):
         :type ansi_conf_json: str
         :rtype str
         """
-        try:
-            with LoggingSessionContext(command_context) as logger:
-                with ErrorHandlingContext(logger):
-                    logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
-                    ansi_conf = AnsibleConfigurationParser.json_to_object(ansi_conf_json)
-                    with TempFolderScope(self.file_system, logger) as root:
-                        result = self._execute_playbook(command_context, ansi_conf, logger)
-        except Exception as e:
-            result = AnsibleResult('', e.message, [h.ip for h in ansi_conf.hosts_conf])
-
-        if not result.success:
-            raise AnsibleException(result.to_json())
+        with LoggingSessionContext(command_context) as logger:
+            with ErrorHandlingContext(logger):
+                logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
+                ansi_conf = AnsibleConfigurationParser.json_to_object(ansi_conf_json)
+                with TempFolderScope(self.file_system, logger) as root:
+                    result = self._execute_playbook(command_context, ansi_conf, logger)
+                    if not result.success:
+                        raise AnsibleException(result.to_json())
 
     def _execute_playbook(self, command_context, ansi_conf, logger):
         """
@@ -69,7 +65,6 @@ class AnsibleShell(object):
         :rtype str
         """
         with AnsibleConfigFile(self.file_system, logger) as file:
-            file.ignore_ssh_key_checking()
             file.force_color()
             file.set_retry_path("." + os.pathsep)
 
@@ -87,7 +82,7 @@ class AnsibleShell(object):
                         file.add_ignore_winrm_cert_validation()
                     if host_conf.connection_secured == False:
                         file.add_port('5985')
-                if host_conf.access_key is not None:
+                if host_conf.access_key:
                     file_name = host_conf.ip + '_access_key.pem'
                     with self.file_system.create_file(file_name) as file_stream:
                         file_stream.write(host_conf.access_key)

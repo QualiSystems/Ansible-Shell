@@ -12,7 +12,7 @@ class AnsibleResult(object):
         :type result: boolean
         :type success: dict
         """
-        self.error = error
+        self.error = str(error)
         self.output = output
         self.ips = ips
         self.host_results = self._load()
