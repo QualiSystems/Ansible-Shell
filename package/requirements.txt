@@ -1,2 +1,5 @@
 cloudshell-automation-api>=7.2.0.0,<7.3.0.0
 cloudshell-shell-core>=2.2.0,<2.3.0
+nose
+mock
+unittest2
