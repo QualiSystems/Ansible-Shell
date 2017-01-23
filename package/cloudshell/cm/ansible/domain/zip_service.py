@@ -3,7 +3,7 @@ from zipfile import ZipFile, ZipInfo
 
 class ZipService(object):
 
-    def extract_all(self, zip_file_name, path=None):
+    def extract_all(self, zip_file_name):
         zip = None
         try:
             zip = ZipFile(zip_file_name, 'r')
@@ -12,7 +12,7 @@ class ZipService(object):
                     file_info.filename = self._remove_first_folder(file_info.filename)
                     zip.extract(file_info)
             else:
-                zip.extractall(path=path)
+                zip.extractall()
             return [f.filename for f in self._get_files(zip)]
         finally:
             if zip:
@@ -24,7 +24,7 @@ class ZipService(object):
         :type filename: filename
         :rtype: filename
         '''
-        return os.path.join("", *filename.split('/')[1:])
+        return '/'.join(filename.split('/')[1:])
 
     @staticmethod
     def _get_files(zip):
