@@ -40,7 +40,7 @@ class ZipService(object):
         :type zipped_item: ZipInfo
         :rtype: bool
         '''
-        return zipped_item.filename[0][-1] == '/'
+        return zipped_item.filename[-1] == '/'
 
     @staticmethod
     def _contain_sinlge_folder(zip):
@@ -48,5 +48,6 @@ class ZipService(object):
         :type zip: ZipFile
         :rtype: bool
         '''
-        files = zip.infolist();
-        return len(files) == 1 and ZipService._is_folder(files[0])
+        files = zip.namelist();
+        folder = next((f for f in files if f[-1] == '/'), None)
+        return folder and all(f.startswith(folder) for f in files)
