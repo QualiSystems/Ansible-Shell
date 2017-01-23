@@ -1,26 +1,22 @@
-import json
 import os
-
-from cloudshell.core.context.error_handling_context import ErrorHandlingContext
-from cloudshell.shell.core.context import ResourceCommandContext
-from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
-from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 
 from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
-from cloudshell.cm.ansible.domain.filename_extractor import FilenameExtractor
-from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
-from cloudshell.cm.ansible.domain.zip_service import ZipService
-from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
-from cloudshell.cm.ansible.domain.inventory_file import InventoryFile
-from cloudshell.cm.ansible.domain.playbook_downloader import PlaybookDownloader, HttpAuth
-from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
-from cloudshell.cm.ansible.domain.temp_folder_scope import TempFolderScope
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser
+from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
+from cloudshell.cm.ansible.domain.filename_extractor import FilenameExtractor
 from cloudshell.cm.ansible.domain.host_vars_file import HostVarsFile
+from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
+from cloudshell.cm.ansible.domain.inventory_file import InventoryFile
 from cloudshell.cm.ansible.domain.output.ansible_result import AnsibleResult
+from cloudshell.cm.ansible.domain.playbook_downloader import PlaybookDownloader, HttpAuth
+from cloudshell.cm.ansible.domain.temp_folder_scope import TempFolderScope
+from cloudshell.cm.ansible.domain.zip_service import ZipService
+from cloudshell.core.context.error_handling_context import ErrorHandlingContext
+from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
+from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 
 
 class AnsibleShell(object):
