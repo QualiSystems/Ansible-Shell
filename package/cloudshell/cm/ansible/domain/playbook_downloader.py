@@ -1,3 +1,5 @@
+import os
+
 from file_system_service import FileSystemService
 from logging import Logger
 
@@ -66,8 +68,9 @@ class PlaybookDownloader(object):
         :rtype str
         """
         logger.info('Zip file was found, extracting file: %s ...' % (file_name))
-        zip_length = self.zip_service.extract_all(file_name)
-        logger.info('Done (extracted %s files).'%len(zip_length))
+        zip_files = self.zip_service.extract_all(file_name)
+        logger.info('Done (extracted %s files): %s.'%(len(zip_files), os.linesep.join(zip_files)))
+
         yaml_files = [file_name for file_name in self.file_system.get_entries(self.file_system.get_working_dir()) if file_name.endswith(".yaml") or file_name.endswith(".yml")]
         playbook_name = None
         if len(yaml_files) > 1:
