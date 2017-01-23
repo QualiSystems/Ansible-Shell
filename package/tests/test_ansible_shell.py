@@ -3,7 +3,7 @@ from unittest import TestCase
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
 
 from cloudshell.cm.ansible.ansible_shell import AnsibleShell
-from cloudshell.cm.ansible.domain.AnsibleException import AnsibleException
+from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration
 from mock import Mock, patch
 from helpers import mock_enter_exit, mock_enter_exit_self, Any
@@ -50,7 +50,7 @@ class TestAnsibleShell(TestCase):
                 with patch('cloudshell.cm.ansible.ansible_shell.AnsibleConfigurationParser') as parser:
                     parser.json_to_object = Mock(return_value=self.conf)
                     with patch('cloudshell.cm.ansible.ansible_shell.CloudShellSessionContext'):
-                        self.shell.execute_playbook(self.context, '')
+                        self.shell.execute_playbook(self.context, '', Mock())
 
     # General
 
@@ -189,7 +189,7 @@ class TestAnsibleShell(TestCase):
 
         self._execute_playbook()
 
-        self.downloader.get.assert_called_once_with('someurl', Any(), Any())
+        self.downloader.get.assert_called_once_with('someurl', Any(), Any(), Any())
 
     def test_download_playbook_with_auth(self):
         self.conf.playbook_repo.url = 'someurl'
@@ -198,7 +198,7 @@ class TestAnsibleShell(TestCase):
 
         self._execute_playbook()
 
-        self.downloader.get.assert_called_once_with('someurl', Any(lambda x: x.username == 'user' and x.password == 'pass'), Any())
+        self.downloader.get.assert_called_once_with('someurl', Any(lambda x: x.username == 'user' and x.password == 'pass'), Any(), Any())
 
     # Playbook Executor
 

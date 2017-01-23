@@ -32,7 +32,7 @@ class TestPlaybookDownloader(TestCase):
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
         self.http_request_serivce.get_response=Mock(return_value=self.reqeust)
-        file_name = self.playbook_downloader.get("", auth, self.logger)
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
         self.assertEquals(file_name, "lie.yaml")
 
 
@@ -44,7 +44,7 @@ class TestPlaybookDownloader(TestCase):
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
         self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
-        file_name = self.playbook_downloader.get("", auth, self.logger)
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
         self.assertEquals(file_name, "site.yaml")
 
     def test_playbook_downloader_zip_file_two_yaml_incorrect(self):
@@ -56,7 +56,7 @@ class TestPlaybookDownloader(TestCase):
         self.reqeust.iter_content.return_value = ''
         self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
         with self.assertRaises(Exception) as e:
-            self.playbook_downloader.get("", auth, self.logger)
+            self.playbook_downloader.get("", auth, self.logger, Mock())
         self.assertEqual(e.exception.message,"Playbook file name was not found in zip file")
 
     def test_playbook_downloader_with_one_yaml(self):
@@ -67,7 +67,7 @@ class TestPlaybookDownloader(TestCase):
         self.reqeust.iter_content.return_value = 'hello'
         self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
 
-        file_name = self.playbook_downloader.get("", auth, self.logger)
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
         self.assertEquals(file_name, "lie.yaml")
 
@@ -79,6 +79,6 @@ class TestPlaybookDownloader(TestCase):
         self.reqeust.iter_content.return_value = ''
         self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
 
-        file_name = self.playbook_downloader.get("", auth, self.logger)
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
         self.assertEquals(file_name, "lie.yaml")

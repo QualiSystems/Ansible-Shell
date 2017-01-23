@@ -1,5 +1,6 @@
 import os
 
+from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
 from file_system_service import FileSystemService
 from logging import Logger
 
@@ -22,28 +23,30 @@ class PlaybookDownloader(object):
         self.http_request_service = http_request_service
         self.filename_extractor = filename_extractor
 
-    def get(self, url, auth, logger):
+    def get(self, url, auth, logger, cancel_sampler):
         """
         Download the file from the url (unzip if needed).
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
         :param Logger logger:
+        :param CancellationSampler cancel_sampler:
         :rtype [str,int]
         :return The downloaded playbook file name
         """
-        file_name, file_size = self._download(url, auth, logger)
+        file_name, file_size = self._download(url, auth, logger, cancel_sampler)
 
         if file_name.endswith(".zip"):
             file_name = self._unzip(file_name, logger)
 
         return file_name
 
-    def _download(self, url, auth, logger):
+    def _download(self, url, auth, logger, cancel_sampler):
         """
         Download the file from the url.
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
         :param Logger logger:
+        :param CancellationSampler cancel_sampler:
         :rtype [str,int]
         :return The downloaded file name
         """
@@ -55,6 +58,7 @@ class PlaybookDownloader(object):
             for chunk in response.iter_content(PlaybookDownloader.CHUNK_SIZE):
                 if chunk:
                     file.write(chunk)
+                cancel_sampler.throw_if_canceled()
             file_size = file.tell()
 
         logger.info('Done (file: %s, size: %s bytes)).' % (file_name, file_size))
