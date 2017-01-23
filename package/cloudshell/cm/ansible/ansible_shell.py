@@ -1,6 +1,7 @@
 import os
 
-from cloudshell.cm.ansible.domain.AnsibleException import AnsibleException
+from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
+from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser
@@ -37,10 +38,11 @@ class AnsibleShell(object):
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service, filename_extractor)
         self.executor = playbook_executor or AnsibleCommandExecutor()
 
-    def execute_playbook(self, command_context, ansi_conf_json):
+    def execute_playbook(self, command_context, ansi_conf_json, cancellation_context):
         """
         :type command_context: ResourceCommandContext
         :type ansi_conf_json: str
+        :type cancellation_context: CancellationContext
         :rtype str
         """
         with LoggingSessionContext(command_context) as logger:
@@ -48,17 +50,20 @@ class AnsibleShell(object):
                 logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
                 ansi_conf = AnsibleConfigurationParser.json_to_object(ansi_conf_json)
                 with TempFolderScope(self.file_system, logger) as root:
-                    result = self._execute_playbook(command_context, ansi_conf, logger)
+                    result = self._execute_playbook(command_context, ansi_conf, logger, CancellationSampler(cancellation_context))
                     if not result.success:
                         raise AnsibleException(result.to_json())
 
-    def _execute_playbook(self, command_context, ansi_conf, logger):
+    def _execute_playbook(self, command_context, ansi_conf, logger, cancellation_sampler):
         """
         :type command_context: ResourceCommandContext
         :type ansi_conf: AnsibleConfiguration
         :type logger: Logger
+        :type cancellation_sampler: CancellationSampler
         :rtype str
         """
+        cancellation_sampler.throw_if_canceled()
+
         with AnsibleConfigFile(self.file_system, logger) as file:
             file.force_color()
             file.set_retry_path("." + os.pathsep)
@@ -88,13 +93,13 @@ class AnsibleShell(object):
 
         repo = ansi_conf.playbook_repo
         auth = HttpAuth(repo.username, repo.password) if repo.username else None
-        playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger)
+        playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger, cancellation_sampler)
 
         logger.info('Running the playbook')
         with CloudShellSessionContext(command_context) as session:
             output_writer = ReservationOutputWriter(session, command_context)
             output, error = self.executor.execute_playbook(
-                playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger)
+                playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger, cancellation_sampler)
             ansible_result = AnsibleResult(output, error, [h.ip for h in ansi_conf.hosts_conf])
             return ansible_result
 

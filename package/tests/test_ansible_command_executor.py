@@ -42,7 +42,7 @@ class TestAnsibleCommandExecutor(TestCase):
 
     def test_run_prcess_with_corrent_command_line(self):
         with patch('cloudshell.cm.ansible.domain.ansible_command_executor.Popen') as popen:
-            self.executor.execute_playbook('playbook1','inventory1','-arg1 -args2',Mock(),Mock())
+            self.executor.execute_playbook('playbook1','inventory1','-arg1 -args2',Mock(),Mock(), Mock())
 
             popen.assert_called_once_with('ansible-playbook playbook1 -i inventory1 -arg1 -args2',shell=True,stdout=PIPE,stderr=PIPE)
 
@@ -51,7 +51,7 @@ class TestAnsibleCommandExecutor(TestCase):
         self.stderr_mock.read_all_txt.return_value = ''
         self.process_mock.poll = MagicMock(side_effect=[None, '0'])
 
-        self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
+        self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock(), Mock())
 
         self.sleep_mock.assert_any_call(2)
 
@@ -60,7 +60,7 @@ class TestAnsibleCommandExecutor(TestCase):
         self.stderr_mock.read_all_txt.side_effect = ['3', '4']
         self.process_mock.poll = MagicMock(side_effect=[None, '0'])
 
-        output,error = self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
+        output,error = self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock(), Mock())
 
         self.assertEqual('12', output)
         self.assertEqual('34', error)
@@ -71,7 +71,7 @@ class TestAnsibleCommandExecutor(TestCase):
         self.stderr_mock.read_all_txt.return_value = ''
         self.process_mock.poll = MagicMock(side_effect=[None, None, '0'])
 
-        self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock())
+        self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock(), Mock())
 
         self.output_writer_mock.write.assert_any_call('a'+os.linesep+'123')
         self.output_writer_mock.write.assert_any_call('b'+os.linesep+'456')

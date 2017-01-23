@@ -1,7 +1,7 @@
 import urllib
 import re
 
-from cloudshell.cm.ansible.domain.AnsibleException import AnsibleException
+from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 
 
 class FilenameExtractor(object):

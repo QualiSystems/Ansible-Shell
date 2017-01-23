@@ -1,7 +1,7 @@
 <Driver Description="" MainClass="driver.AnsibleShellDriver" Name="Ansible Shell Driver" Version="1.0.0">
     <Layout>
         <Category Name="General">
-            <Command Description="" DisplayName="Run Ansible Test" Name="run_ansible_test" Tags="allow_unreserved" />
+            <Command Description="" DisplayName="Execute Playbook" EnableCancellation="true" Name="execute_playbook" Tags="allow_unreserved" />
         </Category>
     </Layout>
 </Driver>

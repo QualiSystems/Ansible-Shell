@@ -12,7 +12,7 @@ class AnsibleShellDriver(ResourceDriverInterface):
     def initialize(self, context):
         pass
 
-    def execute_playbook(self, context, ansible_configuration_json):
-        return self.ansible_shell.execute_playbook(context, ansible_configuration_json)
+    def execute_playbook(self, context, ansible_configuration_json, cancellation_context):
+        return self.ansible_shell.execute_playbook(context, ansible_configuration_json, cancellation_context)
 
 

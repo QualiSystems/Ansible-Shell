@@ -3,6 +3,8 @@ import time
 import os
 from logging import Logger
 from cloudshell.api.cloudshell_api import CloudShellAPISession
+
+from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
 from cloudshell.cm.ansible.domain.output.ansible_result import AnsibleResult
 from cloudshell.shell.core.context import ResourceCommandContext
@@ -13,13 +15,14 @@ class AnsibleCommandExecutor(object):
     def __init__(self):
         pass
 
-    def execute_playbook(self, playbook_file, inventory_file, args, output_writer, logger):
+    def execute_playbook(self, playbook_file, inventory_file, args, output_writer, logger, cancel_sampler):
         """
         :type playbook_file: str
         :type inventory_file: str
         :type args: list[str]
         :type logger: Logger
         :type output_writer: OutputWriter
+        :type cancel_sampler: CancellationSampler
         :rtype: AnsibleResult
         """
         shell_command = self._create_shell_command(playbook_file, inventory_file, args)
@@ -52,6 +55,9 @@ class AnsibleCommandExecutor(object):
                             logger.debug("failed to write.")
                     if process.poll() is not None:
                         break
+                    if cancel_sampler.is_cancelled():
+                        process.kill()
+                        cancel_sampler.throw()
                     time.sleep(2)
 
         elapsed = time.time() - start_time
