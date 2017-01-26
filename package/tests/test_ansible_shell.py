@@ -48,7 +48,7 @@ class TestAnsibleShell(TestCase):
         with patch('cloudshell.cm.ansible.ansible_shell.LoggingSessionContext'):
             with patch('cloudshell.cm.ansible.ansible_shell.ErrorHandlingContext'):
                 with patch('cloudshell.cm.ansible.ansible_shell.AnsibleConfigurationParser') as parser:
-                    parser.json_to_object = Mock(return_value=self.conf)
+                    parser.return_value.json_to_object = Mock(return_value=self.conf)
                     with patch('cloudshell.cm.ansible.ansible_shell.CloudShellSessionContext'):
                         self.shell.execute_playbook(self.context, '', Mock())
 
@@ -69,6 +69,7 @@ class TestAnsibleShell(TestCase):
 
             self._execute_playbook()
 
+            m.ignore_ssh_key_checking.assert_called_once()
             m.force_color.assert_called_once()
             m.set_retry_path.assert_called_once_with("." + os.pathsep)
 
@@ -107,7 +108,7 @@ class TestAnsibleShell(TestCase):
 
             self.file_system.create_file.assert_any_call('host1_access_key.pem')
             m.add_conn_file.assert_called_once_with('host1_access_key.pem')
-            m.add_username.assert_not_called()
+            m.add_username.assert_called_once()
             m.add_password.assert_not_called()
 
     def test_host_vars_file_with_username_and_password(self):

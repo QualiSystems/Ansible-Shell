@@ -1,5 +1,7 @@
 import json
 
+from cloudshell.api.cloudshell_api import CloudShellAPISession
+
 
 class AnsibleConfiguration(object):
     def __init__(self, playbook_repo=None, hosts_conf=None, additional_cmd_args=None):
@@ -33,8 +35,14 @@ class HostConfiguration(object):
 
 
 class AnsibleConfigurationParser(object):
-    @staticmethod
-    def json_to_object(json_str):
+
+    def __init__(self, api):
+        """
+        :type api: CloudShellAPISession
+        """
+        self.api = api
+
+    def json_to_object(self, json_str):
         """
         Decodes a json string to an AnsibleConfiguration instance.
         :type json_str: str
@@ -54,18 +62,31 @@ class AnsibleConfigurationParser(object):
         for json_host in json_obj.get('hostsDetails',[]):
             host_conf = HostConfiguration()
             host_conf.ip = json_host.get('ip')
-            if json_host.get('connectionMethod'):
-                host_conf.connection_method = json_host.get('connectionMethod').lower()
+            host_conf.connection_method = json_host.get('connectionMethod').lower()
             host_conf.connection_secured = bool_parse(json_host.get('connectionSecured'))
             host_conf.username = json_host.get('username')
-            host_conf.password = json_host.get('password')
-            host_conf.access_key = json_host.get('accessKey')
+            host_conf.password = self._get_password(json_host)
+            host_conf.access_key = self._get_access_key(json_host)
             host_conf.groups = json_host.get('groups')
             if json_host.get('parameters'):
                 host_conf.parameters = dict((i['name'], i['value']) for i in json_host['parameters'])
             ansi_conf.hosts_conf.append(host_conf)
 
         return ansi_conf
+
+    def _get_password(self, json_host):
+        pw = json_host.get('password')
+        if pw:
+            return self.api.DecryptPassword(pw).Value
+        else:
+            return pw
+
+    def _get_access_key(self, json_host):
+        key = json_host.get('accessKey')
+        if key:
+            return self.api.DecryptPassword(key).Value
+        else:
+            return key
 
     @staticmethod
     def _validate(json_obj):
