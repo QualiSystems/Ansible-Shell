@@ -30,11 +30,10 @@ class AnsibleShell(object):
         :type playbook_executor: AnsibleCommandExecutor
         :type session_provider: CloudShellSessionProvider
         """
-
         http_request_service = http_request_service or HttpRequestService()
         zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
-        filename_extractor = FilenameExtractor();
+        filename_extractor = FilenameExtractor()
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service, filename_extractor)
         self.executor = playbook_executor or AnsibleCommandExecutor()
 
@@ -132,81 +131,3 @@ class AnsibleShell(object):
 
         if not ansible_result.success:
             raise AnsibleException(ansible_result.to_json())
-
-    # def _execute_playbook(self, command_context, ansi_conf, logger, cancellation_sampler):
-    #     """
-    #     :type command_context: ResourceCommandContext
-    #     :type ansi_conf: AnsibleConfiguration
-    #     :type logger: Logger
-    #     :type cancellation_sampler: CancellationSampler
-    #     :rtype str
-    #     """
-    #     cancellation_sampler.throw_if_canceled()
-    #
-    #     with AnsibleConfigFile(self.file_system, logger) as file:
-    #         file.force_color()
-    #         file.set_retry_path("." + os.pathsep)
-    #
-    #     with InventoryFile(self.file_system, self.INVENTORY_FILE_NAME, logger) as inventory:
-    #         for host_conf in ansi_conf.hosts_conf:
-    #             inventory.add_host_and_groups(host_conf.ip, host_conf.groups)
-    #
-    #     for host_conf in ansi_conf.hosts_conf:
-    #         with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
-    #             file.add_vars(host_conf.parameters)
-    #             file.add_connection_type(host_conf.connection_method)
-    #             if host_conf.connection_method == 'winrm':
-    #                 if host_conf.connection_secured == True:
-    #                     file.add_port('5986')
-    #                     file.add_ignore_winrm_cert_validation()
-    #                 if host_conf.connection_secured == False:
-    #                     file.add_port('5985')
-    #             if host_conf.access_key:
-    #                 file_name = host_conf.ip + '_access_key.pem'
-    #                 with self.file_system.create_file(file_name) as file_stream:
-    #                     file_stream.write(host_conf.access_key)
-    #                 file.add_conn_file(file_name)
-    #             else:
-    #                 file.add_username(host_conf.username)
-    #                 file.add_password(host_conf.password)
-    #
-    #     repo = ansi_conf.playbook_repo
-    #     auth = HttpAuth(repo.username, repo.password) if repo.username else None
-    #     playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger, cancellation_sampler)
-    #
-    #     logger.info('Running the playbook')
-    #
-    #         output_writer = ReservationOutputWriter(session, command_context)
-    #         output, error = self.executor.execute_playbook(
-    #             playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger, cancellation_sampler)
-    #         ansible_result = AnsibleResult(output, error, [h.ip for h in ansi_conf.hosts_conf])
-    #         return ansible_result
-
-    # ansShell = AnsibleShell()
-    # logger = Mock()
-    #
-    # ansShell.downloader._download('https://github.com/QualiSystems/Ansible-Shell/archive/develop.zip',None,logger)
-# j = """
-# {
-#     "additionalArgs": "-vv",
-#     "repositoryDetails" : {
-#         "url": "http://192.168.30.108:8081/artifactory/ZipedPlaybooks/ApacheForLinux.zip"
-#     },
-#     "hostsDetails": [
-#     {
-#         "address": "192.186.85.11",
-#         "username": "root",
-#         "password": "qs1234",
-#         "connectionMethod": "ssh",
-#         "groups": [
-#             "linux_servers"
-#         ]
-#     }]
-# }
-# """
-# context = ResourceCommandContext()
-# context.resource = ResourceContextDetails()
-# context.resource.name = 'TEST Resource'
-# shell = AnsibleShell()
-# shell.execute_playbook(context, j)
-# pass
