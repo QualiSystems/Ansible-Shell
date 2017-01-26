@@ -28,6 +28,9 @@ class AnsibleConfigFile(object):
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done.')
 
+    def ignore_ssh_key_checking(self):
+        self.config_keys['host_key_checking'] = 'False'
+
     def force_color(self):
         self.config_keys['force_color'] = '1'
 

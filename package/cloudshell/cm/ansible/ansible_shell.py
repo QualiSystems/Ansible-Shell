@@ -30,11 +30,10 @@ class AnsibleShell(object):
         :type playbook_executor: AnsibleCommandExecutor
         :type session_provider: CloudShellSessionProvider
         """
-
         http_request_service = http_request_service or HttpRequestService()
         zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
-        filename_extractor = FilenameExtractor();
+        filename_extractor = FilenameExtractor()
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service, filename_extractor)
         self.executor = playbook_executor or AnsibleCommandExecutor()
 
@@ -46,32 +45,44 @@ class AnsibleShell(object):
         :rtype str
         """
         with LoggingSessionContext(command_context) as logger:
+            logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
+
             with ErrorHandlingContext(logger):
-                logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
-                ansi_conf = AnsibleConfigurationParser.json_to_object(ansi_conf_json)
-                with TempFolderScope(self.file_system, logger) as root:
-                    result = self._execute_playbook(command_context, ansi_conf, logger, CancellationSampler(cancellation_context))
-                    if not result.success:
-                        raise AnsibleException(result.to_json())
+                with CloudShellSessionContext(command_context) as api:
+                    ansi_conf = AnsibleConfigurationParser(api).json_to_object(ansi_conf_json)
+                    output_writer = ReservationOutputWriter(api, command_context)
+                    cancellation_sampler = CancellationSampler(cancellation_context)
 
-    def _execute_playbook(self, command_context, ansi_conf, logger, cancellation_sampler):
+                    with TempFolderScope(self.file_system, logger):
+                        self._add_ansible_config_file(logger)
+                        self._add_host_vars_files(ansi_conf, logger)
+                        self._add_inventory_file(ansi_conf, logger)
+                        playbook_name = self._download_playbook(ansi_conf, cancellation_sampler, logger)
+                        self._run_playbook(ansi_conf, playbook_name, output_writer, cancellation_sampler, logger)
+
+    def _add_ansible_config_file(self, logger):
         """
-        :type command_context: ResourceCommandContext
-        :type ansi_conf: AnsibleConfiguration
         :type logger: Logger
-        :type cancellation_sampler: CancellationSampler
-        :rtype str
         """
-        cancellation_sampler.throw_if_canceled()
-
         with AnsibleConfigFile(self.file_system, logger) as file:
+            file.ignore_ssh_key_checking()
             file.force_color()
             file.set_retry_path("." + os.pathsep)
 
+    def _add_inventory_file(self, ansi_conf, logger):
+        """
+        :type ansi_conf: AnsibleConfiguration
+        :type logger: Logger
+        """
         with InventoryFile(self.file_system, self.INVENTORY_FILE_NAME, logger) as inventory:
             for host_conf in ansi_conf.hosts_conf:
                 inventory.add_host_and_groups(host_conf.ip, host_conf.groups)
 
+    def _add_host_vars_files(self, ansi_conf, logger):
+        """
+        :type ansi_conf: AnsibleConfiguration
+        :type logger: Logger
+        """
         for host_conf in ansi_conf.hosts_conf:
             with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
                 file.add_vars(host_conf.parameters)
@@ -82,52 +93,41 @@ class AnsibleShell(object):
                         file.add_ignore_winrm_cert_validation()
                     if host_conf.connection_secured == False:
                         file.add_port('5985')
-                if host_conf.access_key:
+                file.add_username(host_conf.username)
+                if host_conf.password:
+                    file.add_password(host_conf.password)
+                else:
                     file_name = host_conf.ip + '_access_key.pem'
                     with self.file_system.create_file(file_name) as file_stream:
                         file_stream.write(host_conf.access_key)
                     file.add_conn_file(file_name)
-                else:
-                    file.add_username(host_conf.username)
-                    file.add_password(host_conf.password)
 
+    def _download_playbook(self, ansi_conf, cancellation_sampler, logger):
+        """
+        :type ansi_conf: AnsibleConfiguration
+        :type cancellation_sampler: CancellationSampler
+        :type logger: Logger
+        :rtype str
+        """
         repo = ansi_conf.playbook_repo
         auth = HttpAuth(repo.username, repo.password) if repo.username else None
         playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger, cancellation_sampler)
+        return playbook_name
 
+    def _run_playbook(self, ansi_conf, playbook_name, output_writer, cancellation_sampler, logger):
+        """
+        :type ansi_conf: AnsibleConfiguration
+        :type playbook_name: str
+        :type output_writer: OutputWriter
+        :type cancellation_sampler: CancellationSampler
+        :type logger: Logger
+        """
         logger.info('Running the playbook')
-        with CloudShellSessionContext(command_context) as session:
-            output_writer = ReservationOutputWriter(session, command_context)
-            output, error = self.executor.execute_playbook(
-                playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger, cancellation_sampler)
-            ansible_result = AnsibleResult(output, error, [h.ip for h in ansi_conf.hosts_conf])
-            return ansible_result
 
-    # ansShell = AnsibleShell()
-    # logger = Mock()
-    #
-    # ansShell.downloader._download('https://github.com/QualiSystems/Ansible-Shell/archive/develop.zip',None,logger)
-# j = """
-# {
-#     "additionalArgs": "-vv",
-#     "repositoryDetails" : {
-#         "url": "http://192.168.30.108:8081/artifactory/ZipedPlaybooks/ApacheForLinux.zip"
-#     },
-#     "hostsDetails": [
-#     {
-#         "address": "192.186.85.11",
-#         "username": "root",
-#         "password": "qs1234",
-#         "connectionMethod": "ssh",
-#         "groups": [
-#             "linux_servers"
-#         ]
-#     }]
-# }
-# """
-# context = ResourceCommandContext()
-# context.resource = ResourceContextDetails()
-# context.resource.name = 'TEST Resource'
-# shell = AnsibleShell()
-# shell.execute_playbook(context, j)
-# pass
+        output, error = self.executor.execute_playbook(
+            playbook_name, self.INVENTORY_FILE_NAME, ansi_conf.additional_cmd_args, output_writer, logger,
+            cancellation_sampler)
+        ansible_result = AnsibleResult(output, error, [h.ip for h in ansi_conf.hosts_conf])
+
+        if not ansible_result.success:
+            raise AnsibleException(ansible_result.to_json())
