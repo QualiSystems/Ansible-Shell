@@ -122,6 +122,6 @@ class AnsibleConfigurationParser(object):
 
 def bool_parse(b):
     if b is None:
-        return None
+        return False
     else:
         return str(b).lower() == 'true'

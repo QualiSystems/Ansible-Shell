@@ -91,7 +91,7 @@ class AnsibleShell(object):
                     if host_conf.connection_secured == True:
                         file.add_port('5986')
                         file.add_ignore_winrm_cert_validation()
-                    if host_conf.connection_secured == False:
+                    else:
                         file.add_port('5985')
                 file.add_username(host_conf.username)
                 if host_conf.password:
