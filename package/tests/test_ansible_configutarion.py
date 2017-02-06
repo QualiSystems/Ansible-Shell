@@ -93,6 +93,7 @@ class TestAnsibleConfigurationParser(TestCase):
         self.assertEquals("decrypted-G", host1.password)
         self.assertEquals("decrypted-H", host1.access_key)
         self.assertEquals("iiiii", host1.connection_method)
+        self.assertEquals(False, host1.connection_secured)
         self.assertItemsEqual(['J1','J2'], host1.groups)
         self.assertItemsEqual('K12', host1.parameters['K11'])
         self.assertItemsEqual('K22', host1.parameters['K21'])
