@@ -100,7 +100,6 @@ class AnsibleShell(object):
                     file_name = host_conf.ip + '_access_key.pem'
                     with self.file_system.create_file(file_name, 0400) as file_stream:
                         file_stream.write(host_conf.access_key)
-                        os.chmod(file_name, 0400)
                     file.add_conn_file(file_name)
 
     def _download_playbook(self, ansi_conf, cancellation_sampler, logger):
