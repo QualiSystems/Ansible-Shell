@@ -35,12 +35,15 @@ class FileSystemService(object):
         """
         shutil.rmtree(folder, ignore_errors=True)
 
-    def create_file(self, path):
+    def create_file(self, path, chmod = None):
         """
         Create (or override) a new file.
         :param str path: The path of the new file (example: 'c:\tmp\file.txt}
         """
-        return open(path, 'wb')
+        f = open(path, 'wb')
+        if chmod:
+            os.chmod(path, int(chmod))
+        return f
 
     def get_working_dir(self):
         """
