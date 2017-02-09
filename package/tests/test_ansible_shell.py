@@ -106,7 +106,7 @@ class TestAnsibleShell(TestCase):
 
             self._execute_playbook()
 
-            self.file_system.create_file.assert_any_call('host1_access_key.pem')
+            self.file_system.create_file.assert_any_call('host1_access_key.pem', 600)
             m.add_conn_file.assert_called_once_with('host1_access_key.pem')
             m.add_username.assert_called_once()
             m.add_password.assert_not_called()
