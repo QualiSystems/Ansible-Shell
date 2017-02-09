@@ -98,7 +98,7 @@ class AnsibleShell(object):
                     file.add_password(host_conf.password)
                 else:
                     file_name = host_conf.ip + '_access_key.pem'
-                    with self.file_system.create_file(file_name) as file_stream:
+                    with self.file_system.create_file(file_name, 600) as file_stream:
                         file_stream.write(host_conf.access_key)
                     file.add_conn_file(file_name)
 
