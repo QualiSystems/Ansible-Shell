@@ -1,0 +1,9 @@
+.project
+.idea/
+*.orig
+*.pyc
+drivers/ansible_shell.zip
+drivers/ansible_shellPackage/Resource Drivers - Python/*.zip
+.eggs/
+cloudshell_cm_ansible.egg-info/
+package/cloudshell_cm_ansible.egg-info/

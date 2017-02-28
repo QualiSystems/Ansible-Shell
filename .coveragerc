@@ -1,0 +1,10 @@
+[report]
+omit =
+    package/setup.py,
+    */__init__.py,
+    package/cloudshell/cm/ansible/domain/file_system_service.py,
+    package/cloudshell/cm/ansible/domain/ansible_configutarion.py,
+    package/cloudshell/cm/ansible/domain/cloudshell_session_provider.py,
+    package/cloudshell/cm/ansible/domain/http_request_service.py,
+    package/cloudshell/cm/ansible/domain/zip_service.py,
+    package/tests/*.py

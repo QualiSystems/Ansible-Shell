@@ -1,26 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DataModelInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.qualisystems.com/ResourceManagement/DataModelSchema.xsd">
   <Attributes>
-    <AttributeInfo Name="Execution Server Selector" Type="String" DefaultValue="" Description="This attribute points to a pre-define group of execution servers. Usually used for different sites or domains." IsReadOnly="false">
+	<AttributeInfo Name="Execution Server Selector" Type="String" DefaultValue="" Description="This attribute points to a pre-define group of execution servers. Usually used for different sites or domains." IsReadOnly="false">
+	</AttributeInfo>
+    <AttributeInfo Name="Ansible Additional Arguments" Description="Additional arguments that can be applied on the Ansible playbook execution" Type="String" DefaultValue="" IsReadOnly="false">
+      <Rules />
+    </AttributeInfo>
+    <AttributeInfo Name="Supports Ansible" Type="Boolean" Description="Indicates that an Execution Server has Ansible installed and can run the Ansible driver" DefaultValue="True" IsReadOnly="true">
       <Rules>
-        <Rule Name="Configuration" />
-        <Rule Name="Setting" />
         <Rule Name="Execution Server Selector" />
       </Rules>
     </AttributeInfo>
   </Attributes>
   <ResourceFamilies>
-    <ResourceFamily Name="Configuration Server" Description="" IsSearchable="true" IsAdminOnly="true" ResourceType="Resource">
-      <AttachedAttributes />
-      <AttributeValues />
+    <ResourceFamily Name="Configuration Services" Description="" IsAdminOnly="true" IsService="true" ServiceType="Regular">
+      <AttachedAttributes>
+        <AttachedAttribute Name="Execution Server Selector" IsOverridable="true" IsLocal="true">
+          <AllowedValues />
+        </AttachedAttribute>
+      </AttachedAttributes>
+      <AttributeValues>
+        <AttributeValue Name="Execution Server Selector" Value="" />
+      </AttributeValues>
       <Models>
-        <ResourceModel Name="Ansible Server" ImagePath="AnsibleIcon.png" Description="" SupportsConcurrentCommands="false">
+        <ResourceModel Name="Ansible Configuration" Description="" SupportsConcurrentCommands="false">
           <AttachedAttributes>
-            <AttachedAttribute Name="Execution Server Selector" IsOverridable="true" IsLocal="true">
+            <AttachedAttribute Name="Ansible Additional Arguments" IsOverridable="true" IsLocal="true">
+              <AllowedValues />
+            </AttachedAttribute>
+            <AttachedAttribute Name="Supports Ansible" IsOverridable="true" IsLocal="true">
               <AllowedValues />
             </AttachedAttribute>
           </AttachedAttributes>
           <AttributeValues>
+            <AttributeValue Name="Ansible Additional Arguments" Value="" />
+            <AttributeValue Name="Supports Ansible" Value="True" />
             <AttributeValue Name="Execution Server Selector" Value="" />
           </AttributeValues>
           <ParentModels />
@@ -30,9 +44,10 @@
           <Scripts />
         </ResourceModel>
       </Models>
-      <Categories />
     </ResourceFamily>
   </ResourceFamilies>
-  <DriverDescriptors />
+  <DriverDescriptors>
+    <DriverDescriptor Name="Ansible Shell Driver" Description="This driver will run an ansible playbook to configure an app" DriverType="PythonDriver" />
+  </DriverDescriptors>
   <ScriptDescriptors />
 </DataModelInfo>

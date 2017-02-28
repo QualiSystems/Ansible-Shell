@@ -3,12 +3,10 @@ python:
     - "2.7"
 
 install:
-  - pip install -r external_requirements.txt --extra-index-url https://pypi.python.org/simple
+  - pip install -r package/test_requirements.txt --extra-index-url https://pypi.python.org/simple
   - pip install -r test_requirements.txt --extra-index-url https://pypi.python.org/simple
-  - pip install mock
-  - pip install "cloudshell-core>=2.1.0,<2.2.0" --extra-index-url https://testpypi.python.org/simple
   - pip install "cloudshell-shell-core>=2.2.0,<2.3.0" --extra-index-url https://testpypi.python.org/simple
-  - pip install "cloudshell-automation-api>=7.1.0.0,<7.2.0.0" --extra-index-url https://testpypi.python.org/simple
+  - pip install "cloudshell-automation-api>=8.0.0.0,<8.1.0.0" --extra-index-url https://testpypi.python.org/simple
 
 script:
     - pushd package
@@ -18,6 +16,8 @@ script:
 
 after_success:
     - coveralls
-    
+
+notifications:
+    email: false
 #notifications:
 # webhools: https://qualisystems.getbadges.io/api/app/webhook/{will be added later}
