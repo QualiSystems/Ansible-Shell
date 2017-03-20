@@ -18,7 +18,7 @@ class IVMConnectionService(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def check_connection(self, target_host):
+    def check_connection(self, target_host, logger, ansible_port):
         pass
 
 
@@ -29,14 +29,18 @@ class ExcutorConnectionError(EnvironmentError):
 
 
 class WindowsConnectionService(IVMConnectionService):
-    def check_connection(self, target_host):
-        session = None
+    def check_connection(self, target_host, logger, ansible_port):
+
+        logger.info("Creating a session.")
         if target_host.connection_secured:
+            logger.info("Creating a session.")
             session = winrm.Session(target_host.ip, auth=(target_host.username, target_host.password), transport='ssl')
         else:
             session = winrm.Session(target_host.ip, auth=(target_host.username, target_host.password))
 
+        logger.info("Session Created.")
         try:
+            logger.info("test connection")
             uid = str(uuid4())
             result = session.run_cmd('@echo ' + uid)
             assert uid in result.std_out
@@ -53,11 +57,20 @@ class WindowsConnectionService(IVMConnectionService):
 
 
 class LinuxConnectionService(IVMConnectionService):
-    def check_connection(self, target_host):
+    def check_connection(self, target_host, logger, ansible_port):
+        """
+
+        :param target_host:
+        :param logger Logger:
+        :return:
+        """
         try:
+            logger.info("Creating a session.")
+
             session = SSHClient()
             session.set_missing_host_key_policy(AutoAddPolicy())
 
+            logger.info("test connection")
             if target_host.password:
                 session.connect(target_host.ip, username=target_host.username, password=target_host.password)
             elif target_host.access_key:
@@ -75,22 +88,20 @@ class LinuxConnectionService(IVMConnectionService):
             raise ExcutorConnectionError(0, e)
 
 
-class ConnecetionService(object):
+class ConnectionService(object):
     def __init__(self):
+        self.valid_errnos = [10060, 10061, 10064, 10065, 500, 113, 111, 110]
         self.linuxConnectionService = LinuxConnectionService()
-        self.windowsConnectionService=WindowsConnectionService()
+        self.windowsConnectionService = WindowsConnectionService()
 
-    def check_connection(self, target_host,timeout_minutes=10):
+    def check_connection(self, logger, target_host, ansible_port=None, timeout_minutes=10):
         """
 
+        :param timeout_minutes:
+        :param ansible_port:
+        :param Logger logger:
         :param cloudshell.cm.ansible.domain.ansible_configuration.HostConfiguration target_host:
         :return:
-        """
-
-
-        """
-        :type executor: IScriptExecutor
-        :type cancel_sampler: CancellationSampler
         """
         # 10060  ETIMEDOUT                      Operation timed out
         # 10061  ECONNREFUSED                   Connection refused (happense when host found, port not)
@@ -98,23 +109,31 @@ class ConnecetionService(object):
         # 10065  EHOSTUNREACH                   Host is unreachable
         # 500                                   Bad http response (winrm)
         # 113    EHOSTUNREACH                   No route to host (winrm - OpenStack)
-        # 111    ERROR_SSH_APPLICATION_CLOSED   User on the other side of connection closed application that led to disconnection
+        # 111    ERROR_SSH_APPLICATION_CLOSED   User on the other side of connection closed
+        # application that led to disconnection
         # 110    ERROR_SSH_CONNECTION_LOST      Connection was lost by some reason
-        valid_errnos = [10060, 10061, 10064, 10065, 500, 113, 111, 110]
         interval_seconds = 10
         start_time = time.time()
         while True:
             # cancel_sampler.throw_if_canceled()
             try:
+                logger.info("1. check connection")
 
-                if target_host.connection_method:
-                    self.windowsConnectionService.check_connection(target_host)
+                if target_host.connection_method == 'winrm':
+                    logger.info("check connection on windows")
+
+                    self.windowsConnectionService.check_connection(target_host=target_host,
+                                                                   logger=logger,
+                                                                   ansible_port=ansible_port)
                 else:
-                    self.linuxConnectionService.check_connection(target_host)
+                    logger.info("check connection on linux")
+                    self.linuxConnectionService.check_connection(target_host=target_host,
+                                                                 logger=logger,
+                                                                 ansible_port=ansible_port)
                 break
             except ExcutorConnectionError as e:
-                if not e.errno in valid_errnos:
+                if e.errno not in self.valid_errnos:
                     raise e.inner_error
-                if time.time() - start_time >= timeout_minutes*60:
+                if time.time() - start_time >= timeout_minutes * 60:
                     raise e.inner_error
                 time.sleep(interval_seconds)

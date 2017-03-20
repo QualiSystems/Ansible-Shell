@@ -1,7 +1,7 @@
 import os
 
 from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
-from cloudshell.cm.ansible.domain.connection_service import ConnecetionService
+from cloudshell.cm.ansible.domain.connection_service import ConnectionService
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
@@ -38,7 +38,7 @@ class AnsibleShell(object):
         self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service,
                                                                     filename_extractor)
         self.executor = playbook_executor or AnsibleCommandExecutor()
-        self.connection_service = ConnecetionService()
+        self.connection_service = ConnectionService()
 
     def execute_playbook(self, command_context, ansi_conf_json, cancellation_context):
         """
@@ -59,7 +59,7 @@ class AnsibleShell(object):
                     with TempFolderScope(self.file_system, logger):
                         self._add_ansible_config_file(logger)
                         self._add_host_vars_files(ansi_conf, logger)
-                        self._wait_for_all_hosts_to_be_deployed(ansi_conf)
+                        self._wait_for_all_hosts_to_be_deployed(ansi_conf, logger)
                         self._add_inventory_file(ansi_conf, logger)
                         playbook_name = self._download_playbook(ansi_conf, cancellation_sampler, logger)
                         self._run_playbook(ansi_conf, playbook_name, output_writer, cancellation_sampler, logger)
@@ -136,11 +136,18 @@ class AnsibleShell(object):
         if not ansible_result.success:
             raise AnsibleException(ansible_result.to_json())
 
-    def _wait_for_all_hosts_to_be_deployed(self, ansi_conf):
+    def _wait_for_all_hosts_to_be_deployed(self, ansi_conf, logger):
         """
 
-        :param cloudshell.cm.ansible.domain.ansible_configuration.AnsibleConfiguration ansi_conf:
+        :param cloudshell.cm.ansible.domain.ansible_configurationa.AnsibleConfiguration ansi_conf:
         :return:
         """
+        logger.info("waiting for all hosts to deploy.")
         for host in ansi_conf.hosts_conf:
-            self.connection_service.check_connection(host)
+            logger.info("trying to connect to host:" + ansi_conf.username)
+            ansible_port = None
+            ansible_port_key = 'Ansible_port'
+            if ansible_port_key in host.parameters:
+                ansible_port = host.parameters[ansible_port_key]
+
+            self.connection_service.check_connection(logger, host, ansible_port)

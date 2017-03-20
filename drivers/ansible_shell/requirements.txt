@@ -1,2 +1,4 @@
 cloudshell-shell-core>=2.2.0,<2.3.0
 cloudshell-cm-ansible>=1.0.0,<1.1.0
+paramiko==2.1.2
+pywinrm
