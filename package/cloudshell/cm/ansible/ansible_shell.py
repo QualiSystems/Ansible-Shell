@@ -144,10 +144,20 @@ class AnsibleShell(object):
         """
         logger.info("waiting for all hosts to deploy.")
         for host in ansi_conf.hosts_conf:
-            logger.info("trying to connect to host:" + ansi_conf.username)
-            ansible_port = None
-            ansible_port_key = 'Ansible_port'
-            if ansible_port_key in host.parameters:
-                ansible_port = host.parameters[ansible_port_key]
+            logger.info("trying to connect to host:" + host.ip)
+            ansible_port = self._get_ansible_port(host)
 
-            self.connection_service.check_connection(logger, host, ansible_port)
+            if HostVarsFile.ANSIBLE_PORT in host.parameters:
+                ansible_port = host.parameters[HostVarsFile.ANSIBLE_PORT]
+                
+            self.connection_service.check_connection(logger, host, ansible_port=ansible_port, timeout_minutes=ansi_conf.timeout_minutes)
+
+    def _get_ansible_port(self, host):
+        if host.connection_method == 'winrm':
+            if host.connection_secured:
+                ansible_port = '5986'
+            else:
+                ansible_port = '5985'
+        if host.connection_method == 'ssh':
+            ansible_port = '22'
+        return ansible_port

@@ -32,11 +32,13 @@ class WindowsConnectionService(IVMConnectionService):
     def check_connection(self, target_host, logger, ansible_port):
 
         logger.info("Creating a session.")
+        ip = target_host.ip + ":" + ansible_port if ansible_port else target_host.ip
+
         if target_host.connection_secured:
             logger.info("Creating a session.")
-            session = winrm.Session(target_host.ip, auth=(target_host.username, target_host.password), transport='ssl')
+            session = winrm.Session(ip, auth=(target_host.username, target_host.password), transport='ssl')
         else:
-            session = winrm.Session(target_host.ip, auth=(target_host.username, target_host.password))
+            session = winrm.Session(ip, auth=(target_host.username, target_host.password))
 
         logger.info("Session Created.")
         try:
@@ -72,11 +74,12 @@ class LinuxConnectionService(IVMConnectionService):
 
             logger.info("test connection")
             if target_host.password:
-                session.connect(target_host.ip, username=target_host.username, password=target_host.password)
+                session.connect(target_host.ip, port=ansible_port, username=target_host.username,
+                                password=target_host.password)
             elif target_host.access_key:
                 key_stream = StringIO(target_host.access_key)
                 key_obj = RSAKey.from_private_key(key_stream)
-                session.connect(target_host.ip, username=target_host.username, pkey=key_obj)
+                session.connect(target_host.ip, port=ansible_port, username=target_host.username, pkey=key_obj)
             else:
                 raise Exception('Both password and access key are empty.')
         except NoValidConnectionsError as e:

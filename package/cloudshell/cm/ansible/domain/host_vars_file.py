@@ -54,7 +54,8 @@ class HostVarsFile(object):
         self.vars[HostVarsFile.ANSIBLE_PASSWORD] = password
 
     def add_port(self, port):
-        self.vars[HostVarsFile.ANSIBLE_PORT] = port
+        if HostVarsFile.ANSIBLE_PORT not in self.vars.keys():
+            self.vars[HostVarsFile.ANSIBLE_PORT] = port
 
     def add_ignore_winrm_cert_validation(self):
         self.vars[HostVarsFile.ANSIBLE_WINRM_CERT_VALIDATION] = 'ignore'
