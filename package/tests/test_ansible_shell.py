@@ -31,6 +31,7 @@ class TestAnsibleShell(TestCase):
         self.session_provider.get = Mock(return_value=session_context)
 
         self.conf = AnsibleConfiguration()
+        self.conf.timeout_minutes="0.0"
         self.shell = AnsibleShell(self.file_system, self.downloader, self.executor)
 
         self.ansible_result_patcher = patch('cloudshell.cm.ansible.ansible_shell.AnsibleResult')
