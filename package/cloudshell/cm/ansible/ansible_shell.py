@@ -153,7 +153,7 @@ class AnsibleShell(object):
             logger.info("Trying to connect to host:" + host.ip)
             ansible_port = self._get_ansible_port(host)
 
-            if HostVarsFile.ANSIBLE_PORT in host.parameters:
+            if HostVarsFile.ANSIBLE_PORT in host.parameters.keys():
                 ansible_port = host.parameters[HostVarsFile.ANSIBLE_PORT]
 
             port_ansible_port = "Ansible Timeout:" + str(ansi_conf.timeout_minutes) + " Ansible port : " + ansible_port
