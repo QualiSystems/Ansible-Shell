@@ -51,7 +51,7 @@ class TestAnsibleShell(TestCase):
                 with patch('cloudshell.cm.ansible.ansible_shell.AnsibleConfigurationParser') as parser:
                     parser.return_value.json_to_object = Mock(return_value=self.conf)
                     with patch('cloudshell.cm.ansible.ansible_shell.CloudShellSessionContext'):
-                        self._wait_for_all_hosts_to_be_deployed = Mock()
+                        self.shell._wait_for_all_hosts_to_be_deployed = Mock()
                         self.shell.execute_playbook(self.context, '', Mock())
 
     # General
