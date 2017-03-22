@@ -3,7 +3,7 @@ class AnsibleConnectionHelper(object):
     WIN_RM_PORT = '5985'
     CONNECTION_METHOD_WIN_RM = 'winrm'
     CONNECTION_METHOD_SSH = 'ssh'
-    SSH_PORT = 22
+    SSH_PORT = '22'
 
     def __init__(self):
         pass

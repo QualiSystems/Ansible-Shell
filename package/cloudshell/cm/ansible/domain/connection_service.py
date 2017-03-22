@@ -118,7 +118,6 @@ class ConnectionService(object):
         interval_seconds = 10
         start_time = time.time()
         while True:
-            # cancel_sampler.throw_if_canceled()
             try:
                 logger.info("check connection")
                 if target_host.connection_method == 'winrm':

@@ -24,7 +24,6 @@ from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 class AnsibleShell(object):
     INVENTORY_FILE_NAME = 'hosts'
 
-
     def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None, session_provider=None,
                  http_request_service=None, zip_service=None):
         """
@@ -34,7 +33,6 @@ class AnsibleShell(object):
         :type session_provider: CloudShellSessionProvider
         """
 
-
         http_request_service = http_request_service or HttpRequestService()
         zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
@@ -43,7 +41,7 @@ class AnsibleShell(object):
                                                                     filename_extractor)
         self.executor = playbook_executor or AnsibleCommandExecutor()
         self.connection_service = ConnectionService()
-        self.ansible_connection_helper=AnsibleConnectionHelper()
+        self.ansible_connection_helper = AnsibleConnectionHelper()
 
     def execute_playbook(self, command_context, ansi_conf_json, cancellation_context):
         """
@@ -96,12 +94,13 @@ class AnsibleShell(object):
             with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
                 file.add_vars(host_conf.parameters)
                 file.add_connection_type(host_conf.connection_method)
+                ansible_port = self.ansible_connection_helper.get_ansible_port(host_conf)
+                file.add_port(ansible_port)
+
                 if host_conf.connection_method == AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM:
                     if host_conf.connection_secured:
-                        file.add_port(AnsibleConnectionHelper.WIN_RM_SECURED_PORT)
                         file.add_ignore_winrm_cert_validation()
-                    else:
-                        file.add_port(AnsibleConnectionHelper.WIN_RM_PORT)
+
                 file.add_username(host_conf.username)
                 if host_conf.password:
                     file.add_password(host_conf.password)
@@ -170,5 +169,3 @@ class AnsibleShell(object):
             self.connection_service.check_connection(logger, host, ansible_port=ansible_port,
                                                      timeout_minutes=ansi_conf.timeout_minutes)
         output_writer.write("Communication check completed.")
-
-
