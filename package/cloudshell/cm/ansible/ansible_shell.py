@@ -59,7 +59,7 @@ class AnsibleShell(object):
                     with TempFolderScope(self.file_system, logger):
                         self._add_ansible_config_file(logger)
                         self._add_host_vars_files(ansi_conf, logger)
-                        self._wait_for_all_hosts_to_be_deployed(ansi_conf, logger)
+                        self._wait_for_all_hosts_to_be_deployed(ansi_conf, logger, output_writer)
                         self._add_inventory_file(ansi_conf, logger)
                         playbook_name = self._download_playbook(ansi_conf, cancellation_sampler, logger)
                         self._run_playbook(ansi_conf, playbook_name, output_writer, cancellation_sampler, logger)
@@ -136,23 +136,38 @@ class AnsibleShell(object):
         if not ansible_result.success:
             raise AnsibleException(ansible_result.to_json())
 
-    def _wait_for_all_hosts_to_be_deployed(self, ansi_conf, logger):
+    def _wait_for_all_hosts_to_be_deployed(self, ansi_conf, logger, output_writer):
         """
 
         :param cloudshell.cm.ansible.domain.ansible_configurationa.AnsibleConfiguration ansi_conf:
+        :param Logger logger:
+        :param domain.ansible_command_executor.ReservationOutputWriter output_writer:
         :return:
         """
-        logger.info("waiting for all hosts to deploy.")
+        wait_for_deploy_msg = "Starting communication check with all hosts."
+
+        logger.info(wait_for_deploy_msg)
+        output_writer.write(wait_for_deploy_msg)
         for host in ansi_conf.hosts_conf:
-            logger.info("trying to connect to host:" + host.ip)
+
+            logger.info("Trying to connect to host:" + host.ip)
             ansible_port = self._get_ansible_port(host)
 
             if HostVarsFile.ANSIBLE_PORT in host.parameters:
                 ansible_port = host.parameters[HostVarsFile.ANSIBLE_PORT]
-                
-            self.connection_service.check_connection(logger, host, ansible_port=ansible_port, timeout_minutes=ansi_conf.timeout_minutes)
+
+            port_ansible_port = "Ansible Timeout:" + str(ansi_conf.timeout_minutes) + " Ansible port : " + ansible_port
+
+            logger.info(port_ansible_port)
+            output_writer.write("Waiting for host :" + host.ip)
+            output_writer.write(port_ansible_port)
+
+            self.connection_service.check_connection(logger, host, ansible_port=ansible_port,
+                                                     timeout_minutes=ansi_conf.timeout_minutes)
+        output_writer.write("Communication check completed.")
 
     def _get_ansible_port(self, host):
+        ansible_port = None
         if host.connection_method == 'winrm':
             if host.connection_secured:
                 ansible_port = '5986'

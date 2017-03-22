@@ -71,8 +71,7 @@ class LinuxConnectionService(IVMConnectionService):
 
             session = SSHClient()
             session.set_missing_host_key_policy(AutoAddPolicy())
-
-            logger.info("test connection")
+            logger.info("Test connection")
             if target_host.password:
                 session.connect(target_host.ip, port=ansible_port, username=target_host.username,
                                 password=target_host.password)
@@ -82,6 +81,7 @@ class LinuxConnectionService(IVMConnectionService):
                 session.connect(target_host.ip, port=ansible_port, username=target_host.username, pkey=key_obj)
             else:
                 raise Exception('Both password and access key are empty.')
+            logger.info("Done testing connection")
         except NoValidConnectionsError as e:
             error_code = next(e.errors.itervalues(), type('e', (object,), {'errno': 0})).errno
             raise ExcutorConnectionError(error_code, e)
@@ -120,19 +120,21 @@ class ConnectionService(object):
         while True:
             # cancel_sampler.throw_if_canceled()
             try:
-                logger.info("1. check connection")
-
+                logger.info("check connection")
                 if target_host.connection_method == 'winrm':
-                    logger.info("check connection on windows")
+                    logger.info("Check connection on windows")
 
                     self.windowsConnectionService.check_connection(target_host=target_host,
                                                                    logger=logger,
                                                                    ansible_port=ansible_port)
+
+                    logger.info("Done checking connection on windows")
                 else:
-                    logger.info("check connection on linux")
+                    logger.info("Check connection on linux")
                     self.linuxConnectionService.check_connection(target_host=target_host,
                                                                  logger=logger,
-                                                                 ansible_port=ansible_port)
+                                                                 ansible_port=int(ansible_port))
+                    logger.info("Done checking connection on linux")
                 break
             except ExcutorConnectionError as e:
                 if e.errno not in self.valid_errnos:
