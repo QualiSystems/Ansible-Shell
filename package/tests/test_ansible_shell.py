@@ -3,6 +3,7 @@ from unittest import TestCase
 from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
 
 from cloudshell.cm.ansible.ansible_shell import AnsibleShell
+from cloudshell.cm.ansible.domain.Helpers.ansible_connection_helper import AnsibleConnectionHelper
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration
 from mock import Mock, patch
@@ -21,7 +22,7 @@ class TestAnsibleShell(TestCase):
         self.file_system.create_file = Mock(return_value=mock_enter_exit(Mock()))
         self.downloader = Mock()
         self.executor = Mock()
-        self.executor.execute_playbook = Mock(return_value=['',''])
+        self.executor.execute_playbook = Mock(return_value=['', ''])
         self.logger = mock_enter_exit(Mock())
         session = Mock()
         session_context = Mock()
@@ -31,7 +32,9 @@ class TestAnsibleShell(TestCase):
         self.session_provider.get = Mock(return_value=session_context)
 
         self.conf = AnsibleConfiguration()
+        self.conf.timeout_minutes = "0.0"
         self.shell = AnsibleShell(self.file_system, self.downloader, self.executor)
+        self.shell.connection_service.check_connection = Mock()
 
         self.ansible_result_patcher = patch('cloudshell.cm.ansible.ansible_shell.AnsibleResult')
         self.ansible_result = Mock()
@@ -82,8 +85,10 @@ class TestAnsibleShell(TestCase):
             host1 = HostConfiguration()
             host1.ip = 'host1'
             host1.groups = ['group1']
+            host1.connection_method = AnsibleConnectionHelper.CONNECTION_METHOD_SSH
             host2 = HostConfiguration()
             host2.ip = 'host2'
+            host2.connection_method = AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM
             host2.groups = ['group2']
             self.conf.hosts_conf.append(host1)
             self.conf.hosts_conf.append(host2)
@@ -103,7 +108,7 @@ class TestAnsibleShell(TestCase):
             host1.ip = 'host1'
             host1.access_key = 'data1234'
             self.conf.hosts_conf.append(host1)
-
+            host1.connection_method = AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM
             self._execute_playbook()
 
             self.file_system.create_file.assert_any_call('host1_access_key.pem', 0400)
@@ -117,6 +122,7 @@ class TestAnsibleShell(TestCase):
             file.return_value = m
             host1 = HostConfiguration()
             host1.ip = 'host1'
+            host1.connection_method = AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM
             host1.username = 'admin'
             host1.password = '1234'
             self.conf.hosts_conf.append(host1)
@@ -177,6 +183,7 @@ class TestAnsibleShell(TestCase):
             file.return_value = m
             host1 = HostConfiguration()
             host1.ip = 'host1'
+            host1.connection_method = AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM
             self.conf.hosts_conf.append(host1)
 
             self._execute_playbook()
@@ -199,7 +206,9 @@ class TestAnsibleShell(TestCase):
 
         self._execute_playbook()
 
-        self.downloader.get.assert_called_once_with('someurl', Any(lambda x: x.username == 'user' and x.password == 'pass'), Any(), Any())
+        self.downloader.get.assert_called_once_with('someurl',
+                                                    Any(lambda x: x.username == 'user' and x.password == 'pass'), Any(),
+                                                    Any())
 
     # Playbook Executor
 
@@ -218,9 +227,10 @@ class TestAnsibleShell(TestCase):
     def test_ansible_result_is_created_with_output_and_error_and_ips(self):
         host1 = HostConfiguration()
         host1.ip = 'some ip'
+        host1.connection_method = AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM
         self.conf.hosts_conf.append(host1)
         self.executor.execute_playbook = Mock(return_value=['some output', 'some error'])
 
         self._execute_playbook()
 
-        self.ansible_result.ctor.assert_called_once_with('some output','some error',['some ip'])
+        self.ansible_result.ctor.assert_called_once_with('some output', 'some error', ['some ip'])
