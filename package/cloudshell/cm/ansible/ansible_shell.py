@@ -1,5 +1,6 @@
 import os
 
+from cloudshell.cm.ansible.domain.Helpers.ansible_connection_helper import AnsibleConnectionHelper
 from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
 from cloudshell.cm.ansible.domain.connection_service import ConnectionService
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
@@ -23,6 +24,7 @@ from cloudshell.shell.core.session.logging_session import LoggingSessionContext
 class AnsibleShell(object):
     INVENTORY_FILE_NAME = 'hosts'
 
+
     def __init__(self, file_system=None, playbook_downloader=None, playbook_executor=None, session_provider=None,
                  http_request_service=None, zip_service=None):
         """
@@ -31,6 +33,8 @@ class AnsibleShell(object):
         :type playbook_executor: AnsibleCommandExecutor
         :type session_provider: CloudShellSessionProvider
         """
+
+
         http_request_service = http_request_service or HttpRequestService()
         zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
@@ -39,6 +43,7 @@ class AnsibleShell(object):
                                                                     filename_extractor)
         self.executor = playbook_executor or AnsibleCommandExecutor()
         self.connection_service = ConnectionService()
+        self.ansible_connection_helper=AnsibleConnectionHelper()
 
     def execute_playbook(self, command_context, ansi_conf_json, cancellation_context):
         """
@@ -91,12 +96,12 @@ class AnsibleShell(object):
             with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
                 file.add_vars(host_conf.parameters)
                 file.add_connection_type(host_conf.connection_method)
-                if host_conf.connection_method == 'winrm':
-                    if host_conf.connection_secured == True:
-                        file.add_port('5986')
+                if host_conf.connection_method == AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM:
+                    if host_conf.connection_secured:
+                        file.add_port(AnsibleConnectionHelper.WIN_RM_SECURED_PORT)
                         file.add_ignore_winrm_cert_validation()
                     else:
-                        file.add_port('5985')
+                        file.add_port(AnsibleConnectionHelper.WIN_RM_PORT)
                 file.add_username(host_conf.username)
                 if host_conf.password:
                     file.add_password(host_conf.password)
@@ -151,7 +156,7 @@ class AnsibleShell(object):
         for host in ansi_conf.hosts_conf:
 
             logger.info("Trying to connect to host:" + host.ip)
-            ansible_port = self._get_ansible_port(host)
+            ansible_port = self.ansible_connection_helper.get_ansible_port(host)
 
             if HostVarsFile.ANSIBLE_PORT in host.parameters.keys():
                 ansible_port = host.parameters[HostVarsFile.ANSIBLE_PORT]
@@ -166,13 +171,4 @@ class AnsibleShell(object):
                                                      timeout_minutes=ansi_conf.timeout_minutes)
         output_writer.write("Communication check completed.")
 
-    def _get_ansible_port(self, host):
-        ansible_port = None
-        if host.connection_method == 'winrm':
-            if host.connection_secured:
-                ansible_port = '5986'
-            else:
-                ansible_port = '5985'
-        if host.connection_method == 'ssh':
-            ansible_port = '22'
-        return ansible_port
+
