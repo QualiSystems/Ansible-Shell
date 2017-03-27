@@ -31,16 +31,19 @@ class ExcutorConnectionError(EnvironmentError):
 class WindowsConnectionService(IVMConnectionService):
     def check_connection(self, target_host, logger, ansible_port):
 
-        logger.info("Creating a session.")
         ip = target_host.ip + ":" + ansible_port if ansible_port else target_host.ip
+        logger.info("Session IP: " + ip)
 
+        logger.info("Creating a session.")
         if target_host.connection_secured:
-            logger.info("Creating a session.")
+            logger.info("session connection_secured=True")
             session = winrm.Session(ip, auth=(target_host.username, target_host.password), transport='ssl')
         else:
+            logger.info("session connection_secured=False")
             session = winrm.Session(ip, auth=(target_host.username, target_host.password))
 
-        logger.info("Session Created.")
+        logger.info("Session created.")
+
         try:
             logger.info("test connection")
             uid = str(uuid4())

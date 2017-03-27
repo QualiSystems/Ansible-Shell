@@ -148,7 +148,7 @@ class AnsibleShell(object):
         :param domain.ansible_command_executor.ReservationOutputWriter output_writer:
         :return:
         """
-        wait_for_deploy_msg = "Starting communication check with all hosts."
+        wait_for_deploy_msg = "Waiting for all hosts to deploy"
 
         logger.info(wait_for_deploy_msg)
         output_writer.write(wait_for_deploy_msg)
@@ -157,7 +157,9 @@ class AnsibleShell(object):
             logger.info("Trying to connect to host:" + host.ip)
             ansible_port = self.ansible_connection_helper.get_ansible_port(host)
 
-            if HostVarsFile.ANSIBLE_PORT in host.parameters.keys():
+            if HostVarsFile.ANSIBLE_PORT in host.parameters.keys() and (
+                    host.parameters[HostVarsFile.ANSIBLE_PORT] != '' and
+                    host.parameters[HostVarsFile.ANSIBLE_PORT] is not None):
                 ansible_port = host.parameters[HostVarsFile.ANSIBLE_PORT]
 
             port_ansible_port = "Ansible Timeout:" + str(ansi_conf.timeout_minutes) + " Ansible port : " + ansible_port
@@ -168,4 +170,5 @@ class AnsibleShell(object):
 
             self.connection_service.check_connection(logger, host, ansible_port=ansible_port,
                                                      timeout_minutes=ansi_conf.timeout_minutes)
+
         output_writer.write("Communication check completed.")
