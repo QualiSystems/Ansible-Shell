@@ -51,6 +51,9 @@ class WindowsConnectionService(IVMConnectionService):
             uid = str(uuid4())
             result = session.run_cmd('@echo ' + uid)
             assert uid in result.std_out
+        except requests.ConnectionError as e:
+            # Time out is allowed exception
+            raise ExcutorConnectionError(10060, e)
         except ConnectionError as e:
             match = re.search(r'\[Errno (?P<errno>\d+)\]', str(e.message))
             error_code = int(match.group('errno')) if match else 0
@@ -87,9 +90,6 @@ class LinuxConnectionService(IVMConnectionService):
             else:
                 raise Exception('Both password and access key are empty.')
             logger.info("Done testing connection")
-        except requests.ConnectionError as e:
-            # Time out is allowed exception
-            raise ExcutorConnectionError(10060, e)
         except NoValidConnectionsError as e:
             error_code = next(e.errors.itervalues(), type('e', (object,), {'errno': 0})).errno
             raise ExcutorConnectionError(error_code, e)
