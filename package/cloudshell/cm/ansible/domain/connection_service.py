@@ -6,6 +6,8 @@ from multiprocessing.pool import ThreadPool
 from uuid import uuid4
 
 import time
+
+import requests
 import winrm
 from paramiko.ssh_exception import NoValidConnectionsError
 from winrm.exceptions import WinRMTransportError
@@ -85,6 +87,9 @@ class LinuxConnectionService(IVMConnectionService):
             else:
                 raise Exception('Both password and access key are empty.')
             logger.info("Done testing connection")
+        except requests.ConnectionError as e:
+            # Time out is allowed exception
+            raise ExcutorConnectionError(10060, e)
         except NoValidConnectionsError as e:
             error_code = next(e.errors.itervalues(), type('e', (object,), {'errno': 0})).errno
             raise ExcutorConnectionError(error_code, e)
