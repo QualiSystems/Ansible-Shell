@@ -36,8 +36,8 @@ class AnsibleCommandExecutor(object):
 
         with StdoutAccumulator(process.stdout) as stdout:
             with StderrAccumulator(process.stderr) as stderr:
+                txt_lines = []
                 while True:
-                    txt_lines = []
                     txt_err = stderr.read_all_txt()
                     txt_out = stdout.read_all_txt()
                     if txt_err:
