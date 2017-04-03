@@ -3,6 +3,7 @@ import time
 import os
 from logging import Logger
 from cloudshell.api.cloudshell_api import CloudShellAPISession
+import re
 
 from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
@@ -45,20 +46,23 @@ class AnsibleCommandExecutor(object):
                     if txt_out:
                         all_txt_out += txt_out
                         txt_lines.append(txt_out)
-                    if txt_lines:
-                        txt_html = UnixToHtmlColorConverter().convert(os.linesep.join(txt_lines))
-                        try:
-                            output_writer.write(txt_html)
-                        except Exception as e:
-                            output_writer.write('failed to write text of %s characters (%s)'%(len(txt_html),e))
-                            logger.debug("failed to write:" + txt_html)
-                            logger.debug("failed to write.")
                     if process.poll() is not None:
                         break
                     if cancel_sampler.is_cancelled():
                         process.kill()
                         cancel_sampler.throw()
                     time.sleep(2)
+
+                converter = UnixToHtmlColorConverter()
+                try:
+                    full_output = converter.convert(os.linesep.join(txt_lines))
+                    full_output = converter.remove_strike(full_output)
+                    output_writer.write(full_output)
+                    logger.error(full_output)
+                except Exception as e:
+                    output_writer.write('failed to write text of %s characters (%s)' % (len(full_output), e))
+                    logger.debug("failed to write:" + full_output)
+                    logger.debug("failed to write.")
 
         elapsed = time.time() - start_time
         err_line_count = len(all_txt_err.split(os.linesep))
