@@ -11,6 +11,8 @@
         <Rule Name="Execution Server Selector" />
       </Rules>
     </AttributeInfo>
+    <AttributeInfo Name="Timeout Minutes" Type="Numeric" DefaultValue="0" Description="Maximum number of minutes to connect to the target machine." IsReadOnly="false">
+    </AttributeInfo>
   </Attributes>
   <ResourceFamilies>
     <ResourceFamily Name="Configuration Services" Description="" IsAdminOnly="true" IsService="true" ServiceType="Regular">
@@ -31,11 +33,13 @@
             <AttachedAttribute Name="Supports Ansible" IsOverridable="true" IsLocal="true">
               <AllowedValues />
             </AttachedAttribute>
+            <AttachedAttribute Name="Timeout Minutes" IsLocal="true" IsOverridable="true"/>
           </AttachedAttributes>
           <AttributeValues>
             <AttributeValue Name="Ansible Additional Arguments" Value="" />
             <AttributeValue Name="Supports Ansible" Value="True" />
             <AttributeValue Name="Execution Server Selector" Value="" />
+            <AttributeValue Name="Timeout Minutes" Value="20" />
           </AttributeValues>
           <ParentModels />
           <Drivers>
