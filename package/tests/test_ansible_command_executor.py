@@ -73,9 +73,7 @@ class TestAnsibleCommandExecutor(TestCase):
 
         self.executor.execute_playbook('p', 'i', '', self.output_writer_mock, Mock(), Mock())
 
-        self.output_writer_mock.write.assert_any_call('a'+os.linesep+'123')
-        self.output_writer_mock.write.assert_any_call('b'+os.linesep+'456')
-        self.output_writer_mock.write.assert_any_call('789')
+        self.output_writer_mock.write.assert_any_call('a'+os.linesep+'123'+os.linesep+'b'+os.linesep+'456'+os.linesep+'789')
 
     # def test_reads_all_output(self):
     #     self.output_parser_mock.parse = Mock(return_value='parsedresults')

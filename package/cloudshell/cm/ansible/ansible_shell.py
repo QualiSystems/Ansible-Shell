@@ -1,6 +1,8 @@
 import os
 
+from cloudshell.cm.ansible.domain.Helpers.ansible_connection_helper import AnsibleConnectionHelper
 from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
+from cloudshell.cm.ansible.domain.connection_service import ConnectionService
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
@@ -30,12 +32,16 @@ class AnsibleShell(object):
         :type playbook_executor: AnsibleCommandExecutor
         :type session_provider: CloudShellSessionProvider
         """
+
         http_request_service = http_request_service or HttpRequestService()
         zip_service = zip_service or ZipService()
         self.file_system = file_system or FileSystemService()
         filename_extractor = FilenameExtractor()
-        self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service, filename_extractor)
+        self.downloader = playbook_downloader or PlaybookDownloader(self.file_system, zip_service, http_request_service,
+                                                                    filename_extractor)
         self.executor = playbook_executor or AnsibleCommandExecutor()
+        self.connection_service = ConnectionService()
+        self.ansible_connection_helper = AnsibleConnectionHelper()
 
     def execute_playbook(self, command_context, ansi_conf_json, cancellation_context):
         """
@@ -56,6 +62,7 @@ class AnsibleShell(object):
                     with TempFolderScope(self.file_system, logger):
                         self._add_ansible_config_file(logger)
                         self._add_host_vars_files(ansi_conf, logger)
+                        self._wait_for_all_hosts_to_be_deployed(ansi_conf, logger, output_writer)
                         self._add_inventory_file(ansi_conf, logger)
                         playbook_name = self._download_playbook(ansi_conf, cancellation_sampler, logger)
                         self._run_playbook(ansi_conf, playbook_name, output_writer, cancellation_sampler, logger)
@@ -87,12 +94,13 @@ class AnsibleShell(object):
             with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
                 file.add_vars(host_conf.parameters)
                 file.add_connection_type(host_conf.connection_method)
-                if host_conf.connection_method == 'winrm':
-                    if host_conf.connection_secured == True:
-                        file.add_port('5986')
+                ansible_port = self.ansible_connection_helper.get_ansible_port(host_conf)
+                file.add_port(ansible_port)
+
+                if host_conf.connection_method == AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM:
+                    if host_conf.connection_secured:
                         file.add_ignore_winrm_cert_validation()
-                    else:
-                        file.add_port('5985')
+
                 file.add_username(host_conf.username)
                 if host_conf.password:
                     file.add_password(host_conf.password)
@@ -131,3 +139,36 @@ class AnsibleShell(object):
 
         if not ansible_result.success:
             raise AnsibleException(ansible_result.to_json())
+
+    def _wait_for_all_hosts_to_be_deployed(self, ansi_conf, logger, output_writer):
+        """
+
+        :param cloudshell.cm.ansible.domain.ansible_configurationa.AnsibleConfiguration ansi_conf:
+        :param Logger logger:
+        :param domain.ansible_command_executor.ReservationOutputWriter output_writer:
+        :return:
+        """
+        wait_for_deploy_msg = "Waiting for all hosts to deploy"
+
+        logger.info(wait_for_deploy_msg)
+        output_writer.write(wait_for_deploy_msg)
+        for host in ansi_conf.hosts_conf:
+
+            logger.info("Trying to connect to host:" + host.ip)
+            ansible_port = self.ansible_connection_helper.get_ansible_port(host)
+
+            if HostVarsFile.ANSIBLE_PORT in host.parameters.keys() and (
+                    host.parameters[HostVarsFile.ANSIBLE_PORT] != '' and
+                    host.parameters[HostVarsFile.ANSIBLE_PORT] is not None):
+                ansible_port = host.parameters[HostVarsFile.ANSIBLE_PORT]
+
+            port_ansible_port = "Ansible Timeout:" + str(ansi_conf.timeout_minutes) + " Ansible port : " + ansible_port
+
+            logger.info(port_ansible_port)
+            output_writer.write("Waiting for host :" + host.ip)
+            output_writer.write(port_ansible_port)
+
+            self.connection_service.check_connection(logger, host, ansible_port=ansible_port,
+                                                     timeout_minutes=ansi_conf.timeout_minutes)
+
+        output_writer.write("Communication check completed.")
