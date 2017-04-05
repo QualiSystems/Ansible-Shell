@@ -37,4 +37,7 @@ class UnixToHtmlColorConverter(object):
         result += '</font></body></html>'
         # result = '<br />'.join([line for line in result.split(os.linesep) if line])
         result = '<br />'.join(result.replace(os.linesep + os.linesep, os.linesep).split(os.linesep))
-        return result;
+        return result
+
+    def remove_strike(self, raw_text):
+        return re.sub(r"<S[^>]*>|<[^>]S>", "", raw_text)

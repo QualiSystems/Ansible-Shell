@@ -2,6 +2,9 @@ import json
 import os
 import re
 
+from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
+
+
 class AnsibleResult(object):
     START = '\033\[\d+\;\d+m'
     END = '\033\[0m'
@@ -52,7 +55,7 @@ class AnsibleResult(object):
     def _get_failing_hosts_errors(self):
         pattern = '^('+self.START+')?fatal: \[(?P<ip>\d+\.\d+\.\d+\.\d+)\]\:.*=>\s*(?P<details>\{.*\})\s*('+self.END+')?$'
         matches = self._scan_for_groups(pattern)
-        ip_to_error = dict([(m['ip'], m['details']) for m in matches])
+        ip_to_error = dict([(m['ip'], UnixToHtmlColorConverter().remove_strike(m['details'])) for m in matches])
         return ip_to_error
 
     def _scan_for_groups(self, pattern):
