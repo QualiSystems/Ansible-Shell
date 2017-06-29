@@ -162,10 +162,10 @@ class AnsibleShell(object):
                     host.parameters[HostVarsFile.ANSIBLE_PORT] is not None):
                 ansible_port = host.parameters[HostVarsFile.ANSIBLE_PORT]
 
-            port_ansible_port = "Ansible Timeout:" + str(ansi_conf.timeout_minutes) + " Ansible port : " + ansible_port
+            port_ansible_port = "Ansible Timeout: " + str(ansi_conf.timeout_minutes) + " Ansible port: " + ansible_port
 
             logger.info(port_ansible_port)
-            output_writer.write("Waiting for host :" + host.ip)
+            output_writer.write("Waiting for host: " + host.ip)
             output_writer.write(port_ansible_port)
 
             self.connection_service.check_connection(logger, host, ansible_port=ansible_port,
