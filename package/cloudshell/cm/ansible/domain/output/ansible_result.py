@@ -29,6 +29,7 @@ class AnsibleResult(object):
         host_results = []
         recap_table = self._get_final_table()
         error_by_host = self._get_failing_hosts_errors()
+        general_error = self._get_parsed_error()
         for ip in self.ips:
             # Success
             if recap_table.get(ip) == True:
@@ -41,7 +42,7 @@ class AnsibleResult(object):
                 host_results.append(HostResult(ip, False, self.error))
             # Didn't run at all (no information for this ip)
             else:
-                host_results.append(HostResult(ip, False, self.DID_NOT_RUN_ERROR+os.linesep+self.error))
+                host_results.append(HostResult(ip, False, self.DID_NOT_RUN_ERROR+os.linesep+general_error))
         return host_results
 
     def _get_final_table(self):
@@ -62,6 +63,15 @@ class AnsibleResult(object):
         matches = list(re.finditer(pattern, self.output, re.MULTILINE))
         matches = [m.groupdict() for m in matches]
         return matches
+
+    def _get_parsed_error(self):
+        pattern = '^('+self.START+')(\[ERROR\]\:|ERROR\!)\s*(?P<txt>.*)\s*('+self.END+')\s*'
+        minimized_error = self.error.replace(os.linesep + os.linesep, os.linesep)
+        matches = list(re.finditer(pattern, minimized_error, re.MULTILINE|re.DOTALL))
+        if(matches):
+            return '\n'.join([m.groupdict()['txt'] for m in matches])
+        else:
+            return self.error
 
 
 class HostResult(object):

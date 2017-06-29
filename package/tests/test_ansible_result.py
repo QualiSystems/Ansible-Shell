@@ -12,6 +12,14 @@ class TestAnsibleResult(TestCase):
     def setUp(self):
         self.file_system = FileSystemServiceMock()
 
+    def test_result_should_fail_on_general_ansible_error(self):
+        resultTxt = """
+\033[0;31mERROR! 'tasks_SFSDFEG' is not a valid attribute for a Play"""+os.linesep+"""The error appears to have\033[0m"""
+        result = AnsibleResult('', resultTxt, ['192.168.85.11'])
+        self.assertFalse(result.success)
+        self.assertEquals('Did not run / no information for this host.'+os.linesep+'\'tasks_SFSDFEG\' is not a valid attribute for a Play'+os.linesep+'The error appears to have',
+                          get_error_for(result, '192.168.85.11'))
+
     def test_result_should_fail_on_unreachable(self):
         resultTxt = """
 PLAY [linux_servers] ***********************************************************
@@ -93,7 +101,6 @@ PLAY RECAP *********************************************************************
             self.assertFalse(result.success)
             self.assertIn(AnsibleResult.DID_NOT_RUN_ERROR,
                           get_error_for(result, '192.168.85.11'))
-
 
     def test_result_to_json(self):
         result = AnsibleResult('', 'error', ['192.168.85.11','192.168.85.12'])
