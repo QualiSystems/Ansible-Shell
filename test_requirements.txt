@@ -2,3 +2,6 @@ coverage
 teamcity-messages
 nose-exclude
 coveralls
+nose
+mock
+unittest2
