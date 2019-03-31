@@ -12,7 +12,6 @@ import winrm
 from paramiko.ssh_exception import NoValidConnectionsError
 from winrm.exceptions import WinRMTransportError
 
-from pip._vendor.requests import ConnectionError
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
 
 
@@ -52,9 +51,6 @@ class WindowsConnectionService(IVMConnectionService):
             result = session.run_cmd('@echo ' + uid)
             assert uid in result.std_out
         except requests.ConnectionError as e:
-            # Time out is allowed exception
-            raise ExcutorConnectionError(10060, e)
-        except ConnectionError as e:
             match = re.search(r'\[Errno (?P<errno>\d+)\]', str(e.message))
             error_code = int(match.group('errno')) if match else 0
             raise ExcutorConnectionError(error_code, e)
