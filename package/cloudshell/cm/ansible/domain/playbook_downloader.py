@@ -1,6 +1,7 @@
 import os
 
 from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
+from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
 from file_system_service import FileSystemService
 from logging import Logger
 
@@ -17,6 +18,9 @@ class PlaybookDownloader(object):
     def __init__(self, file_system, zip_service, http_request_service, filename_extractor):
         """
         :param FileSystemService file_system:
+        :param zip_service:
+        :param HttpRequestService http_request_service:
+        :param filename_extractor:
         """
         self.file_system = file_system
         self.zip_service = zip_service
@@ -51,7 +55,7 @@ class PlaybookDownloader(object):
         :return The downloaded file name
         """
         logger.info('Downloading file from \'%s\' ...'%url)
-        response = self.http_request_service.get_response(url, auth)
+        response = self.http_request_service.get_response(url, auth, logger)
         file_name = self.filename_extractor.get_filename(response)
 
         with self.file_system.create_file(file_name) as file:

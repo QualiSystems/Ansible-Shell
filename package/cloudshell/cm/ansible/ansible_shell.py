@@ -6,7 +6,7 @@ from cloudshell.cm.ansible.domain.connection_service import ConnectionService
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
-from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser
+from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser, AnsibleConfiguration
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
 from cloudshell.cm.ansible.domain.filename_extractor import FilenameExtractor
 from cloudshell.cm.ansible.domain.host_vars_file import HostVarsFile
@@ -118,7 +118,8 @@ class AnsibleShell(object):
         :rtype str
         """
         repo = ansi_conf.playbook_repo
-        auth = HttpAuth(repo.username, repo.password) if repo.username else None
+        # we need password field to be passed for gitlab auth tokens (which require token and not user)
+        auth = HttpAuth(repo.username, repo.password) if repo.password else None
         playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger, cancellation_sampler)
         return playbook_name
 

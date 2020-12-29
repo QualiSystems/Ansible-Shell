@@ -1,6 +1,12 @@
 import json
-
 from cloudshell.api.cloudshell_api import CloudShellAPISession
+
+
+# OPTIONAL SCRIPT PARAMETERS, IF PRESENT WILL OVERRIDE THE DEFAULT READ-ONLY VALUES
+REPO_URL_PARAM = "REPO_URL"
+REPO_USER_PARAM = "REPO_USER"
+REPO_PASSWORD_PARAM = "REPO_PASSWORD"
+CONNECTION_METHOD_PARAM = "CONNECTION_METHOD"
 
 
 class AnsibleConfiguration(object):
@@ -15,6 +21,9 @@ class AnsibleConfiguration(object):
         self.playbook_repo = playbook_repo or PlaybookRepository()
         self.hosts_conf = hosts_conf or []
         self.additional_cmd_args = additional_cmd_args
+
+    def get_pretty_json(self):
+        return json.dumps(self, default=lambda o: getattr(o, '__dict__', str(o)), indent=4)
 
 
 class PlaybookRepository(object):
@@ -34,6 +43,29 @@ class HostConfiguration(object):
         self.access_key = None
         self.groups = []
         self.parameters = {}
+
+
+def over_ride_defaults(ansi_conf, params_dict):
+    """
+    go over custom params and over-ride values
+    :param AnsibleConfiguration ansi_conf:
+    :param dict params_dict:
+    :return same config:
+    :rtype AnsibleConfiguration
+    """
+    if params_dict.get(REPO_URL_PARAM):
+        ansi_conf.playbook_repo.url = params_dict[REPO_URL_PARAM]
+
+    if params_dict.get(REPO_USER_PARAM):
+        ansi_conf.playbook_repo.username = params_dict[REPO_USER_PARAM]
+
+    if params_dict.get(REPO_PASSWORD_PARAM):
+        ansi_conf.playbook_repo.password = params_dict[REPO_PASSWORD_PARAM]
+
+    if params_dict.get(CONNECTION_METHOD_PARAM):
+        ansi_conf.hosts_conf[0].connection_method = params_dict[CONNECTION_METHOD_PARAM].lower()
+
+    return ansi_conf
 
 
 class AnsibleConfigurationParser(object):
@@ -72,7 +104,9 @@ class AnsibleConfigurationParser(object):
             host_conf.access_key = self._get_access_key(json_host)
             host_conf.groups = json_host.get('groups')
             if json_host.get('parameters'):
-                host_conf.parameters = dict((i['name'], i['value']) for i in json_host['parameters'])
+                all_params_dict = dict((i['name'], i['value']) for i in json_host['parameters'])
+                host_conf.parameters = all_params_dict
+                ansi_conf = over_ride_defaults(ansi_conf, all_params_dict)
             ansi_conf.hosts_conf.append(host_conf)
 
         return ansi_conf
@@ -94,7 +128,7 @@ class AnsibleConfigurationParser(object):
     @staticmethod
     def _validate(json_obj):
         """
-        :type json_obj: json
+        :type json_obj: dict
         :rtype bool
         """
         basic_msg = 'Failed to parse ansible configuration input json: '

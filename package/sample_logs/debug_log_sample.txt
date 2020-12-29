@@ -1,0 +1,122 @@
+2020-12-28 19:06:43,727 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   --------------- Execution Info: ---------------------------
+2020-12-28 19:06:43,727 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   Username            : admin
+2020-12-28 19:06:43,730 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   Operating System    : Linux-3.10.0-123.20.1.el7.x86_64-x86_64-with-centos-7.0.1406-Core
+2020-12-28 19:06:43,730 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   Description         : Blueprint with preconfigured setup & teardown processes.Deploys Apps and resolves connections on Setup, and deletes App VMs on Teardown
+2020-12-28 19:06:43,731 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   Python version      : 2.7.13
+2020-12-28 19:06:43,731 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   IP                  : 127.0.0.1
+2020-12-28 19:06:43,731 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   Hostname            : localhost.localdomain
+2020-12-28 19:06:43,732 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   Platform            : Linux
+2020-12-28 19:06:43,732 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   ReservationID       : 0b30e95d-67c1-4899-b50e-df6d1975575f
+2020-12-28 19:06:43,733 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   EnviromentName      : ansible test
+2020-12-28 19:06:43,734 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info   -----------------------------------------------------------
+2020-12-28 19:06:43,734 [INFO]: QS.AnsibleService_B6AF qs_logger - log_execution_info
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook     'execute_playbook' is called with the configuration json:
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook     {
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook       "additionalArgs": "",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook       "timeoutMinutes": 20.0,
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook       "repositoryDetails": {
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook         "url": "http://192.168.85.62/api/v4/projects/3/repository/files/my_playbook.yml/raw?ref=master",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook         "username": "",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook         "password": null
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook       },
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook       "hostsDetails": [
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook         {
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook           "ip": "192.168.42.196",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook           "username": "quali",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook           "password": "P0G8gOpDHL0c52ROLdsaVQ==",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook           "accessKey": "",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook           "connectionMethod": "SSH",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook           "groups": null,
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook           "parameters": [
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook             {
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook               "name": "REPO_URL",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook               "value": ""
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook             },
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook             {
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook               "name": "REPO_USER",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook               "value": ""
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook             },
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook             {
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook               "name": "REPO_PASSWORD",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook               "value": ""
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook             },
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook             {
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook               "name": "CONNECTION_METHOD",
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook               "value": ""
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook             }
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook           ]
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook         }
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook       ],
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook       "printOutput": true
+2020-12-28 19:06:43,735 [DEBUG]: QS.AnsibleService_B6AF ansible_shell - execute_playbook     }
+2020-12-28 19:06:43,929 [INFO]: QS.AnsibleService_B6AF temp_folder_scope - __enter__            Creating temp folder and making it the working dir...
+2020-12-28 19:06:43,930 [INFO]: QS.AnsibleService_B6AF temp_folder_scope - __enter__            Done (folder: /tmp/tmpntLqMy)
+2020-12-28 19:06:43,930 [INFO]: QS.AnsibleService_B6AF ansible_config_file - __enter__            Creating 'ansible.cfg' configuration file ...
+2020-12-28 19:06:43,930 [DEBUG]: QS.AnsibleService_B6AF ansible_config_file - __exit__             [defaults]
+2020-12-28 19:06:43,930 [DEBUG]: QS.AnsibleService_B6AF ansible_config_file - __exit__             host_key_checking = False
+2020-12-28 19:06:43,930 [DEBUG]: QS.AnsibleService_B6AF ansible_config_file - __exit__             retry_files_save_path = .:
+2020-12-28 19:06:43,930 [DEBUG]: QS.AnsibleService_B6AF ansible_config_file - __exit__             force_color = 1
+2020-12-28 19:06:43,932 [INFO]: QS.AnsibleService_B6AF ansible_config_file - __exit__             Done.
+2020-12-28 19:06:43,932 [INFO]: QS.AnsibleService_B6AF host_vars_file - __enter__            Creating 'host_vars/192.168.42.196' vars file ...
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             ---
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             CONNECTION_METHOD: ""
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             REPO_PASSWORD: ""
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             REPO_URL: ""
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             REPO_USER: ""
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             ansible_connection: "ssh"
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             ansible_port: "22"
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             ansible_ssh_pass: "Password1"
+2020-12-28 19:06:43,933 [DEBUG]: QS.AnsibleService_B6AF host_vars_file - __exit__             ansible_user: "quali"
+2020-12-28 19:06:43,934 [INFO]: QS.AnsibleService_B6AF host_vars_file - __exit__             Done.
+2020-12-28 19:06:43,934 [INFO]: QS.AnsibleService_B6AF ansible_shell - _wait_for_all_hosts_to_be_deployed Waiting for all hosts to deploy
+2020-12-28 19:06:43,998 [INFO]: QS.AnsibleService_B6AF ansible_shell - _wait_for_all_hosts_to_be_deployed Trying to connect to host:192.168.42.196
+2020-12-28 19:06:43,998 [INFO]: QS.AnsibleService_B6AF ansible_shell - _wait_for_all_hosts_to_be_deployed Ansible Timeout: 20.0 Ansible port: 22
+2020-12-28 19:06:44,168 [INFO]: QS.AnsibleService_B6AF connection_service - check_connection     check connection
+2020-12-28 19:06:44,168 [INFO]: QS.AnsibleService_B6AF connection_service - check_connection     Check connection on linux
+2020-12-28 19:06:44,169 [INFO]: QS.AnsibleService_B6AF connection_service - check_connection     Creating a session.
+2020-12-28 19:06:44,169 [INFO]: QS.AnsibleService_B6AF connection_service - check_connection     Test connection
+2020-12-28 19:06:44,305 [INFO]: QS.AnsibleService_B6AF connection_service - check_connection     Done testing connection
+2020-12-28 19:06:44,306 [INFO]: QS.AnsibleService_B6AF connection_service - check_connection     Done checking connection on linux
+2020-12-28 19:06:44,373 [INFO]: QS.AnsibleService_B6AF inventory_file - __enter__            Creating 'hosts' inventory file ...
+2020-12-28 19:06:44,373 [DEBUG]: QS.AnsibleService_B6AF inventory_file - __exit__             [all]
+2020-12-28 19:06:44,373 [DEBUG]: QS.AnsibleService_B6AF inventory_file - __exit__             192.168.42.196
+2020-12-28 19:06:44,373 [INFO]: QS.AnsibleService_B6AF inventory_file - __exit__             Done (1 groups, with 1 hosts).
+2020-12-28 19:06:44,374 [INFO]: QS.AnsibleService_B6AF playbook_downloader - _download            Downloading file from 'http://192.168.85.62/api/v4/projects/3/repository/files/my_playbook.yml/raw?ref=master' ...
+2020-12-28 19:06:44,377 [INFO]: QS.AnsibleService_B6AF http_request_service - _get_gitlab_response downloading script via Gitlab Rest API call: http://192.168.85.62/api/v4/projects/3/repository/files/my_playbook.yml/raw?ref=master
+2020-12-28 19:06:44,639 [INFO]: QS.AnsibleService_B6AF playbook_downloader - _download            Done (file: my_playbook.yml, size: 126 bytes)).
+2020-12-28 19:06:44,640 [INFO]: QS.AnsibleService_B6AF ansible_shell - _run_playbook        Running the playbook
+2020-12-28 19:06:44,640 [INFO]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     Running cmd 'ansible-playbook my_playbook.yml -i hosts' ...
+2020-12-28 19:06:50,725 [ERROR]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     <html><body><font color=white>/usr/local/lib/python2.7/site-packages/ansible/parsing/vault/__init__.py:44: CryptographyDeprecationWarning: Python 2 is no longer supported by the Python core team. Support for it is now deprecated in cryptography, and will be removed in the next release.<br />  from cryptography.exceptions import InvalidSignature<br /><br />PLAY [my playbook] *************************************************************<br /><br />TASK [Gathering Facts] *********************************************************<br /></font><font color=#C75646>fatal: [192.168.42.196]: FAILED! => {"msg": "to use the 'ssh' connection type with passwords, you must install the sshpass program"}</font><font color=white><br /><br />PLAY RECAP *********************************************************************<br /></font><font color=#C75646>192.168.42.196</font><font color=white>             : ok=0    changed=0    unreachable=0    </font><font color=#C75646>failed=1   </font><font color=white> skipped=0    rescued=0    ignored=0   <br /><br /></font></body></html>
+2020-12-28 19:06:50,728 [INFO]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     Done (after '6.08777785301' sec, with 18 lines of output, with 4 lines of error).
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     Err: /usr/local/lib/python2.7/site-packages/ansible/parsing/vault/__init__.py:44: CryptographyDeprecationWarning: Python 2 is no longer supported by the Python core team. Support for it is now deprecated in cryptography, and will be removed in the next release.
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook       from cryptography.exceptions import InvalidSignature
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     Out:
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     PLAY [my playbook] *************************************************************
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     TASK [Gathering Facts] *********************************************************
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     fatal: [192.168.42.196]: FAILED! => {"msg": "to use the 'ssh' connection type with passwords, you must install the sshpass program"}
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     PLAY RECAP *********************************************************************
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     192.168.42.196             : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,728 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook
+2020-12-28 19:06:50,729 [DEBUG]: QS.AnsibleService_B6AF ansible_command_executor - execute_playbook     Code: 2
+2020-12-28 19:06:50,735 [INFO]: QS.AnsibleService_B6AF temp_folder_scope - __exit__             Deleting temp folder and restoring the previous working dir...
+2020-12-28 19:06:50,736 [INFO]: QS.AnsibleService_B6AF temp_folder_scope - __exit__             Done (folder: /tmp/tmpntLqMy)
+2020-12-28 19:06:50,737 [ERROR]: QS.AnsibleService_B6AF error_handling_context - __exit__             Error occurred: Traceback (most recent call last):
+2020-12-28 19:06:50,737 [ERROR]: QS.AnsibleService_B6AF error_handling_context - __exit__               File "/usr/share/QualiSystems/venv/Ansible_Shell_Driver_5_3/lib/python2.7/site-packages/cloudshell/cm/ansible/ansible_shell.py", line 68, in execute_playbook
+2020-12-28 19:06:50,737 [ERROR]: QS.AnsibleService_B6AF error_handling_context - __exit__                 self._run_playbook(ansi_conf, playbook_name, output_writer, cancellation_sampler, logger)
+2020-12-28 19:06:50,737 [ERROR]: QS.AnsibleService_B6AF error_handling_context - __exit__               File "/usr/share/QualiSystems/venv/Ansible_Shell_Driver_5_3/lib/python2.7/site-packages/cloudshell/cm/ansible/ansible_shell.py", line 142, in _run_playbook
+2020-12-28 19:06:50,737 [ERROR]: QS.AnsibleService_B6AF error_handling_context - __exit__                 raise AnsibleException(ansible_result.to_json())
+2020-12-28 19:06:50,737 [ERROR]: QS.AnsibleService_B6AF error_handling_context - __exit__             AnsibleException: [{"host": "192.168.42.196", "success": false, "error": "{\"msg\": \"to use the 'ssh' connection type with passwords, you must install the sshpass program\"}"}]
+2020-12-28 19:06:50,737 [ERROR]: QS.AnsibleService_B6AF error_handling_context - __exit__
