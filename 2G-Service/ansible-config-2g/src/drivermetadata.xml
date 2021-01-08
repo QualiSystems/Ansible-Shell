@@ -1,0 +1,14 @@
+<Driver Description="Describe the purpose of your CloudShell shell" MainClass="driver.AnsibleConfig2GDriver"
+        Name="AnsibleConfig2GDriver" Version="1.0.0" PythonVersion="2">
+    <Layout>
+        <Command Description="Execute playbook on connected resources." EnableCancellation="true"
+                 Name="execute_playbook">
+            <Parameters>
+                <Parameter Name="playbook_path" Type="String"
+                           DisplayName="Playbook Path"
+                           Description="Can pass the Full URL OR a shortened path that will be combined with base path attribute"
+                           Mandatory="False"/>
+            </Parameters>
+        </Command>
+    </Layout>
+</Driver>

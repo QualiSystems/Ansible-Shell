@@ -1,0 +1,81 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+metadata:
+  template_name: Ansible Config 2G
+  template_author: Quali
+  template_version: 1.0.0
+  template_icon: shell-icon.png
+
+description: >
+  TOSCA based service shell
+
+imports:
+  - cloudshell_standard: cloudshell_custom_service_standard_1_0_0.yaml
+
+node_types:
+
+  vendor.resource.Ansible Config 2G:
+    derived_from: cloudshell.nodes.CustomService
+    properties:
+      Address:
+        description: (Optional) Address of Script Repo Server.
+        type: string
+        tags: [ user_input ]
+      Repo User:
+        description: (Optional) Source Control user for private repo authentication. Required for Github Private Repo. For Gitlab user not required, only access token in password field.
+        type: string
+        tags: [user_input]
+      Repo Password:
+        description: (Optional) Source Control password for private repo authentication. For GitLab, add private access token here.
+        type: cloudshell.datatypes.Password
+        tags: [user_input]
+      Playbook Base Path:
+        description: Base URL to script. This path will join with script path passed to execute playbook command. (Github - https://raw.githubusercontent.com/QualiSystemsLab/App-Configuration-Demo-Scripts/master/, Gitlab - http://<SERVER_IP>/api/v4/projects/<PROJECT_ID>/repository/files)
+        type: string
+        tags: [ user_input ]
+      Playbook Script Path:
+        description: Path to script from root of repo. This will join with base path to create full URL.
+        type: string
+        tags: [ user_input ]
+      Playbook URL Full:
+        description: Full path URL of script. For Github can be "raw" url. For gitlab, pass Rest API formatted url (Github - https://raw.githubusercontent.com/QualiSystemsLab/App-Configuration-Demo-Scripts/master/<FILE_PATH>, Gitlab - http://<SERVER_IP>/api/v4/projects/<PROJECT_ID>/repository/files/<FILE_PATH>/raw?ref=<BRANCH>)
+        type: string
+        tags: [ user_input ]
+      Connection Method:
+        description: For Linux / Windows connections
+        type: string
+        tags: [user_input]
+        default: SSH
+        constraints:
+          - valid_values: [ SSH, WinRM ]
+      Script Parameters:
+        description: (Optional) key pair values passed playbook VARS file to be accesible in script. Pass in following format - key1,val1;key2,val2.
+        type: string
+        tags: [ user_input ]
+      Inventory Groups:
+        description: (Optional) Designating groups in playbook to be executed.
+        type: string
+        tags: [ user_input ]
+      Ansible CMD Args:
+        description: (Optional) Additional arguments passed to ansible-playbook command line execution.
+        type: string
+        tags: [ user_input ]
+      Timeout Minutes:
+        description: (Optional) Minutes to wait while polling target hosts.
+        type: integer
+        default: 10
+        tags: [ user_input ]
+      Gitlab Branch:
+        description: (Optional) Defaults to master branch. This attribute relevant for downloading from non-master branches in Gitlab repos.
+        type: string
+        tags: [ user_input ]
+      Service Categories:
+        type: list
+        default: [Configuration Management]
+    artifacts:
+      icon:
+        file: shell-icon.png
+        type: tosca.artifacts.File
+      driver:
+        file: AnsibleConfig2GDriver.zip
+        type: tosca.artifacts.File

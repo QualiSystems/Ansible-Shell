@@ -21,6 +21,7 @@ class AnsibleConfiguration(object):
         self.playbook_repo = playbook_repo or PlaybookRepository()
         self.hosts_conf = hosts_conf or []
         self.additional_cmd_args = additional_cmd_args
+        self.is_second_gen_service = False
 
     def get_pretty_json(self):
         return json.dumps(self, default=lambda o: getattr(o, '__dict__', str(o)), indent=4)
@@ -89,6 +90,9 @@ class AnsibleConfigurationParser(object):
         ansi_conf.additional_cmd_args = json_obj.get('additionalArgs')
         ansi_conf.timeout_minutes = json_obj.get('timeoutMinutes', 0.0)
 
+        # if using 2G wrapper service then skip the param override replacement step - all params come from service
+        is_second_gen_service = json_obj.get('isSecondGenService')
+
         if json_obj.get('repositoryDetails'):
             ansi_conf.playbook_repo.url = json_obj['repositoryDetails'].get('url')
             ansi_conf.playbook_repo.username = json_obj['repositoryDetails'].get('username')
@@ -106,7 +110,8 @@ class AnsibleConfigurationParser(object):
             if json_host.get('parameters'):
                 all_params_dict = dict((i['name'], i['value']) for i in json_host['parameters'])
                 host_conf.parameters = all_params_dict
-                ansi_conf = over_ride_defaults(ansi_conf, all_params_dict)
+                if not is_second_gen_service:
+                    ansi_conf = over_ride_defaults(ansi_conf, all_params_dict)
             ansi_conf.hosts_conf.append(host_conf)
 
         return ansi_conf
