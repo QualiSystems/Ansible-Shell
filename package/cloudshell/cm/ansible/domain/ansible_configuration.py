@@ -22,6 +22,7 @@ class PlaybookRepository(object):
         self.url = None
         self.username = None
         self.password = None
+        self.token = None
 
 
 class HostConfiguration(object):
@@ -61,6 +62,7 @@ class AnsibleConfigurationParser(object):
             ansi_conf.playbook_repo.url = json_obj['repositoryDetails'].get('url')
             ansi_conf.playbook_repo.username = json_obj['repositoryDetails'].get('username')
             ansi_conf.playbook_repo.password = json_obj['repositoryDetails'].get('password')
+            ansi_conf.playbook_repo.token = json_obj['repositoryDetails'].get('token')
 
         for json_host in json_obj.get('hostsDetails',[]):
             host_conf = HostConfiguration()

@@ -9,3 +9,6 @@ cloudshell_cm_ansible.egg-info/
 package/cloudshell_cm_ansible.egg-info/
 drivers/ansible_shell.zip
 *.zip
+.vscode/
+venv
+dist/
