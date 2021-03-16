@@ -26,59 +26,111 @@ class TestPlaybookDownloader(TestCase):
 
     def test_playbook_downloader_zip_file_one_yaml(self):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml"])
-        auth = HttpAuth("user", "pass")
+        auth = HttpAuth("user", "pass", "token")
         self.reqeust.url = "blabla/lie.zip"
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
         self.http_request_serivce.get_response=Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+        self.playbook_downloader._is_response_valid = Mock(return_value=True)
+
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
         self.assertEquals(file_name, "lie.yaml")
 
 
     def test_playbook_downloader_zip_file_two_yaml_correct(self):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml", "site.yaml"])
-        auth = HttpAuth("user", "pass")
+        auth = HttpAuth("user", "pass", "token")
         self.reqeust.url = "blabla/lie.zip"
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
         self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+        self.playbook_downloader._is_response_valid = Mock(return_value=True)
+
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+
         self.assertEquals(file_name, "site.yaml")
 
     def test_playbook_downloader_zip_file_two_yaml_incorrect(self):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml", "lie2.yaml"])
-        auth = HttpAuth("user", "pass")
+        auth = HttpAuth("user", "pass", "token")  
         self.reqeust.url = "blabla/lie.zip"
         dic = dict([('content-disposition', 'lie.zip')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
         self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+        self.playbook_downloader._is_response_valid = Mock(return_value=True)
         with self.assertRaises(Exception) as e:
             self.playbook_downloader.get("", auth, self.logger, Mock())
         self.assertEqual(e.exception.message,"Playbook file name was not found in zip file")
 
     def test_playbook_downloader_with_one_yaml(self):
-        auth = HttpAuth("user", "pass")
+        auth = HttpAuth("user", "pass", "token")        
         self.reqeust.url = "blabla/lie.yaml"
         dic = dict([('content-disposition', 'lie.yaml')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = 'hello'
         self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+        self.playbook_downloader._is_response_valid = Mock(return_value=True)
 
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
         self.assertEquals(file_name, "lie.yaml")
 
     def test_playbook_downloader_no_parsing_from_rfc(self):
-        auth = HttpAuth("user", "pass")
+        auth = HttpAuth("user", "pass", "token")
         self.reqeust.url = "blabla/lie.yaml"
         dic = dict([('content-disposition', 'lie.yaml')])
         self.reqeust.headers = dic
         self.reqeust.iter_content.return_value = ''
         self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+        self.playbook_downloader._is_response_valid = Mock(return_value=True)
+        
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+
+        self.assertEquals(file_name, "lie.yaml")
+    
+    def test_playbook_downloader_with_one_yaml_only_credentials(self):
+        auth = HttpAuth("user", "pass", None)        
+        self.reqeust.url = "blabla/lie.yaml"
+        dic = dict([('content-disposition', 'lie.yaml')])
+        self.reqeust.headers = dic
+        self.reqeust.iter_content.return_value = 'hello'
+        self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+        self.playbook_downloader._is_response_valid = Mock(side_effect=self.mock_response_valid_for_credentials)
 
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
         self.assertEquals(file_name, "lie.yaml")
+
+    def test_playbook_downloader_with_one_yaml_only_token(self):
+            auth = HttpAuth(None, None, "Token")        
+            self.reqeust.url = "blabla/lie.yaml"
+            dic = dict([('content-disposition', 'lie.yaml')])
+            self.reqeust.headers = dic
+            self.reqeust.iter_content.return_value = 'hello'
+            self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
+            self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+            self.playbook_downloader._is_response_valid = Mock(side_effect=self.mock_response_valid_for_not_public)
+
+            file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+
+            self.assertEquals(file_name, "lie.yaml")
+    
+
+
+
+    # helpers method to mock the request according the request in order to test the right flow for Token\Cred
+    def mock_response_valid_for_not_public(self, logger, response, request_method):
+        return request_method != "Public"
+            
+    
+    def mock_response_valid_for_credentials(self, logger, response, request_method):
+        return request_method == "username\password"

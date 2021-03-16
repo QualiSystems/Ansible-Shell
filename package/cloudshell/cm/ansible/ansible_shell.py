@@ -122,7 +122,7 @@ class AnsibleShell(object):
         if ansi_conf.playbook_repo.username:
             auth = HttpAuth(repo.username, repo.password, repo.token)
         playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger, cancellation_sampler)
-        logger.info('download playbook file' + playbook_name)
+        logger.info('download playbook file' + str(playbook_name))
         return playbook_name
 
     def _run_playbook(self, ansi_conf, playbook_name, output_writer, cancellation_sampler, logger):
