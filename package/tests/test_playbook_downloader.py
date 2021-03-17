@@ -129,7 +129,7 @@ class TestPlaybookDownloader(TestCase):
 
     # helpers method to mock the request according the request in order to test the right flow for Token\Cred
     def mock_response_valid_for_not_public(self, logger, response, request_method):
-        return request_method != "Public"
+        return request_method != "public"
             
     
     def mock_response_valid_for_credentials(self, logger, response, request_method):
