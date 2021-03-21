@@ -7,7 +7,7 @@ from cloudshell.cm.ansible.domain.Helpers.ansible_connection_helper import Ansib
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration
 from mock import Mock, patch
-from helpers import mock_enter_exit, mock_enter_exit_self, Any
+from .helpers import mock_enter_exit, mock_enter_exit_self, Any
 
 
 class TestAnsibleShell(TestCase):
@@ -111,7 +111,7 @@ class TestAnsibleShell(TestCase):
             host1.connection_method = AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM
             self._execute_playbook()
 
-            self.file_system.create_file.assert_any_call('host1_access_key.pem', 0400)
+            self.file_system.create_file.assert_any_call('host1_access_key.pem', 0o400)
             m.add_conn_file.assert_called_once_with('host1_access_key.pem')
             m.add_username.assert_called_once()
             m.add_password.assert_not_called()

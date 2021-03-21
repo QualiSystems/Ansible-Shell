@@ -1,6 +1,6 @@
 import os
 from collections import OrderedDict
-from file_system_service import FileSystemService
+from .file_system_service import FileSystemService
 
 
 class InventoryFile(object):

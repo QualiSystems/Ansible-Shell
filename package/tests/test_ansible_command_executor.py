@@ -3,7 +3,7 @@ from unittest import TestCase
 from mock import Mock, MagicMock, patch
 from subprocess import PIPE
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor
-from helpers import mock_enter_exit_self
+from .helpers import mock_enter_exit_self
 
 
 class TestAnsibleCommandExecutor(TestCase):

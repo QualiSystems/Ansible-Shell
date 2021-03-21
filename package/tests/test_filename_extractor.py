@@ -41,5 +41,5 @@ class TestFilenameExtractor(TestCase):
         self.response.url = "http://www.template.myurl/a/b/c/" + filename
         with self.assertRaises(Exception) as unsupportedExc:
             self.filename_extractor.get_filename(self.response)
-        self.assertEqual(unsupportedExc.exception.message,"playbook file of supported types: '.yml', '.yaml', '.zip' was not found")
+        self.assertEqual(str(unsupportedExc.exception),"playbook file of supported types: '.yml', '.yaml', '.zip' was not found")
 

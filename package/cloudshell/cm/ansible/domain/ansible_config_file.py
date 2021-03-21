@@ -1,4 +1,4 @@
-from file_system_service import FileSystemService
+from .file_system_service import FileSystemService
 from logging import Logger
 import os
 
@@ -22,7 +22,7 @@ class AnsibleConfigFile(object):
     def __exit__(self, type, value, traceback):
         with self.file_system.create_file(AnsibleConfigFile.FILE_NAME) as file_stream:
             lines = ['[defaults]']
-            for key, value in self.config_keys.iteritems():
+            for key, value in self.config_keys.items():
                 lines.append(key + ' = ' + value)
             file_stream.write(os.linesep.join(lines))
             self.logger.debug(os.linesep.join(lines))

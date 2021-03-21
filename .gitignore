@@ -11,4 +11,5 @@ drivers/ansible_shell.zip
 *.zip
 .vscode/
 venv
+.venv*
 dist/

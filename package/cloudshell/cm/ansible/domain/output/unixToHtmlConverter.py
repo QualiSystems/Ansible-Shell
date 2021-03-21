@@ -32,7 +32,7 @@ class UnixToHtmlColorConverter(object):
 
     def convert(self, text):
         result = '<html><body><font color=white>'
-        p_object = re.compile('|'.join(self.unixToHtml.keys()))
+        p_object = re.compile('|'.join(list(self.unixToHtml.keys())))
         result += p_object.sub(lambda x: self._add_font_tag(x), text)
         result += '</font></body></html>'
         # result = '<br />'.join([line for line in result.split(os.linesep) if line])
