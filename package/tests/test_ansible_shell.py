@@ -1,19 +1,20 @@
 import os
 from unittest import TestCase
-from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
 
 from cloudshell.cm.ansible.ansible_shell import AnsibleShell
 from cloudshell.cm.ansible.domain.Helpers.ansible_connection_helper import AnsibleConnectionHelper
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfiguration, HostConfiguration
 from mock import Mock, patch
-from helpers import mock_enter_exit, mock_enter_exit_self, Any
+from .helpers import mock_enter_exit, mock_enter_exit_self, Any
 
 
 class TestAnsibleShell(TestCase):
     def setUp(self):
-        self.context = ResourceCommandContext()
-        self.context.resource = ResourceContextDetails()
+        #self.context = ResourceCommandContext()
+        self.context = Mock()
+        #self.context.resource = ResourceContextDetails()
+        self.context.resource = Mock()
         self.context.resource.name = 'resource'
         self.context.reservation = Mock()
         self.context.reservation.reservation_id = 'e34aa58a-468e-49a1-8a1d-0da1d2cc5b41'
@@ -111,7 +112,7 @@ class TestAnsibleShell(TestCase):
             host1.connection_method = AnsibleConnectionHelper.CONNECTION_METHOD_WIN_RM
             self._execute_playbook()
 
-            self.file_system.create_file.assert_any_call('host1_access_key.pem', 0400)
+            self.file_system.create_file.assert_any_call('host1_access_key.pem', 0o400)
             m.add_conn_file.assert_called_once_with('host1_access_key.pem')
             m.add_username.assert_called_once()
             m.add_password.assert_not_called()
@@ -222,7 +223,7 @@ class TestAnsibleShell(TestCase):
 
         with self.assertRaises(AnsibleException) as e:
             self._execute_playbook()
-        self.assertEqual(json, e.exception.message)
+        self.assertEqual(str(json), str(e.exception))
 
     def test_ansible_result_is_created_with_output_and_error_and_ips(self):
         host1 = HostConfiguration()

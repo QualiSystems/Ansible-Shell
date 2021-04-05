@@ -17,7 +17,7 @@ class TestAnsibleResult(TestCase):
 \033[0;31mERROR! 'tasks_SFSDFEG' is not a valid attribute for a Play"""+os.linesep+"""The error appears to have\033[0m"""
         result = AnsibleResult('', resultTxt, ['192.168.85.11'])
         self.assertFalse(result.success)
-        self.assertEquals('Did not run / no information for this host.'+os.linesep+'\'tasks_SFSDFEG\' is not a valid attribute for a Play'+os.linesep+'The error appears to have',
+        self.assertEqual('Did not run / no information for this host.'+os.linesep+'\'tasks_SFSDFEG\' is not a valid attribute for a Play'+os.linesep+'The error appears to have',
                           get_error_for(result, '192.168.85.11'))
 
     def test_result_should_fail_on_unreachable(self):
@@ -32,7 +32,7 @@ PLAY RECAP *********************************************************************
 \033[0;31m192.168.85.11\033[0m              : ok=0    changed=0    \033[1;31munreachable=1   \033[0m failed=0"""
         result = AnsibleResult(resultTxt, '', ['192.168.85.11'])
         self.assertFalse(result.success)
-        self.assertEquals('{"changed": false, "msg": "Authentication failure.", "unreachable": true}',
+        self.assertEqual('{"changed": false, "msg": "Authentication failure.", "unreachable": true}',
                           get_error_for(result, '192.168.85.11'))
 
     def test_result_should_fail_on_failed(self):
@@ -50,7 +50,7 @@ PLAY RECAP *********************************************************************
 \033[0;31m192.168.85.11\033[0m              : \033[0;32mok=1   \033[0m changed=0    unreachable=0    \033[0;31mfailed=1   \033[0m"""
         result = AnsibleResult(resultTxt, '', ['192.168.85.11'])
         self.assertFalse(result.success)
-        self.assertEquals('{"changed": false, "cmd": "tauch /tmp/f", "failed": true, "msg": "[Errno 2] No such file or directory", "rc": 2}',
+        self.assertEqual('{"changed": false, "cmd": "tauch /tmp/f", "failed": true, "msg": "[Errno 2] No such file or directory", "rc": 2}',
                           get_error_for(result, '192.168.85.11'))
 
     def test_result_should_be_true(self):
@@ -85,7 +85,7 @@ PLAY RECAP *********************************************************************
 \033[0;31m192.168.85.11\033[0m              : \033[0;32mok=1   \033[0m changed=0    unreachable=0    \033[0;31mfailed=1   \033[0m"""
             result = AnsibleResult(resultTxt, 'general error', ['192.168.85.11'])
             self.assertFalse(result.success)
-            self.assertEquals('general error',
+            self.assertEqual('general error',
                               get_error_for(result, '192.168.85.11'))
 
         def test_result_should_contain_error_for_unrun_hosts(self):

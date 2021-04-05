@@ -36,7 +36,7 @@ class TestPlaybookDownloader(TestCase):
         self.playbook_downloader._is_response_valid = Mock(return_value=True)
 
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
-        self.assertEquals(file_name, "lie.yaml")
+        self.assertEqual(file_name, "lie.yaml")
 
 
     def test_playbook_downloader_zip_file_two_yaml_correct(self):
@@ -52,7 +52,7 @@ class TestPlaybookDownloader(TestCase):
 
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
-        self.assertEquals(file_name, "site.yaml")
+        self.assertEqual(file_name, "site.yaml")
 
     def test_playbook_downloader_zip_file_two_yaml_incorrect(self):
         self.zip_service.extract_all = lambda zip_file_name: self._set_extract_all_zip(["lie.yaml", "lie2.yaml"])
@@ -66,7 +66,7 @@ class TestPlaybookDownloader(TestCase):
         self.playbook_downloader._is_response_valid = Mock(return_value=True)
         with self.assertRaises(Exception) as e:
             self.playbook_downloader.get("", auth, self.logger, Mock())
-        self.assertEqual(e.exception.message,"Playbook file name was not found in zip file")
+        self.assertEqual(str(e.exception),"Playbook file name was not found in zip file")
 
     def test_playbook_downloader_with_one_yaml(self):
         auth = HttpAuth("user", "pass", "token")        
@@ -80,7 +80,7 @@ class TestPlaybookDownloader(TestCase):
 
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
-        self.assertEquals(file_name, "lie.yaml")
+        self.assertEqual(file_name, "lie.yaml")
 
     def test_playbook_downloader_no_parsing_from_rfc(self):
         auth = HttpAuth("user", "pass", "token")
@@ -94,7 +94,7 @@ class TestPlaybookDownloader(TestCase):
         
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
-        self.assertEquals(file_name, "lie.yaml")
+        self.assertEqual(file_name, "lie.yaml")
     
     def test_playbook_downloader_with_one_yaml_only_credentials(self):
         auth = HttpAuth("user", "pass", None)        
@@ -108,7 +108,7 @@ class TestPlaybookDownloader(TestCase):
 
         file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
-        self.assertEquals(file_name, "lie.yaml")
+        self.assertEqual(file_name, "lie.yaml")
 
     def test_playbook_downloader_with_one_yaml_only_token(self):
             auth = HttpAuth(None, None, "Token")        
@@ -122,7 +122,7 @@ class TestPlaybookDownloader(TestCase):
 
             file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
 
-            self.assertEquals(file_name, "lie.yaml")
+            self.assertEqual(file_name, "lie.yaml")
     
 
 

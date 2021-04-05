@@ -1,5 +1,5 @@
 import os
-from file_system_service import FileSystemService
+from .file_system_service import FileSystemService
 from logging import Logger
 
 

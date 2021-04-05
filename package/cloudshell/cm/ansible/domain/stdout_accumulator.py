@@ -1,5 +1,5 @@
 import os
-from Queue import Queue, Empty
+from queue import Queue, Empty
 from threading import Thread, RLock
 
 class StreamAccumulator(object):

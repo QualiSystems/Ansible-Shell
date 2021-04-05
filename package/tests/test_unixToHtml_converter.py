@@ -9,7 +9,7 @@ class TestUnixToHtmlColorConverter(TestCase):
     def test_convert_all_colors(self):
         text = 'i am white'
         expectedText = '<html><body><font color=white>i am white'
-        for key,value in self.color_converter.unixToHtml.iteritems():
+        for key,value in self.color_converter.unixToHtml.items():
             representing_text = 'i am '
             text += key.replace("\\","") + representing_text + value
             expectedText+='</font><font color=' + value + '>' + representing_text + value

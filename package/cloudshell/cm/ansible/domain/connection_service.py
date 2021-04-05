@@ -1,6 +1,6 @@
 import re
 import socket
-from StringIO import StringIO
+from io import StringIO
 from abc import ABCMeta, abstractmethod
 from multiprocessing.pool import ThreadPool
 from uuid import uuid4
@@ -15,9 +15,7 @@ from winrm.exceptions import WinRMTransportError
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
 
 
-class IVMConnectionService(object):
-    __metaclass__ = ABCMeta
-
+class IVMConnectionService(object, metaclass=ABCMeta):
     @abstractmethod
     def check_connection(self, target_host, logger, ansible_port):
         pass
@@ -87,7 +85,7 @@ class LinuxConnectionService(IVMConnectionService):
                 raise Exception('Both password and access key are empty.')
             logger.info("Done testing connection")
         except NoValidConnectionsError as e:
-            error_code = next(e.errors.itervalues(), type('e', (object,), {'errno': 0})).errno
+            error_code = next(iter(e.errors.values()), type('e', (object,), {'errno': 0})).errno
             raise ExcutorConnectionError(error_code, e)
         except socket.error as e:
             raise ExcutorConnectionError(e.errno, e)

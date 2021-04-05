@@ -1,4 +1,4 @@
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import re
 
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
@@ -14,14 +14,14 @@ class FilenameExtractor(object):
 
     def get_filename(self,response):
         file_name = None;
-        for header_value, pattern in self.filename_patterns.iteritems():
+        for header_value, pattern in self.filename_patterns.items():
             matching = re.match(pattern, response.headers.get(header_value,""))
             if matching:
                 file_name = matching.group('filename')
                 break
         #fallback, couldn't find file name from header, get it from url
         if not file_name:
-            file_name_from_url = urllib.unquote(response.url[response.url.rfind('/') + 1:])
+            file_name_from_url = urllib.parse.unquote(response.url[response.url.rfind('/') + 1:])
             matching = re.match(self._filename_pattern, file_name_from_url)
             if matching:
                 file_name = matching.group('filename')

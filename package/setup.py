@@ -28,6 +28,6 @@ setup(
             "Development Status :: 4 - Beta",
             "Topic :: Software Development :: Libraries",
             "License :: OSI Approved :: Apache Software License",
-        ], requires=['jsonpickle']
-
+        ], 
+        #requires=required,
 )
