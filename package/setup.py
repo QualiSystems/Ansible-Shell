@@ -20,7 +20,7 @@ setup(
         test_suite='nose.collector',
         test_requires=required_for_tests,
         package_data={'': ['*.txt']},
-        install_requires=required,
+        #install_requires=required,
         version=version_from_file,
         include_package_data=True,
         keywords="ansible cloudshell configuration configuration-manager",
@@ -28,6 +28,6 @@ setup(
             "Development Status :: 4 - Beta",
             "Topic :: Software Development :: Libraries",
             "License :: OSI Approved :: Apache Software License",
-        ], requires=['jsonpickle']
+        ], requires=required,
 
 )

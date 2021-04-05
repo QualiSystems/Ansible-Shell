@@ -4,4 +4,5 @@ cloudshell-core>=2.2.0,<2.3.0
 pywinrm>=0.2.2
 paramiko>=2.1.1
 requests>=2.16.2
+jsonpickle
 
