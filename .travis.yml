@@ -7,6 +7,7 @@ install:
   - pip install -r test_requirements.txt --extra-index-url https://pypi.python.org/simple
   - pip install "cloudshell-shell-core>=5.0.0,<6.0.0" --extra-index-url https://testpypi.python.org/simple
   - pip install "cloudshell-automation-api>=2021.2.0,<2021.2.1" --extra-index-url https://testpypi.python.org/simple
+  - pip install "paramiko==2.7.2" --extra-index-url https://pypi.python.org/simple
 
 script:
     - pushd package
