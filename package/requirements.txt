@@ -5,4 +5,3 @@ pywinrm>=0.2.2
 paramiko==2.7.2
 requests>=2.16.2
 jsonpickle
-
