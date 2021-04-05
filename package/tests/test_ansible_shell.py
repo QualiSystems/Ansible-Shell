@@ -1,6 +1,5 @@
 import os
 from unittest import TestCase
-from cloudshell.shell.core.context import ResourceCommandContext, ResourceContextDetails
 
 from cloudshell.cm.ansible.ansible_shell import AnsibleShell
 from cloudshell.cm.ansible.domain.Helpers.ansible_connection_helper import AnsibleConnectionHelper
@@ -12,8 +11,10 @@ from .helpers import mock_enter_exit, mock_enter_exit_self, Any
 
 class TestAnsibleShell(TestCase):
     def setUp(self):
-        self.context = ResourceCommandContext()
-        self.context.resource = ResourceContextDetails()
+        #self.context = ResourceCommandContext()
+        self.context = Mock()
+        #self.context.resource = ResourceContextDetails()
+        self.context.resource = Mock()
         self.context.resource.name = 'resource'
         self.context.reservation = Mock()
         self.context.reservation.reservation_id = 'e34aa58a-468e-49a1-8a1d-0da1d2cc5b41'
@@ -222,7 +223,7 @@ class TestAnsibleShell(TestCase):
 
         with self.assertRaises(AnsibleException) as e:
             self._execute_playbook()
-        self.assertEqual(json, e.exception.message)
+        self.assertEqual(str(json), str(e.exception))
 
     def test_ansible_result_is_created_with_output_and_error_and_ips(self):
         host1 = HostConfiguration()
