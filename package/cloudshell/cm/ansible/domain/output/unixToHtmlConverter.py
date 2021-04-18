@@ -31,10 +31,10 @@ class UnixToHtmlColorConverter(object):
         return '</font><font color=' + self.unixToHtml[re.escape(x.group(0))] + '>'
 
     def convert(self, text):
-        result = '<html><body><font color=white>'
+        result = '<html><body>'
         p_object = re.compile('|'.join(list(self.unixToHtml.keys())))
         result += p_object.sub(lambda x: self._add_font_tag(x), text)
-        result += '</font></body></html>'
+        result += '</body></html>'
         # result = '<br />'.join([line for line in result.split(os.linesep) if line])
         result = '<br />'.join(result.replace(os.linesep + os.linesep, os.linesep).split(os.linesep))
         return result
