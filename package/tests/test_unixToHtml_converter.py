@@ -12,7 +12,7 @@ class TestUnixToHtmlColorConverter(TestCase):
         for key,value in self.color_converter.unixToHtml.items():
             representing_text = 'i am '
             text += key.replace("\\","") + representing_text + value
-            expectedText+='<font color=' + value + '>' + representing_text + value +</font>
+            expectedText+='<font color=' + value + '>' + representing_text + value +'</font>'
         expectedText+='</body></html>'
         self.assertEqual(self.color_converter.convert(text),expectedText)
 
