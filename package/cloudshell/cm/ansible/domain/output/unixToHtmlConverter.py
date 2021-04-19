@@ -5,7 +5,7 @@ import re
 class UnixToHtmlColorConverter(object):
     def __init__(self):
         self.unixToHtml = dict([
-            (re.escape('\033[0m'), 'white'),
+            (re.escape('\033[0m'), ''),
 
             (re.escape('\033[0;30m'), '#B0B0B0'),  # Black (gray)
             (re.escape('\033[0;31m'), '#C75646'),  # Red
@@ -31,10 +31,10 @@ class UnixToHtmlColorConverter(object):
         return '</font><font color=' + self.unixToHtml[re.escape(x.group(0))] + '>'
 
     def convert(self, text):
-        result = '<html><body>'
+        result = '<html><body><font>'
         p_object = re.compile('|'.join(list(self.unixToHtml.keys())))
         result += p_object.sub(lambda x: self._add_font_tag(x), text)
-        result += '</body></html>'
+        result += '</font></body></html>'
         # result = '<br />'.join([line for line in result.split(os.linesep) if line])
         result = '<br />'.join(result.replace(os.linesep + os.linesep, os.linesep).split(os.linesep))
         return result
