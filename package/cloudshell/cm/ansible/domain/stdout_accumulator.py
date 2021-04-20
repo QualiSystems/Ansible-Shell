@@ -33,7 +33,7 @@ class StreamAccumulator(object):
         try:
             lines = []
             while True:
-                lines.append(self.queue.get_nowait())
+                lines.append(self.queue.get_nowait().decode())
         except Empty:
             pass
         finally:
