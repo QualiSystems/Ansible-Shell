@@ -13,6 +13,8 @@
     </AttributeInfo>
     <AttributeInfo Name="Timeout Minutes" Type="Numeric" DefaultValue="0" Description="Maximum number of minutes to connect to the target machine." IsReadOnly="false">
     </AttributeInfo>
+    <AttributeInfo Name="Verify Certificate" Type="String" DefaultValue="True" 
+      Description="Verify server certificate when getting script if True, otherwise ignore." IsReadOnly="false">
   </Attributes>
   <ResourceFamilies>
     <ResourceFamily Name="Configuration Services" Description="" IsAdminOnly="true" IsService="true" ServiceType="Regular">
@@ -34,12 +36,14 @@
               <AllowedValues />
             </AttachedAttribute>
             <AttachedAttribute Name="Timeout Minutes" IsLocal="true" IsOverridable="true"/>
+            <AttachedAttribute Name="Verify Certificate" IsLocal="true" IsOverridable="true" />
           </AttachedAttributes>
           <AttributeValues>
             <AttributeValue Name="Ansible Additional Arguments" Value="" />
             <AttributeValue Name="Supports Ansible" Value="True" />
             <AttributeValue Name="Execution Server Selector" Value="" />
             <AttributeValue Name="Timeout Minutes" Value="20" />
+            <AttributeValue Name="Verify Certificate" Value="True" />
           </AttributeValues>
           <ParentModels />
           <Drivers>
