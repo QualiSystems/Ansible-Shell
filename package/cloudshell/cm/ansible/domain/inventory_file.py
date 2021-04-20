@@ -36,7 +36,7 @@ class InventoryFile(object):
                         lines.append(host.name)
             if len(lines) > 0 and lines[0] == '':
                 del lines[0]
-            file_stream.write(os.linesep.join(lines))
+            file_stream.write(os.linesep.join(lines).encode('utf-8'))
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done (%s groups, with %s hosts).'%(str(len(self.groups)), str(len(self.hosts))))
 

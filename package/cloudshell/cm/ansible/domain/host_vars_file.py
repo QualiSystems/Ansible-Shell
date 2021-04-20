@@ -34,7 +34,7 @@ class HostVarsFile(object):
             lines = ['---']
             for key, value in sorted(self.vars.items()):
                 lines.append(str(key) + ': "' + str(value) + '"')
-            file_stream.write(os.linesep.join(lines))
+            file_stream.write(bytes(os.linesep.join(lines), 'utf-8'))
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done.')
 

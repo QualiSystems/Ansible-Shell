@@ -24,7 +24,7 @@ class AnsibleConfigFile(object):
             lines = ['[defaults]']
             for key, value in self.config_keys.items():
                 lines.append(key + ' = ' + value)
-            file_stream.write(os.linesep.join(lines))
+            file_stream.write(os.linesep.join(lines).encode('utf-8'))
             self.logger.debug(os.linesep.join(lines))
         self.logger.info('Done.')
 

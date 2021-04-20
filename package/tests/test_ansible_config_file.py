@@ -12,7 +12,7 @@ class TestAnsibleConfigFile(TestCase):
     def test_can_add_ignore_ssh_key_checking(self):
         with AnsibleConfigFile(self.file_system, Mock()) as f:
             f.ignore_ssh_key_checking()
-        self.assertEqual(os.linesep.join(['[defaults]', 'host_key_checking = False']), self.file_system.read_all_lines('ansible.cfg'))
+        self.assertEqual(os.linesep.join(['[defaults]', 'host_key_checking = False']), self.file_system.read_all_lines('ansible.cfg').decode())
 
     def test_can_add_force_color(self):
         with AnsibleConfigFile(self.file_system, Mock()) as f:
@@ -22,4 +22,4 @@ class TestAnsibleConfigFile(TestCase):
     def test_can_add_set_retry_path(self):
         with AnsibleConfigFile(self.file_system, Mock()) as f:
             f.set_retry_path(678)
-        self.assertEqual(os.linesep.join(['[defaults]', 'retry_files_save_path = 678']), self.file_system.read_all_lines('ansible.cfg'))
+        self.assertEqual(os.linesep.join(['[defaults]', 'retry_files_save_path = 678']), self.file_system.read_all_lines('ansible.cfg').decode())
