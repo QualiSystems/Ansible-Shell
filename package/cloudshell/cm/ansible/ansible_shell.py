@@ -125,7 +125,7 @@ class AnsibleShell(object):
         logger.info('Verify certificate: ' + str(ansi_conf.verify_certificate))
         playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, 
                                             auth, logger, cancellation_sampler, 
-                                            ansi_conf.verify_certificate, ansi_conf.verify_certificate)
+                                            ansi_conf.verify_certificate)
         logger.info('download playbook file' + str(playbook_name))
         return playbook_name
 
