@@ -198,7 +198,7 @@ class TestAnsibleShell(TestCase):
 
         self._execute_playbook()
 
-        self.downloader.get.assert_called_once_with('someurl', Any(), Any(), Any())
+        self.downloader.get.assert_called_once_with('someurl', Any(), Any(), Any(), True)
 
     def test_download_playbook_with_auth(self):
         self.conf.playbook_repo.url = 'someurl'
@@ -209,7 +209,7 @@ class TestAnsibleShell(TestCase):
 
         self.downloader.get.assert_called_once_with('someurl',
                                                     Any(lambda x: x.username == 'user' and x.password == 'pass'), Any(),
-                                                    Any())
+                                                    Any(), True)
 
     # Playbook Executor
 

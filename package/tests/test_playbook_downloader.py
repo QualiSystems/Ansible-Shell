@@ -35,7 +35,7 @@ class TestPlaybookDownloader(TestCase):
         self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
         self.playbook_downloader._is_response_valid = Mock(return_value=True)
 
-        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock(), True)
         self.assertEqual(file_name, "lie.yaml")
 
 
@@ -50,7 +50,7 @@ class TestPlaybookDownloader(TestCase):
         self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
         self.playbook_downloader._is_response_valid = Mock(return_value=True)
 
-        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock(), True)
 
         self.assertEqual(file_name, "site.yaml")
 
@@ -65,7 +65,7 @@ class TestPlaybookDownloader(TestCase):
         self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
         self.playbook_downloader._is_response_valid = Mock(return_value=True)
         with self.assertRaises(Exception) as e:
-            self.playbook_downloader.get("", auth, self.logger, Mock())
+            self.playbook_downloader.get("", auth, self.logger, Mock(), True)
         self.assertEqual(str(e.exception),"Playbook file name was not found in zip file")
 
     def test_playbook_downloader_with_one_yaml(self):
@@ -78,7 +78,7 @@ class TestPlaybookDownloader(TestCase):
         self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
         self.playbook_downloader._is_response_valid = Mock(return_value=True)
 
-        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock(), True)
 
         self.assertEqual(file_name, "lie.yaml")
 
@@ -92,7 +92,7 @@ class TestPlaybookDownloader(TestCase):
         self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
         self.playbook_downloader._is_response_valid = Mock(return_value=True)
         
-        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock(), True)
 
         self.assertEqual(file_name, "lie.yaml")
     
@@ -106,7 +106,7 @@ class TestPlaybookDownloader(TestCase):
         self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
         self.playbook_downloader._is_response_valid = Mock(side_effect=self.mock_response_valid_for_credentials)
 
-        file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+        file_name = self.playbook_downloader.get("", auth, self.logger, Mock(), True)
 
         self.assertEqual(file_name, "lie.yaml")
 
@@ -120,7 +120,7 @@ class TestPlaybookDownloader(TestCase):
             self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
             self.playbook_downloader._is_response_valid = Mock(side_effect=self.mock_response_valid_for_not_public)
 
-            file_name = self.playbook_downloader.get("", auth, self.logger, Mock())
+            file_name = self.playbook_downloader.get("", auth, self.logger, Mock(), True)
 
             self.assertEqual(file_name, "lie.yaml")
     

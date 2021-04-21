@@ -23,30 +23,32 @@ class PlaybookDownloader(object):
         self.http_request_service = http_request_service
         self.filename_extractor = filename_extractor
 
-    def get(self, url, auth, logger, cancel_sampler):
+    def get(self, url, auth, logger, cancel_sampler, verify_certificate):
         """
         Download the file from the url (unzip if needed).
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
         :param Logger logger:
         :param CancellationSampler cancel_sampler:
+        :param boolean verify_certificate:
         :rtype [str,int]
         :return The downloaded playbook file name
         """
-        file_name, file_size = self._download(url, auth, logger, cancel_sampler)
+        file_name, file_size = self._download(url, auth, logger, cancel_sampler, verify_certificate)
 
         if file_name.endswith(".zip"):
             file_name = self._unzip(file_name, logger)
 
         return file_name
 
-    def _download(self, url, auth, logger, cancel_sampler):
+    def _download(self, url, auth, logger, cancel_sampler, verify_certificate):
         """
         Download the file from the url.
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
         :param Logger logger:
         :param CancellationSampler cancel_sampler:
+        :param boolean verify_certificate:
         :rtype [str,int]
         :return The downloaded file name
         """
@@ -55,7 +57,7 @@ class PlaybookDownloader(object):
         
         # assume repo is public, try to download without credentials
         logger.info('Starting download script as public... from \'%s\' ...'%url)
-        response = self.http_request_service.get_response(url, auth)
+        response = self.http_request_service.get_response(url, auth, verify_certificate)
         response_valid = self._is_response_valid(logger ,response, "public")
 
         if response_valid:
@@ -65,7 +67,7 @@ class PlaybookDownloader(object):
         if not response_valid and auth.token is not None:
             logger.info("Token provided. Starting download script with Token...")
             headers = {"Authorization": "Bearer %s" % auth.token }
-            response = self.http_request_service.get_response_with_headers(url, headers)
+            response = self.http_request_service.get_response_with_headers(url, headers, verify_certificate)
             
             response_valid = self._is_response_valid(logger, response, "Token")
 
@@ -75,7 +77,7 @@ class PlaybookDownloader(object):
         # repo is private and credentials provided, and Token did not provided or did not work. this will NOT work for github. github require Token
         if not response_valid and (auth.username is not None and auth.password is not None):
             logger.info("username\password provided, Starting download script with username\password...")
-            response = self.http_request_service.get_response(url, auth)
+            response = self.http_request_service.get_response(url, auth, verify_certificate)
 
             response_valid = self._is_response_valid(logger, response, "username\password")
 

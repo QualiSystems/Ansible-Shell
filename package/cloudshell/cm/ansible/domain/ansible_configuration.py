@@ -15,6 +15,7 @@ class AnsibleConfiguration(object):
         self.playbook_repo = playbook_repo or PlaybookRepository()
         self.hosts_conf = hosts_conf or []
         self.additional_cmd_args = additional_cmd_args
+        self.verify_certificate = True
 
 
 class PlaybookRepository(object):
@@ -57,6 +58,7 @@ class AnsibleConfigurationParser(object):
         ansi_conf = AnsibleConfiguration()
         ansi_conf.additional_cmd_args = json_obj.get('additionalArgs')
         ansi_conf.timeout_minutes = json_obj.get('timeoutMinutes', 0.0)
+        ansi_conf.verify_certificate = json_obj.get('verifyCertificate', 'true').lower()=='true'
 
         if json_obj.get('repositoryDetails'):
             ansi_conf.playbook_repo.url = json_obj['repositoryDetails'].get('url')

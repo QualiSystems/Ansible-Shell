@@ -121,7 +121,11 @@ class AnsibleShell(object):
         auth = None
         if ansi_conf.playbook_repo.username or ansi_conf.playbook_repo.token:
             auth = HttpAuth(repo.username, repo.password, repo.token)
-        playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, auth, logger, cancellation_sampler)
+
+        logger.info('Verify certificate: ' + str(ansi_conf.verify_certificate))
+        playbook_name = self.downloader.get(ansi_conf.playbook_repo.url, 
+                                            auth, logger, cancellation_sampler, 
+                                            ansi_conf.verify_certificate)
         logger.info('download playbook file' + str(playbook_name))
         return playbook_name
 
