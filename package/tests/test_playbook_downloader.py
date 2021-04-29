@@ -124,13 +124,26 @@ class TestPlaybookDownloader(TestCase):
 
             self.assertEqual(file_name, "lie.yaml")
     
+    def test_playbook_downloader_with_one_yaml_only_token_with_auth_private_token(self):
+            auth = HttpAuth(None, None, "Token")        
+            self.reqeust.url = "blabla/lie.yaml"
+            dic = dict([('content-disposition', 'lie.yaml'), ('Private-Token', 'Token')])
+            self.reqeust.headers = dic
+            self.reqeust.iter_content.return_value = 'hello'
+            self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
+            self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+            self.playbook_downloader._is_response_valid = Mock(side_effect=self.mock_response_valid_for_private_token)
 
+            file_name = self.playbook_downloader.get("", auth, self.logger, Mock(), True)
 
+            self.assertEqual(file_name, "lie.yaml")
 
     # helpers method to mock the request according the request in order to test the right flow for Token\Cred
     def mock_response_valid_for_not_public(self, logger, response, request_method):
         return request_method != "public"
             
-    
     def mock_response_valid_for_credentials(self, logger, response, request_method):
         return request_method == "username\password"
+
+    def mock_response_valid_for_private_token(self, logger, response, request_method):
+        return 'Private-Token' in response.headers

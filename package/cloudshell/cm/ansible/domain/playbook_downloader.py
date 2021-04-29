@@ -74,6 +74,17 @@ class PlaybookDownloader(object):
             if response_valid:
                 file_name = self.filename_extractor.get_filename(response)
 
+        # try again with authorization {"Private-Token": "%s" % token}, since gitlab uses that pattern
+        if not response_valid and auth.token is not None:
+            logger.info("Token provided. Starting download script with Token (private-token pattern)...")
+            headers = {"Private-Token": "Bearer %s" % auth.token }
+            response = self.http_request_service.get_response_with_headers(url, headers, verify_certificate)
+            
+            response_valid = self._is_response_valid(logger, response, "Token")
+
+            if response_valid:
+                file_name = self.filename_extractor.get_filename(response)
+
         # repo is private and credentials provided, and Token did not provided or did not work. this will NOT work for github. github require Token
         if not response_valid and (auth.username is not None and auth.password is not None):
             logger.info("username\password provided, Starting download script with username\password...")
