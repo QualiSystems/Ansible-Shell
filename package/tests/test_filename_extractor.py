@@ -34,6 +34,14 @@ class TestFilenameExtractor(TestCase):
         extracted_filename = self.filename_extractor.get_filename(self.response)
         self.assertEqual(filename.strip(), extracted_filename)
 
+    def test_filename_from_url_gitlab_structure(self):
+        filename = "  my_file.zip  "
+        header = {}
+        self.response.headers = header
+        self.response.url = "http://www.template.myurl/a/b/my_file%2Ezip/raw?ref=master"
+        extracted_filename = self.filename_extractor.get_filename(self.response)
+        self.assertEqual(filename.strip(), extracted_filename)
+
     def test_unsupported_playbook_file(self):
         filename = "  my_file.exe  "
         header = {}
