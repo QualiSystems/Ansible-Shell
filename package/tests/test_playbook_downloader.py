@@ -137,6 +137,22 @@ class TestPlaybookDownloader(TestCase):
             file_name = self.playbook_downloader.get("", auth, self.logger, Mock(), True)
 
             self.assertEqual(file_name, "lie.yaml")
+    
+    def test_playbook_downloader_fails_on_public_and_no_credentials(self):
+        auth = None
+        self.reqeust.url = "blabla/lie.zip"
+        dic = dict([('content-disposition', 'lie.zip')])
+        self.reqeust.headers = dic
+        self.reqeust.iter_content.return_value = ''
+        self.http_request_serivce.get_response = Mock(return_value=self.reqeust)
+        self.http_request_serivce.get_response_with_headers = Mock(return_value=self.reqeust)
+        self.playbook_downloader._is_response_valid = Mock(return_value=False)
+
+        with self.assertRaises(Exception) as e:
+            self.playbook_downloader.get("", auth, self.logger, Mock(), True)
+
+        self.assertEqual(str(e.exception),"Please make sure the URL is valid, and the credentials are correct and necessary.")
+
 
     # helpers method to mock the request according the request in order to test the right flow for Token\Cred
     def mock_response_valid_for_not_public(self, logger, response, request_method):
