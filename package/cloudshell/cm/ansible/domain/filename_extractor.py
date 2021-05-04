@@ -6,7 +6,7 @@ from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 
 class FilenameExtractor(object):
     def __init__(self):
-        self._filename_pattern = "(?P<filename>\s*[\w,\s-]+\.(yaml|yml|zip)\s*)"
+        self._filename_pattern = r"(?P<filename>\s*([\w,\s-]*|^.*\.?[^/\\&\?]+)\.(yaml|yml|zip)\s*(?=([\?&].*$|$)))"
         self.filename_patterns = {
                 "content-disposition": "\s*((?i)inline|attachment|extension-token)\s*;\s*filename=" + self._filename_pattern,
                 "x-artifactory-filename": self._filename_pattern
