@@ -47,6 +47,14 @@ class TestFilenameExtractor(TestCase):
         extracted_filename = self.filename_extractor.get_filename(self.response)
         self.assertEqual(filename.strip(), extracted_filename)
 
+    def test_filename_from_url_from_bitbucket(self):
+        filename = "simple.yml"
+        header = {}
+        self.response.headers = header
+        self.response.url = "http://192.168.30.96:7990/rest/api/1.0/projects/TEST/repos/test/raw/simple.yml"
+        extracted_filename = self.filename_extractor.get_filename(self.response)
+        self.assertEqual(filename, extracted_filename)
+
     def test_filename_from_url_no_spaces(self):
         filename = "my_file.zip"
         header = {}
