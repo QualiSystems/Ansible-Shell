@@ -13,3 +13,4 @@ drivers/ansible_shell.zip
 venv
 .venv*
 dist/
+package/build/
