@@ -6,7 +6,7 @@ from cloudshell.cm.ansible.domain.connection_service import ConnectionService
 from cloudshell.cm.ansible.domain.exceptions import AnsibleException
 from cloudshell.cm.ansible.domain.ansible_command_executor import AnsibleCommandExecutor, ReservationOutputWriter
 from cloudshell.cm.ansible.domain.ansible_config_file import AnsibleConfigFile
-from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser
+from cloudshell.cm.ansible.domain.ansible_configuration import AnsibleConfigurationParser, AnsibleConfiguration
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
 from cloudshell.cm.ansible.domain.filename_extractor import FilenameExtractor
 from cloudshell.cm.ansible.domain.host_vars_file import HostVarsFile
@@ -19,6 +19,7 @@ from cloudshell.cm.ansible.domain.zip_service import ZipService
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 from cloudshell.shell.core.session.logging_session import LoggingSessionContext
+from cloudshell.shell.core.driver_context import ResourceCommandContext
 
 
 class AnsibleShell(object):
@@ -52,10 +53,13 @@ class AnsibleShell(object):
         """
         with LoggingSessionContext(command_context) as logger:
             logger.debug('\'execute_playbook\' is called with the configuration json: \n' + ansi_conf_json)
-
+            attrs = command_context.resource.attributes
+            verify_certificate = attrs.get("Verify Certificate", "True")
+            is_verify_certificate = True if verify_certificate == "True" else False
             with ErrorHandlingContext(logger):
                 with CloudShellSessionContext(command_context) as api:
                     ansi_conf = AnsibleConfigurationParser(api).json_to_object(ansi_conf_json)
+                    ansi_conf.verify_certificate = is_verify_certificate
                     output_writer = ReservationOutputWriter(api, command_context)
                     cancellation_sampler = CancellationSampler(cancellation_context)
 
@@ -92,8 +96,8 @@ class AnsibleShell(object):
         """
         for host_conf in ansi_conf.hosts_conf:
             with HostVarsFile(self.file_system, host_conf.ip, logger) as file:
-                file.add_vars(host_conf.parameters)
                 file.add_connection_type(host_conf.connection_method)
+                file.add_vars(host_conf.parameters)
                 ansible_port = self.ansible_connection_helper.get_ansible_port(host_conf)
                 file.add_port(ansible_port)
 
@@ -112,6 +116,7 @@ class AnsibleShell(object):
 
     def _download_playbook(self, ansi_conf, cancellation_sampler, logger):
         """
+        :param AnsibleConfiguration ansi_conf
         :type ansi_conf: AnsibleConfiguration
         :type cancellation_sampler: CancellationSampler
         :type logger: Logger
@@ -119,7 +124,7 @@ class AnsibleShell(object):
         """
         repo = ansi_conf.playbook_repo
         auth = None
-        if ansi_conf.playbook_repo.username or ansi_conf.playbook_repo.token:
+        if ansi_conf.playbook_repo.username or ansi_conf.playbook_repo.token or ansi_conf.playbook_repo.password:
             auth = HttpAuth(repo.username, repo.password, repo.token)
 
         logger.info('Verify certificate: ' + str(ansi_conf.verify_certificate))
