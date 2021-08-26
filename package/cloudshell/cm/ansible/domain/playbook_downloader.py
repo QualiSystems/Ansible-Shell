@@ -67,10 +67,11 @@ class PlaybookDownloader(object):
         if not response_valid and auth is None:
             raise Exception('Please make sure the URL is valid, and the credentials are correct and necessary.')
 
+        generic_auth = auth.token if auth.token else auth.password
         # repo is private and token provided
-        if not response_valid and auth.token is not None:
+        if not response_valid and generic_auth is not None:
             logger.info("Token provided. Starting download script with Token...")
-            headers = {"Authorization": "Bearer %s" % auth.token }
+            headers = {"Authorization": "Bearer %s" % generic_auth }
             response = self.http_request_service.get_response_with_headers(url, headers, verify_certificate)
             
             response_valid = self._is_response_valid(logger, response, "Token")
@@ -79,9 +80,9 @@ class PlaybookDownloader(object):
                 file_name = self.filename_extractor.get_filename(response)
 
         # try again with authorization {"Private-Token": "%s" % token}, since gitlab uses that pattern
-        if not response_valid and auth.token is not None:
+        if not response_valid and generic_auth is not None:
             logger.info("Token provided. Starting download script with Token (private-token pattern)...")
-            headers = {"Private-Token": "Bearer %s" % auth.token }
+            headers = {"Private-Token": "Bearer %s" % generic_auth }
             response = self.http_request_service.get_response_with_headers(url, headers, verify_certificate)
             
             response_valid = self._is_response_valid(logger, response, "Token")
