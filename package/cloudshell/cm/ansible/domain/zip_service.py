@@ -48,6 +48,6 @@ class ZipService(object):
         :type zip: ZipFile
         :rtype: bool
         '''
-        files = zip.namelist();
+        files = zip.namelist()
         folder = next((f for f in files if f[-1] == '/'), None)
         return folder and all(f.startswith(folder) for f in files)
