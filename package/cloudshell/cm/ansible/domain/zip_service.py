@@ -7,7 +7,7 @@ class ZipService(object):
         zip = None
         try:
             zip = ZipFile(zip_file_name, 'r')
-            if self._contain_sinlge_folder(zip):
+            if self._contain_single_folder(zip):
                 for file_info in self._get_files(zip):
                     file_info.filename = self._remove_first_folder(file_info.filename)
                     zip.extract(file_info)
@@ -43,11 +43,12 @@ class ZipService(object):
         return zipped_item.filename[-1] == '/'
 
     @staticmethod
-    def _contain_sinlge_folder(zip):
+    def _contain_single_folder(zip):
         '''
         :type zip: ZipFile
         :rtype: bool
         '''
-        files = zip.namelist();
-        folder = next((f for f in files if f[-1] == '/'), None)
+        files = zip.namelist()
+        # base folder not always guaranteed to be member in namelist - this expression will extract base folder name anyway
+        folder = next((f.split("/")[0] + "/" for f in files if "/" in f), None)
         return folder and all(f.startswith(folder) for f in files)
