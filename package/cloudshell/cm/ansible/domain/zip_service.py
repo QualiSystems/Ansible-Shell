@@ -49,5 +49,6 @@ class ZipService(object):
         :rtype: bool
         '''
         files = zip.namelist()
-        folder = next((f for f in files if f[-1] == '/'), None)
+        # base folder not always guaranteed to be member in namelist - this expression will extract base folder name anyway
+        folder = next((f.split("/")[0] + "/" for f in files if "/" in f), None)
         return folder and all(f.startswith(folder) for f in files)
