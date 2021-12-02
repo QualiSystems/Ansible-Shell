@@ -46,8 +46,8 @@ class WindowsConnectionService(IVMConnectionService):
         try:
             logger.info("test connection")
             uid = str(uuid4())
-            result = session.run_cmd('@echo ' + uid)
-            assert uid in result.std_out
+            result = session.run_cmd('@echo ' + uid).std_out.decode('utf-8')
+            assert uid in result
         except requests.ConnectionError as e:
             match = re.search(r'\[Errno (?P<errno>\d+)\]', str(e.message))
             error_code = int(match.group('errno')) if match else 0
