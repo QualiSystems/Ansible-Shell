@@ -9,6 +9,7 @@ from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSample
 from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlColorConverter
 from cloudshell.cm.ansible.domain.output.ansible_result import AnsibleResult
 from cloudshell.cm.ansible.domain.stdout_accumulator import StdoutAccumulator, StderrAccumulator
+from cloudshell.api.cloudshell_api import CloudShellAPISession as api
 
 
 class AnsibleCommandExecutor(object):
@@ -26,7 +27,6 @@ class AnsibleCommandExecutor(object):
         :rtype: AnsibleResult
         """
         shell_command = self._create_shell_command(playbook_file, inventory_file, args)
-
         logger.info('Running cmd \'%s\' ...' % shell_command)
         start_time = time.time()
         process = Popen(shell_command, shell=True, stdout=PIPE, stderr=PIPE)
@@ -35,33 +35,35 @@ class AnsibleCommandExecutor(object):
 
         with StdoutAccumulator(process.stdout) as stdout:
             with StderrAccumulator(process.stderr) as stderr:
-                txt_lines = []
+                txt_line = []
+                full_output=""
                 while True:
-                    txt_err = stderr.read_all_txt()
+                    txt_err = stderr.read_all_txt()             
                     txt_out = stdout.read_all_txt()
+                    converter = UnixToHtmlColorConverter()
                     if txt_err:
                         all_txt_err += txt_err
-                        txt_lines.append(txt_err)
+                        txt_line.append(txt_err)
                     if txt_out:
                         all_txt_out += txt_out
-                        txt_lines.append(txt_out)
+                        txt_line.append(txt_out)
+                    if txt_line and '\n' in txt_line[-1]:
+                        try:
+                            full_output = converter.convert(os.linesep.join(txt_line))
+                            full_output = converter.remove_strike(full_output)
+                            output_writer.write(full_output)
+                            logger.error(full_output)
+                            txt_line=[]
+                        except Exception as e:
+                            output_writer.write('failed to write text of %s characters (%s)' % (len(full_output), e))
+                            logger.debug("failed to write:" + full_output)
+                            logger.debug("failed to write.")
                     if process.poll() is not None:
                         break
                     if cancel_sampler.is_cancelled():
                         process.kill()
                         cancel_sampler.throw()
                     time.sleep(2)
-
-                converter = UnixToHtmlColorConverter()
-                try:
-                    full_output = converter.convert(os.linesep.join(txt_lines))
-                    full_output = converter.remove_strike(full_output)
-                    output_writer.write(full_output)
-                    logger.error(full_output)
-                except Exception as e:
-                    output_writer.write('failed to write text of %s characters (%s)' % (len(full_output), e))
-                    logger.debug("failed to write:" + full_output)
-                    logger.debug("failed to write.")
 
         elapsed = time.time() - start_time
         err_line_count = len(all_txt_err.split(os.linesep))
