@@ -1,7 +1,8 @@
-<Driver Description="" MainClass="driver.AnsibleShellDriver" Name="Ansible Shell Driver" PythonVersion="3" Version="2.0.1">
+<Driver Description="" MainClass="driver.AnsibleShellDriver" Name="Ansible Shell Driver" PythonVersion="3" Version="2.1.0">
     <Layout>
         <Category Name="General">
             <Command Description="" DisplayName="Execute Playbook" EnableCancellation="true" Name="execute_playbook" Tags="allow_unreserved" />
+            <Command Description="" DisplayName="Execute Playbooks" EnableCancellation="true" Name="execute_playbooks" Tags="allow_unreserved" />
         </Category>
     </Layout>
 </Driver>
