@@ -2,6 +2,7 @@
     <Layout>
         <Category Name="General">
             <Command Description="" DisplayName="Execute Playbook" EnableCancellation="true" Name="execute_playbook" Tags="allow_unreserved" />
+            <Command Description="" DisplayName="Execute Playbooks" EnableCancellation="true" Name="execute_playbooks" Tags="allow_unreserved" />
         </Category>
     </Layout>
 </Driver>
