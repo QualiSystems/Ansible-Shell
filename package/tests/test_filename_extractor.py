@@ -10,20 +10,19 @@ class TestFilenameExtractor(TestCase):
         self.filename_extractor = FilenameExtractor()
         self.response = Mock()
 
-
     def test_filename_from_header_RFC_content_disposition_(self):
         filename = "  my_file.yaml  "
         header = {'content-disposition': 'attachment ;  filename=' + filename}
         self.response.headers = header
         extracted_filename = self.filename_extractor.get_filename(self.response)
-        self.assertEqual(filename.strip(),extracted_filename)
+        self.assertEqual(filename.strip(), extracted_filename)
 
     def test_filename_from_header_RFC_content_disposition_no_spcaces(self):
         filename = "my_file.yaml"
         header = {'content-disposition': 'attachment ;  filename=' + filename}
         self.response.headers = header
         extracted_filename = self.filename_extractor.get_filename(self.response)
-        self.assertEqual(filename,extracted_filename)
+        self.assertEqual(filename, extracted_filename)
 
     def test_filename_from_header_artifactory(self):
         filename = "  my_file.yml  "
@@ -86,7 +85,8 @@ class TestFilenameExtractor(TestCase):
         self.response.url = "http://www.template.myurl/a/b/c/" + filename
         with self.assertRaises(Exception) as unsupportedExc:
             self.filename_extractor.get_filename(self.response)
-        self.assertEqual(str(unsupportedExc.exception),"playbook file of supported types: '.yml', '.yaml', '.zip' was not found")
+        self.assertEqual(str(unsupportedExc.exception),
+                         "playbook file of supported types: '.yml', '.yaml', '.zip' was not found")
 
     def test_unsupported_playbook_file_no_spaces(self):
         filename = "my_file.exe"
@@ -95,4 +95,19 @@ class TestFilenameExtractor(TestCase):
         self.response.url = "http://www.template.myurl/a/b/c/" + filename
         with self.assertRaises(Exception) as unsupportedExc:
             self.filename_extractor.get_filename(self.response)
-        self.assertEqual(str(unsupportedExc.exception),"playbook file of supported types: '.yml', '.yaml', '.zip' was not found")
+        self.assertEqual(str(unsupportedExc.exception),
+                         "playbook file of supported types: '.yml', '.yaml', '.zip' was not found")
+
+    def test_filename_from_url_gitlab_headers(self):
+        """ took real headers from response.headers - X-Gitlab-File-Name is exact match"""
+        filename = "hello_world.yml"
+        header = {
+            'Server': 'nginx', 'Date': 'Sun, 08 Jan 2023 21:23:47 GMT',
+            'Content-Disposition': 'inline; filename="hello_world.yml"; filename*=UTF-8\'\'hello_world.yml',
+            'X-Gitlab-File-Name': 'hello_world.yml',
+            'X-Gitlab-File-Path': 'ansibletest/hello_world.yml'
+        }
+        self.response.headers = header
+        self.response.url = "http://192.168.85.26/api/v4/projects/2/repository/files/ansibletest%2Fhello_world.yml/raw?ref=test-branch"
+        extracted_filename = self.filename_extractor.get_filename(self.response)
+        self.assertEqual(filename, extracted_filename)
