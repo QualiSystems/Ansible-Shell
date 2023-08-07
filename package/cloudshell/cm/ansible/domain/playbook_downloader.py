@@ -1,4 +1,7 @@
+import logging
 import os
+import re
+from urllib import parse
 
 from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
 from cloudshell.cm.ansible.domain.file_system_service import FileSystemService
@@ -11,21 +14,30 @@ class HttpAuth(object):
         self.password = password
         self.token = token
 
+
 class PlaybookDownloader(object):
     CHUNK_SIZE = 1024 * 1024
+    GITLAB_API_TEMPLATE_MAP = {
+        "file":   "{protocol}://{domain}/api/v4/projects/{project}/repository/files/{file_path}/raw",
+        "folder": "{protocol}://{domain}/api/v4/projects/{project}/repository/archive.zip",
+    }
+    URL_SEPARATOR = "#"
 
-    def __init__(self, file_system, zip_service, http_request_service, filename_extractor):
-        """
-        :param FileSystemService file_system:
-        """
+    def __init__(
+            self,
+            file_system,
+            zip_service,
+            http_request_service,
+            filename_extractor
+    ):
         self.file_system = file_system
         self.zip_service = zip_service
         self.http_request_service = http_request_service
         self.filename_extractor = filename_extractor
 
     def get(self, url, auth, logger, cancel_sampler, verify_certificate):
-        """
-        Download the file from the url (unzip if needed).
+        """Download the file from the url (unzip if needed).
+
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
         :param Logger logger:
@@ -34,16 +46,30 @@ class PlaybookDownloader(object):
         :rtype [str,int]
         :return The downloaded playbook file name
         """
-        file_name, file_size = self._download(url, auth, logger, cancel_sampler, verify_certificate)
+        if self.URL_SEPARATOR in url:
+            url, playbook_path = url.split(self.URL_SEPARATOR, 1)
+        else:
+            playbook_path = None
+
+        file_name, file_size = self._download(
+            url=url,
+            auth=auth,
+            logger=logger,
+            cancel_sampler=cancel_sampler,
+            verify_certificate=verify_certificate
+        )
 
         if file_name.endswith(".zip"):
-            file_name = self._unzip(file_name, logger)
+            playbook_path = self._unzip(file_name, logger, playbook_path)
 
-        return file_name
+        if not playbook_path:
+            playbook_path = file_name
+
+        return playbook_path
 
     def _download(self, url, auth, logger, cancel_sampler, verify_certificate):
-        """
-        Download the file from the url.
+        """Download the file from the url.
+
         :param str url: Http url of the file.
         :param HttpAuth auth: Authentication to the http server (optional).
         :param Logger logger:
@@ -52,55 +78,82 @@ class PlaybookDownloader(object):
         :rtype [str,int]
         :return The downloaded file name
         """
-        
-        response_valid = False
-        
-        # assume repo is public, try to download without credentials
-        logger.info('Starting download script as public... from \'%s\' ...'%url)
-        response = self.http_request_service.get_response(url, auth, verify_certificate)
-        response_valid = self._is_response_valid(logger ,response, "public")
+        logger.debug("URL: {}".format(url))
+        logger.debug("Verify Certificate: {}".format(verify_certificate))
+        logger.debug("Username: {}".format(auth.username))
+        logger.debug("Password: {}".format(auth.password))
+        logger.debug("Token: {}".format(auth.token))
+
+        if not verify_certificate:
+            logger.info("Skipping server certificate")
+
+        if auth and auth.token:
+            # GitLab uses {"Private-Token": token}
+            logger.info(
+                "Token provided. Starting download script with Private-Token ..."
+            )
+            gitlab_api_url = self._convert_gitlab_url(url=url, logger=logger)
+            if gitlab_api_url:
+
+                headers = {"Private-Token": auth.token}
+                response = self.http_request_service.get_response_with_headers(
+                    url=gitlab_api_url,
+                    headers=headers,
+                    verify_certificate=verify_certificate
+                )
+
+                response_valid = self._is_response_valid(logger, response, "Token")
+            else:
+                # cannot assemble GitLab API URL that means it's not GitLab
+                response_valid = False
+
+            if not response_valid and auth.token is not None:
+                logger.info(
+                    "Token provided. Starting download script with Bearer Token..."
+                )
+                headers = {"Authorization": "Bearer {}".format(auth.token)}
+                response = self.http_request_service.get_response_with_headers(
+                    url=url,
+                    headers=headers,
+                    verify_certificate=verify_certificate
+                )
+                response_valid = self._is_response_valid(logger, response, "Token")
+
+        elif auth and auth.username and auth.password is not None:
+            logger.info(
+                "Username and Password provided. "
+                "Starting download script with username/password..."
+            )
+            response = self.http_request_service.get_response(
+                url=url,
+                auth=auth,
+                verify_certificate=verify_certificate)
+            response_valid = self._is_response_valid(
+                logger,
+                response,
+                "Username/Password"
+            )
+
+        else:
+            logger.info("Starting download script as public...")
+            response = self.http_request_service.get_response(
+                url=url,
+                auth=None,
+                verify_certificate=verify_certificate
+            )
+            response_valid = self._is_response_valid(
+                logger,
+                response,
+                "Public")
 
         if response_valid:
             file_name = self.filename_extractor.get_filename(response)
-
-        # if fails on public and no auth - no point carry on, user need to fix his URL or add credentials
-        if not response_valid and auth is None:
-            raise Exception('Please make sure the URL is valid, and the credentials are correct and necessary.')
-
-        # repo is private and token provided
-        if not response_valid and auth.token is not None:
-            logger.info("Token provided. Starting download script with Token...")
-            headers = {"Authorization": "Bearer %s" % auth.token }
-            response = self.http_request_service.get_response_with_headers(url, headers, verify_certificate)
-            
-            response_valid = self._is_response_valid(logger, response, "Token")
-
-            if response_valid:
-                file_name = self.filename_extractor.get_filename(response)
-
-        # try again with authorization {"Private-Token": "%s" % token}, since gitlab uses that pattern
-        if not response_valid and auth.token is not None:
-            logger.info("Token provided. Starting download script with Token (private-token pattern)...")
-            headers = {"Private-Token": "Bearer %s" % auth.token }
-            response = self.http_request_service.get_response_with_headers(url, headers, verify_certificate)
-            
-            response_valid = self._is_response_valid(logger, response, "Token")
-
-            if response_valid:
-                file_name = self.filename_extractor.get_filename(response)
-
-        # repo is private and credentials provided, and Token did not provided or did not work. this will NOT work for github. github require Token
-        if not response_valid and (auth.username is not None and auth.password is not None):
-            logger.info("username\password provided, Starting download script with username\password...")
-            response = self.http_request_service.get_response(url, auth, verify_certificate)
-
-            response_valid = self._is_response_valid(logger, response, "username\password")
-
-            if response_valid:
-                file_name = self.filename_extractor.get_filename(response)
-
-        if not response_valid:
-            raise Exception('Failed to download script file. please check the logs for more details.')
+        else:
+            raise Exception(
+                "Failed to download script file. "
+                "Please make sure the URL is valid, "
+                "and the credentials are correct and necessary."
+            )
 
         with self.file_system.create_file(file_name) as file:
             for chunk in response.iter_content(PlaybookDownloader.CHUNK_SIZE):
@@ -109,46 +162,238 @@ class PlaybookDownloader(object):
                 cancel_sampler.throw_if_canceled()
             file_size = file.tell()
 
-        logger.info('Done (file: %s, size: %s bytes)).' % (file_name, file_size))
+        logger.info(
+            "Done (file: {file}, size: {size} bytes)).".format(
+                file=file_name,
+                size=file_size
+            )
+        )
         return file_name, file_size
 
-    def _unzip(self, file_name, logger):
-        """
-        :type file_name: str
-        :type logger: Logger
-        :return: Playbook file name
-        :rtype str
-        """
-        logger.info('Zip file was found, extracting file: %s ...' % (file_name))
-        zip_files = self.zip_service.extract_all(file_name)
-        logger.info('Done (extracted %s files).'%len(zip_files))
-        logger.info('Files: ' + os.linesep + (os.linesep+'\t').join(zip_files))
+    def _unzip(self, archive_name, logger, playbook_name=None):
+        """Unzip archive and determine playbook name."""
+        logger.info(
+            "Zip file was found, extracting file: {arch_name} ...".format(
+                arch_name=archive_name
+            )
+        )
+        zip_files = self.zip_service.extract_all(archive_name)
+        logger.info("Done (extracted {} files).".format(len(zip_files)))
+        logger.info("Files: {sep}{files}".format(
+            sep=os.linesep,
+            files=(os.linesep+"\t").join(zip_files))
+        )
+        # if playbook_name:
+        #     for filename in zip_files:
 
-        yaml_files = [file_name for file_name in self.file_system.get_entries(self.file_system.get_working_dir()) if file_name.endswith(".yaml") or file_name.endswith(".yml")]
-        playbook_name = None
-        if len(yaml_files) > 1:
-            playbook_name = next((file_name for file_name in yaml_files if file_name == "site.yaml" or file_name == "site.yml"), None)
-        if len(yaml_files) == 1:
-            playbook_name = yaml_files[0]
+        if not playbook_name:
+            # yaml_files = [
+            #     file_name for file_name in self.file_system.get_entries(
+            #         self.file_system.get_working_dir()
+            #     ) if file_name.endswith(".yaml") or file_name.endswith(".yml")
+            # ]
+            yaml_files = [
+                file_name for file_name in zip_files if
+                file_name.endswith(".yaml") or file_name.endswith(".yml")
+            ]
+            if len(yaml_files) > 1:
+                playbook_name = next(
+                    (
+                        file_name for file_name in yaml_files if
+                        "site.yaml" in file_name or "site.yml" in file_name
+                    ), None
+                )
+
+            if len(yaml_files) == 1:
+                playbook_name = yaml_files[0]
+
         if not playbook_name:
             raise Exception("Playbook file name was not found in zip file")
-        logger.info('Found playbook: \'%s\' in zip file' % (playbook_name))
+        logger.info("Found playbook: '{}' in zip file".format(playbook_name))
 
         return playbook_name
+
+    def _convert_gitlab_url(self, url, logger):
+        """Try to convert URL to Gitlab API URL.
+
+        Input examples:
+        - Single file
+            http://192.168.85.27/api/v4/projects/root%2Fmy_project/repository/files/bash_scripts%2Fsimple%2Ebash/raw?ref=main
+            http://192.168.85.27/api/v4/projects/root%2Fmy_project/repository/files/bash_scripts%2Fsimple%2Ebash/raw
+            http://192.168.85.27/root/my_project/-/raw/main/bash_scripts/simple.bash
+            http://192.168.85.27/root/my_project/-/blob/main/bash_scripts/simple.bash
+
+        - Folder
+            http://192.168.65.22/api/v4/projects/root%2Fmy_project/repository/archive.zip?ref=main&path=ansible_scripts
+            http://192.168.65.22/root/my_project/-/archive/main/my_project-main.zip?path=ansible_scripts#pl1.yaml
+
+        - Repo
+            http://192.168.65.22/api/v4/projects/root%2Fmy_project/repository/archive.zip?ref=main
+            http://192.168.65.22/root/my_project/-/archive/main/my_project-main.zip#pl1.yaml
+
+        Output examples:
+        - Single file
+            http://192.168.85.27/api/v4/projects/root%2Fmy_project/repository/files/bash_scripts%2Fsimple%2Ebash/raw?ref=main
+
+        - Folder
+            http://192.168.65.22/api/v4/projects/root%2Fmy_project/repository/archive.zip?ref=main&path=ansible_scripts
+
+        - Repo
+            http://192.168.65.22/api/v4/projects/root%2Fmy_project/repository/archive.zip?ref=main
+
+        """
+        logger.debug("URL to convert: {}".format(url))
+        parsed_url = parse.urlsplit(url=url)
+        queries = dict(parse.parse_qsl(parsed_url.query))
+
+        if "api/v4/projects" in parsed_url.path:
+            regex = r"/api/v4/projects/(?P<project>.+)/repository/files/(?P<file>.+(yml|yaml|zip))"
+        else:
+            regex = r"/(?P<project>.+)/-/(blob|raw|archive)/(?P<branch>[^/]+)/(?P<file>.+\.(yml|yaml|zip))"
+
+        match = re.search(
+            regex,
+            parsed_url.path,
+            re.IGNORECASE
+        )
+
+        if match:
+            branch = queries.get("ref") or match.groupdict().get("branch")
+            filename = match.groupdict().get("file")
+            logger.debug("Protocol: {}".format(parsed_url.scheme))
+            logger.debug("Domain: {}".format(parsed_url.netloc))
+            logger.debug("Project: {}".format(match.groupdict().get("project")))
+            logger.debug("Path: {}".format(queries.get("path")))
+            logger.debug("Branch: {}".format(branch))
+            logger.debug("File: {}".format(filename))
+
+            if queries.get("path") or filename.endswith(".zip"):
+                url_template = self.GITLAB_API_TEMPLATE_MAP.get("folder")
+            else:
+                url_template = self.GITLAB_API_TEMPLATE_MAP.get("file")
+
+            converted_url = url_template.format(
+                protocol=parsed_url.scheme,
+                domain=parsed_url.netloc,
+                project=match.group("project").replace("/", "%2F").replace(".", "%2E"),
+                file_path=match.group("file").replace("/", "%2F").replace(".", "%2E")
+            )
+
+            if queries:
+                params = "?"
+                for k, v in queries.items():
+                    params += "{key}={value}".format(key=k, value=v)
+                converted_url += params
+        else:
+            converted_url = url
+
+        logger.debug("Possible GitLab API URL: {}".format(converted_url))
+        return converted_url
 
     def _is_response_valid(self, logger, response, request_method):
         try:
             self._validate_response(response)
             response_valid = True
         except Exception as ex:
-            failure_message = "failed to Authorize repository with %s" % request_method
-            logger.error(failure_message + " :" + str(ex))
+            logger.error(
+                "Failed to Authorize repository with '{method}': {error}".format(
+                    method=request_method,
+                    error=str(ex)
+                )
+            )
             response_valid = False
 
         return response_valid
 
-
     def _validate_response(self, response):
-        if response.status_code < 200 or response.status_code > 300:            
-            raise Exception('Failed to download script file: '+str(response.status_code)+' '+response.reason+
-                                '. Please make sure the URL is valid, and the credentials are correct and necessary.')
+        if response.status_code < 200 or response.status_code > 300:
+            raise Exception(
+                "Failed to download script file: {code} {reason}."
+                "Please make sure the URL is valid,"
+                "and the credentials are correct and necessary.".format(
+                    code=str(response.status_code),
+                    reason=response.reason
+                )
+            )
+
+
+
+
+if __name__ == "__main__":
+    import sys
+    from cloudshell.cm.ansible.domain.zip_service import ZipService
+    from cloudshell.cm.ansible.domain.http_request_service import HttpRequestService
+    from cloudshell.cm.ansible.domain.filename_extractor import FilenameExtractor
+    from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
+    from cloudshell.shell.core.driver_context import CancellationContext
+    file_system = FileSystemService()
+    zip_service = ZipService()
+    http_request_service = HttpRequestService()
+    filename_extractor = FilenameExtractor()
+    cancel_context = CancellationContext()
+    cancel_sampler = CancellationSampler(cancel_context)
+    pd = PlaybookDownloader(
+        file_system=file_system,
+        zip_service=zip_service,
+        http_request_service=http_request_service,
+        filename_extractor=filename_extractor
+    )
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    auth = HttpAuth(
+        username="root",
+        password="FSmo8ZMzAieH3u9PlwuatD3Ww0b9cUC9rJBY0czYBwQ=",
+        token="D6dfsMJy7XcVHYEL5A_K",
+        # token="",
+    )
+    # auth = None
+
+    # Single PlayBook
+    # url = "http://192.168.65.22/root/my_project/-/raw/main/ansible_scripts/pl1.yaml"
+
+    # Folder without playbook specification
+    # url = "http://192.168.65.22/root/my_project/-/archive/main/my_project-main.zip?path=ansible_scripts"
+
+    # Folder with playbook specification
+    # url = "http://192.168.65.22/root/my_project/-/archive/main/my_project-main.zip?path=ansible_scripts#ansible_scripts/pl1.yaml"
+    # url = "http://192.168.65.22/root/my-public-repo/-/archive/main/my-public-repo-main.zip?path=folder#folder2/file1.txt"
+    url = "http://192.168.65.22/root/my-public-repo/-/archive/main/my-public-repo-main.zip?path=folder/folder2#folder/folder2/file1.txt"
+    url = "https://{migdals_gitalb}/api/v4/projects/193/repository/archive.zip?sha=autoadd_aws_refactor#hello_world.yml"
+
+    # Full repo URL without playbook specification
+    # url = "http://192.168.65.22/root/my_project/-/archive/main/my_project-main.zip"
+
+    # Full repo URL with playbook specification
+    # url = "http://192.168.65.22/root/my_project/-/archive/main/my_project-main.zip"
+    print(pd.get(
+            url=url,
+            auth=auth,
+            logger=logger,
+            cancel_sampler=cancel_sampler,
+            verify_certificate=False
+        )
+    )
+
+    # import requests
+    # # https://<GITLAB_URL>/api/v4/projects/<PROJECT_ID>/repository/archive.zip?sha=<BRANCH_ID>
+    # # url = "http://192.168.65.22/root/my_project/-/raw/main/ansible_scripts/pl1.yaml"
+    # url = "http://192.168.65.22/api/v4/projects/root%2Fmy_project/repository/files/bash_scripts%2Fsimple%2Ebash/raw?ref=main"
+    # url = "http://192.168.65.22/root/my_project/-/archive/main/my_project-main.zip?path=ansible_scripts"
+    # url = "http://192.168.65.22/api/v4/projects/root%2Fmy_project/repository/archive.zip?ref=main&path=ansible_scripts"
+    # resp = requests.get(
+    #         url=url,
+    #         headers={"Private-Token": auth.token},
+    #         stream=True,
+    #         verify=False
+    #     )
+    #
+    # print(1)
