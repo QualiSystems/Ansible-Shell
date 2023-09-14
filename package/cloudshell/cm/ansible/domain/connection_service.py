@@ -14,6 +14,7 @@ from winrm.exceptions import WinRMTransportError
 
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
 
+from cloudshell.cm.ansible.domain.cancellation_sampler import CancellationSampler
 
 class IVMConnectionService(object, metaclass=ABCMeta):
     @abstractmethod
@@ -99,13 +100,14 @@ class ConnectionService(object):
         self.linuxConnectionService = LinuxConnectionService()
         self.windowsConnectionService = WindowsConnectionService()
 
-    def check_connection(self, logger, target_host, ansible_port=None, timeout_minutes=10):
+    def check_connection(self, logger, target_host, cancel_sampler, ansible_port=None, timeout_minutes=10):
         """
 
         :param timeout_minutes:
         :param ansible_port:
         :param Logger logger:
         :param cloudshell.cm.ansible.domain.ansible_configuration.HostConfiguration target_host:
+        :param CancellationSampler cancel_sampler:
         :return:
         """
         # 10060  ETIMEDOUT                      Operation timed out
@@ -120,6 +122,7 @@ class ConnectionService(object):
         interval_seconds = 10
         start_time = time.time()
         while True:
+            cancel_sampler.throw_if_canceled()
             try:
                 logger.info("check connection")
                 if target_host.connection_method == 'winrm':

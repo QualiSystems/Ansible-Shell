@@ -62,7 +62,7 @@ class AnsibleShell(object):
                     with TempFolderScope(self.file_system, logger):
                         self._add_ansible_config_file(logger)
                         self._add_host_vars_files(ansi_conf, logger)
-                        self._wait_for_all_hosts_to_be_deployed(ansi_conf, logger, output_writer)
+                        self._wait_for_all_hosts_to_be_deployed(ansi_conf, logger, output_writer, cancellation_sampler)
                         self._add_inventory_file(ansi_conf, logger)
                         playbook_name = self._download_playbook(ansi_conf, cancellation_sampler, logger)
                         self._run_playbook(ansi_conf, playbook_name, output_writer, cancellation_sampler, logger)
@@ -147,12 +147,13 @@ class AnsibleShell(object):
         if not ansible_result.success:
             raise AnsibleException(ansible_result.to_json())
 
-    def _wait_for_all_hosts_to_be_deployed(self, ansi_conf, logger, output_writer):
+    def _wait_for_all_hosts_to_be_deployed(self, ansi_conf, logger, output_writer, cancellation_sampler):
         """
 
         :param cloudshell.cm.ansible.domain.ansible_configurationa.AnsibleConfiguration ansi_conf:
         :param Logger logger:
         :param domain.ansible_command_executor.ReservationOutputWriter output_writer:
+        :param CancellationSampler cancellation_sampler:
         :return:
         """
         wait_for_deploy_msg = "Waiting for all hosts to deploy"
@@ -175,7 +176,7 @@ class AnsibleShell(object):
             output_writer.write("Waiting for host: " + host.ip)
             output_writer.write(port_ansible_port)
 
-            self.connection_service.check_connection(logger, host, ansible_port=ansible_port,
+            self.connection_service.check_connection(logger, host, cancellation_sampler,ansible_port=ansible_port,
                                                      timeout_minutes=ansi_conf.timeout_minutes)
 
         output_writer.write("Communication check completed.")
