@@ -1,6 +1,7 @@
 from subprocess import Popen, PIPE
 import time
 import os
+import signal
 from logging import Logger
 from cloudshell.api.cloudshell_api import CloudShellAPISession
 import re
@@ -29,7 +30,7 @@ class AnsibleCommandExecutor(object):
 
         logger.info('Running cmd \'%s\' ...' % shell_command)
         start_time = time.time()
-        process = Popen(shell_command, shell=True, stdout=PIPE, stderr=PIPE)
+        process = Popen(shell_command, shell=True, stdout=PIPE, stderr=PIPE, start_new_session=True)
         all_txt_err = ''
         all_txt_out = ''
 
@@ -48,7 +49,7 @@ class AnsibleCommandExecutor(object):
                     if process.poll() is not None:
                         break
                     if cancel_sampler.is_cancelled():
-                        process.kill()
+                        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
                         cancel_sampler.throw()
                     time.sleep(2)
 
