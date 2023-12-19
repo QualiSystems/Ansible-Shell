@@ -2,6 +2,6 @@ cloudshell-automation-api>=2022.1.0,<2022.1.1
 cloudshell-shell-core>=5.0.0,<6.0.0
 cloudshell-core>=2.2.0,<2.3.0
 pywinrm>=0.2.2
-paramiko==2.7.2
+paramiko==3.4.0
 requests>=2.16.2
 jsonpickle
