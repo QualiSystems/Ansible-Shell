@@ -11,6 +11,7 @@ class HttpAuth(object):
         self.password = password
         self.token = token
 
+
 class PlaybookDownloader(object):
     CHUNK_SIZE = 1024 * 1024
 
@@ -58,19 +59,20 @@ class PlaybookDownloader(object):
         # assume repo is public, try to download without credentials
         logger.info('Starting download script as public... from \'%s\' ...'%url)
         response = self.http_request_service.get_response(url, auth, verify_certificate)
-        response_valid = self._is_response_valid(logger ,response, "public")
+        response_valid = self._is_response_valid(logger, response, "public")
 
         if response_valid:
             file_name = self.filename_extractor.get_filename(response)
 
         # if fails on public and no auth - no point carry on, user need to fix his URL or add credentials
         if not response_valid and auth is None:
-            raise Exception('Please make sure the URL is valid, and the credentials are correct and necessary.')
+            raise ValueError('Please make sure the URL is valid, and the credentials are correct and necessary.')
 
         # repo is private and token provided
+        # Gitlab Private will succeed with this header as well
         if not response_valid and auth.token is not None:
             logger.info("Token provided. Starting download script with Token...")
-            headers = {"Authorization": "Bearer %s" % auth.token }
+            headers = {"Authorization": "Bearer %s" % auth.token}
             response = self.http_request_service.get_response_with_headers(url, headers, verify_certificate)
             
             response_valid = self._is_response_valid(logger, response, "Token")
