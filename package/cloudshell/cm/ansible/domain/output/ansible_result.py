@@ -6,8 +6,8 @@ from cloudshell.cm.ansible.domain.output.unixToHtmlConverter import UnixToHtmlCo
 
 
 class AnsibleResult(object):
-    START = '\033\[\d+\;\d+m'
-    END = '\033\[0m'
+    START = '\033' + r'\[\d+\;\d+m'
+    END = '\033' + r'\[0m'
     DID_NOT_RUN_ERROR = 'Did not run / no information for this host.'
 
     def __init__(self, output, error, ips):
@@ -47,14 +47,14 @@ class AnsibleResult(object):
 
     def _get_final_table(self):
         table = {}
-        pattern = '^('+self.START+')?(?P<ip>\d+\.\d+\.\d+\.\d+)('+self.END+')?\s*\\t*\:.+unreachable=(?P<unreachable>\d+).+failed=(?P<failed>\d+)'
+        pattern = '^('+self.START+')?' + r'(?P<ip>\d+\.\d+\.\d+\.\d+)' + '('+self.END+')?' + r'\s*\t*\:.+unreachable=(?P<unreachable>\d+).+failed=(?P<failed>\d+)'
         matches = self._scan_for_groups(pattern)
         for m in matches:
             table[m['ip']] = True if int(m['unreachable'])+int(m['failed']) == 0 else False
         return table
 
     def _get_failing_hosts_errors(self):
-        pattern = '^('+self.START+')?fatal: \[(?P<ip>\d+\.\d+\.\d+\.\d+)\]\:.*=>\s*(?P<details>\{.*\})\s*('+self.END+')?$'
+        pattern = '^('+self.START+')?' + r'fatal: \[(?P<ip>\d+\.\d+\.\d+\.\d+)\]\:.*=>\s*(?P<details>\{.*\})\s*' + '('+self.END+')?$'
         matches = self._scan_for_groups(pattern)
         ip_to_error = dict([(m['ip'], UnixToHtmlColorConverter().remove_strike(m['details'])) for m in matches])
         return ip_to_error
@@ -65,7 +65,7 @@ class AnsibleResult(object):
         return matches
 
     def _get_parsed_error(self):
-        pattern = '^('+self.START+')(\[ERROR\]\:|ERROR\!)\s*(?P<txt>.*)\s*('+self.END+')\s*'
+        pattern = '^('+self.START+')' + r'(\[ERROR\]\:|ERROR\!)\s*(?P<txt>.*)\s*' + '('+self.END+')' + r'\s*'
         minimized_error = self.error.replace(os.linesep + os.linesep, os.linesep)
         matches = list(re.finditer(pattern, minimized_error, re.MULTILINE|re.DOTALL))
         if(matches):
