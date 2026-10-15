@@ -16,7 +16,8 @@ setup(
         author_email="support@qualisystems.com",
         description=("A repository for projects providing out of the box capabilities within CloudShell remotely "
                      "configure vm's"),
-        packages=find_packages(),
+        packages=find_packages(exclude=["tests", "tests.*"]),
+        python_requires=">=3.7",
         test_suite='nose.collector',
         test_requires=required_for_tests,
         package_data={'': ['*.txt']},

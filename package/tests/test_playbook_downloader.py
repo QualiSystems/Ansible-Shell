@@ -159,7 +159,7 @@ class TestPlaybookDownloader(TestCase):
         return request_method != "public"
             
     def mock_response_valid_for_credentials(self, logger, response, request_method):
-        return request_method == "username\password"
+        return request_method == "username/password"
 
     def mock_response_valid_for_private_token(self, logger, response, request_method):
         return 'Private-Token' in response.headers

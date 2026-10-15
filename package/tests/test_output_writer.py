@@ -19,4 +19,4 @@ class TestReservationOutputWriter(TestCase):
         output_writer = ReservationOutputWriter(session, context)
         output_writer.write('msg')
 
-        self.assertTrue(session.WriteMessageToReservationOutput.called_with('msg'))
+        session.WriteMessageToReservationOutput.assert_called_once_with(context.reservation.reservation_id, 'msg')
